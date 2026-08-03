@@ -27,7 +27,7 @@ export const WEEKDAY_LABELS: Record<Weekday, string> = {
 
 /** JS `getDay()` (0 = Sun) → ISO weekday (1 = Mon … 7 = Sun). */
 export function isoWeekday(date: Date): Weekday {
-  return ((date.getDay() + 6) % 7 + 1) as Weekday;
+  return (((date.getDay() + 6) % 7) + 1) as Weekday;
 }
 
 /** Empty assignment – no training on any weekday. */
@@ -71,7 +71,7 @@ function addDays(date: Date, days: number): Date {
 }
 
 function findDay(plan: TrainingPlan, dayId: Id | null): TrainingDay | null {
-  return dayId ? plan.days.find((d) => d.id === dayId) ?? null : null;
+  return dayId ? (plan.days.find((d) => d.id === dayId) ?? null) : null;
 }
 
 /**

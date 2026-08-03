@@ -1,0 +1,9 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" width="512" height="512" role="img" aria-label="Til Valhall">
+  <rect width="512" height="512" rx="112" fill="#0F1416"/>
+  <rect x="16" y="16" width="480" height="480" rx="96" fill="none" stroke="#2C383E" stroke-width="8"/>
+  <!-- Tiwaz (ᛏ) – drawn as paths so the icon needs no font. -->
+  <g fill="none" stroke="#D4A537" stroke-width="34" stroke-linecap="square" stroke-linejoin="miter">
+    <path d="M256 148 V 400"/>
+    <path d="M176 232 L 256 140 L 336 232"/>
+  </g>
+</svg>

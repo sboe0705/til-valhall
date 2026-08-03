@@ -1,0 +1,143 @@
+/*
+ * Fonts are self-hosted so the app works offline and there is no FOUT.
+ *
+ * Only the `latin` and `latin-ext` subsets are pulled in – latin-ext carries
+ * the Old Norse letters the tier names need (Rígsþula, Jötunheim, Týr) – plus
+ * the `runic` subset for the Elder Futhark glyphs. Everything else the packages
+ * ship (Cyrillic, Greek, Vietnamese, …) would only bloat the precache.
+ */
+@import '@fontsource/grenze-gotisch/latin-400.css';
+@import '@fontsource/grenze-gotisch/latin-500.css';
+@import '@fontsource/grenze-gotisch/latin-600.css';
+@import '@fontsource/grenze-gotisch/latin-ext-600.css';
+@import '@fontsource/grenze/latin-400.css';
+@import '@fontsource/grenze/latin-500.css';
+@import '@fontsource/grenze/latin-600.css';
+@import '@fontsource/grenze/latin-ext-500.css';
+@import '@fontsource/grenze/latin-ext-600.css';
+@import '@fontsource/ibm-plex-sans/latin-400.css';
+@import '@fontsource/ibm-plex-sans/latin-500.css';
+@import '@fontsource/ibm-plex-sans/latin-600.css';
+@import '@fontsource/ibm-plex-sans/latin-ext-400.css';
+@import '@fontsource/ibm-plex-sans/latin-ext-500.css';
+@import '@fontsource/ibm-plex-mono/latin-400.css';
+@import '@fontsource/ibm-plex-mono/latin-500.css';
+@import '@fontsource/ibm-plex-mono/latin-600.css';
+@import '@fontsource/ibm-plex-mono/latin-ext-400.css';
+@import '@fontsource/noto-sans-runic/runic-400.css';
+
+@import './tokens.css';
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+html,
+body {
+  margin: 0;
+  padding: 0;
+  background: var(--vh-900);
+}
+
+body {
+  font-family: var(--vh-sans);
+  color: var(--vh-050);
+  -webkit-font-smoothing: antialiased;
+  text-wrap: pretty;
+  overscroll-behavior-y: none;
+}
+
+button {
+  font-family: inherit;
+  cursor: pointer;
+}
+
+input {
+  font-family: inherit;
+}
+
+::-webkit-scrollbar {
+  width: 0;
+  height: 0;
+}
+
+* {
+  scrollbar-width: none;
+}
+
+@keyframes vhrise {
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}
+
+/* ------------------------------------------------------------------ */
+/* Shared primitives – repeated verbatim across all four screens.      */
+/* ------------------------------------------------------------------ */
+
+/** Screen body: padding 8/18/28, section gap 16, entry animation. */
+.vh-screen {
+  padding: 8px 18px 28px;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  animation: vhrise var(--vh-t-screen);
+}
+
+/** Eyebrow: mono, uppercase, wide tracking, --vh-400. */
+.vh-eyebrow {
+  font: 500 10px/1 var(--vh-mono);
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--vh-400);
+}
+
+.vh-eyebrow--sm {
+  font-size: 9px;
+  letter-spacing: 0.16em;
+}
+
+.vh-card {
+  background: var(--vh-800);
+  border: 1px solid var(--vh-600);
+  border-radius: var(--vh-r-card);
+}
+
+.vh-h1 {
+  margin: 0;
+  font: 600 30px/1.05 var(--vh-display);
+  color: var(--vh-050);
+}
+
+.vh-hairline {
+  flex: 1;
+  height: 1px;
+  background: var(--vh-600);
+}
+
+.vh-sub {
+  font: 400 13px/1.45 var(--vh-sans);
+  color: var(--vh-200);
+}
+
+.vh-rune {
+  font-family: var(--vh-runic);
+  font-weight: 400;
+}

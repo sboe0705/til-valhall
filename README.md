@@ -1,7 +1,7 @@
-# Til Valhall – Data Model
+# Til Valhall
 
-Data model for training plans in TypeScript, framework-neutral and directly
-usable from Vue 3 / Pinia. Two plan types are supported:
+Data model for training plans in TypeScript, framework-neutral, plus the Vue 3
+app built on it. Two plan types are supported:
 
 - **cyclic** – Day 1 → 2 → 3 → 4 → 1 → …, independent of the calendar
 - **weekday based** – fixed weekday → day mapping, e.g. weekend off
@@ -11,15 +11,33 @@ XP and feeds three parallel ladders (week / month / year) from them.
 
 ```
 src/
-├── model/
-│   ├── training.ts      # types + type guards (the data model proper)
-│   ├── plan-cycle.ts    # rotation, formatting, session creation
-│   ├── schedule.ts      # calendar resolution, weekdays, validation
-│   ├── ranks.ts         # XP awards, rank ladders, period resets
-│   └── ranks.test.ts    # invariants of the XP and rank mechanics (vitest)
-└── data/
-    └── default-plan.ts  # seed: 4-day cycle + weekly plan variant
+├── model/                # the framework-free core
+│   ├── training.ts       # types + type guards (the data model proper)
+│   ├── plan-cycle.ts     # rotation, formatting, session creation
+│   ├── schedule.ts       # calendar resolution, weekdays, validation
+│   ├── plan-edit.ts      # add/remove/move days, positional numbering
+│   └── ranks.ts          # XP awards, rank ladders, period resets
+├── data/
+│   └── default-plan.ts   # seed: 4-day cycle + weekly plan variant
+├── app/                  # pure glue: live session XP, chronicle, German formatting
+├── stores/               # Pinia: training + ranks
+├── ui/ components/ views/ router/ composables/
+e2e/                      # Playwright smoke test
 ```
+
+```
+npm install
+npm run dev          # http://localhost:5173
+npm run test         # Vitest – model, glue and stores
+npm run test:e2e     # Playwright – the four screens end to end
+npm run build        # type-check + production bundle (installable PWA)
+```
+
+The UI is a recreation of the developer handoff in
+[design_handoff_til_valhall/](design_handoff_til_valhall/): German, dark-only,
+mobile-first, four screens (Heute · Plan · Chronik · Ränge). The prototype in
+that folder re-implements the XP maths so the mock could be clickable; none of
+that is ported — every figure on screen comes from `ranks.ts`.
 
 ## Structure
 
@@ -351,53 +369,63 @@ roughly a third there), Asgard can be set to `0.95` with the same move.
 
 ## Vue 3 / Pinia
 
+Two stores mirror the model's split, each with its own storage key
+(`til-valhall.training`, `til-valhall.ranks`) via `pinia-plugin-persistedstate`.
+`useTrainingStore` seeds with `structuredClone(initialState)` — mandatory,
+because `defaultPlan` and `weeklyPlan` share the objects in `days`.
+
+**XP is booked as a delta.** `awardXp()` only ever adds, while the design
+re-books on every tap of a set pill, including unchecking. The store therefore
+keeps `bookedXp[sessionId]` and hands over the difference:
+
 ```ts
-// stores/training.ts
-import { defineStore } from 'pinia';
-import { initialState } from '../data/default-plan';
-import { nextDay } from '../model/plan-cycle';
-import { agenda, dayForDate } from '../model/schedule';
-import type { AgendaEntry } from '../model/schedule';
-import type { TrainingDay, TrainingState } from '../model/training';
-
-export const useTrainingStore = defineStore('training', {
-  // structuredClone is mandatory: defaultPlan and weeklyPlan share the objects
-  // in `days`, so a mutation would otherwise hit both plans.
-  state: (): TrainingState => structuredClone(initialState),
-
-  getters: {
-    activePlan: (s) => (s.activePlanId ? s.plans[s.activePlanId] : null),
-    // works for cyclic and weekly plans alike
-    currentDay(): TrainingDay | null {
-      const p = this.activePlan;
-      return p ? dayForDate(p, new Date(), this.cursors[p.id]) : null;
-    },
-    week(): AgendaEntry[] {
-      const p = this.activePlan;
-      return p ? agenda(p, new Date(), 7, this.cursors[p.id]) : [];
-    },
-  },
-
-  actions: {
-    completeWorkout(sessionId: string) {
-      const s = this.sessions.find(x => x.id === sessionId)!;
-      s.status = 'done';
-      s.finishedAt = new Date().toISOString();
-      const plan = this.plans[s.planId];
-      // only advance the cursor for cyclic plans
-      if (plan.schedule.kind === 'cyclic') {
-        this.cursors[plan.id] = nextDay(plan, s.dayId).id;
-      }
-    },
-  },
-
-  persist: true, // pinia-plugin-persistedstate
-});
+const xp = liveSessionXp(session);              // src/app/session-xp.ts
+const delta = xp - (bookedXp[session.id] ?? 0);
+ranks.award(delta, plan, now, cursors[plan.id]);
+bookedXp[session.id] = xp;
 ```
 
-Mutating directly inside the store is fine (Pinia/Vue reactivity); the functions
-in `plan-cycle.ts` are deliberately free of side effects and therefore
-individually testable.
+A negative delta is what revokes the day bonus when a set is unchecked;
+`bestTier()` never regresses, so `records` survives it — and every reset.
+
+**There is no "finish day" action.** `dayCompleted` is part of
+`liveSessionXp()`, so the bonus appears the moment the last planned set is
+checked and disappears when one is unchecked. The cursor advance follows the
+same condition and is undone from `advancedBy[sessionId]`, which stores the
+cursor value from before the completion. `liveSessionXp()` exists because
+`sessionXp()` returns 0 unless the status is `done`/`rest`; both agree once the
+session is closed.
+
+`rollOver()` runs on app start and on every date change, driven by
+`composables/useNow.ts` (a midnight timer plus `visibilitychange`).
+
+## Deviations from the design handoff
+
+All deliberate; where the handoff and the model disagree, the model wins — as
+the handoff itself prescribes.
+
+1. **The weekday grid is rendered from `schedule.assignments`**, not from list
+   position. The seed `weeklyPlan` puts its rest day on Wednesday while the day
+   sits fifth in the list, and position would draw that wrong. Structural edits
+   re-derive the week with `syncWeekdays()`.
+2. **Month and year ladder shares come from `ranks.ts`**
+   (`0.1 / 0.22 / 0.35 / …`, `0.07 / 0.15 / 0.23 / …`), not from the handoff's
+   proposal — its own open question defers to the model.
+3. **The Plan screen's "perfekte Woche: N XP" is `perfectXp` of the current
+   plan**, while the running period keeps its frozen `ScopeProgress.max`. The
+   invariant beats the copy: a plan edit takes effect at the next roll-over.
+4. **"geschätzt N Min" comes from `estimateDuration()`** and is an upper bound,
+   so it is not the constant the mock shows.
+5. **The rest-day and nothing-scheduled variants of "Heute" were not designed.**
+   They reuse the existing tokens: the rest-day copy with rune `ᛁ` in
+   `--vh-rest` and its 20 XP booked once, or a quieter "kein Tag belegt" card.
+6. **The header shows `plan.name`**, which does not change with the schedule
+   kind — the model has one name per plan, and the schedule switch converts the
+   active plan rather than swapping to another one.
+7. **Fonts are self-hosted** (`@fontsource`, latin + latin-ext + runic subsets)
+   instead of a Google Fonts request, so the installed PWA works offline.
+8. The phone shell, status bar and wordmark around the frame are mock chrome and
+   are not implemented, as the handoff states.
 
 ## Extension points
 
@@ -425,11 +453,11 @@ individually testable.
 
 ## Notes
 
-`Side Plank`, `Triceps Exercise`, `Bow Pull` and `Biceps Exercise` are stored
-with `perSide: true` in the seed data – the side plank because the minute
-applies per side, the biceps curl because both arms are trained separately with
-a resistance band. The flag only affects the display and the duration estimate –
-the XP calculation counts sets, not sides, so the rank figures are unaffected.
+`Seitstütz`, `Trizepsdrücken`, `Bogenzug` and `Bizepscurl` are stored with
+`perSide: true` in the seed data – the side plank because the minute applies per
+side, the biceps curl because both arms are trained separately with a resistance
+band. The flag only affects the display and the duration estimate – the XP
+calculation counts sets, not sides, so the rank figures are unaffected.
 
 All `id` values (`ex-side-plank`, `day-1`, `plan-default`, …) are stable
 persistence keys for localStorage, the session history and rank assets. Display
@@ -437,3 +465,8 @@ names may change freely, ids may not: renaming one once data has been persisted
 requires a migration via `schemaVersion`. The same holds for `RankTier.key`,
 which is why the tier keys stay Old Norse (`konungr`, `asgard`, `odinn`) rather
 than following the display names.
+
+The seed's display names are German because the UI is – the code, the comments
+and the model's own formatting helpers stay English. Everything the screens
+print goes through `src/app/format-de.ts`, so a second language would only need
+a sibling of that module.

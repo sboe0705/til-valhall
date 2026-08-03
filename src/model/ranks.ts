@@ -24,22 +24,6 @@ import type {
 import { isWeekly, isoWeekday } from './schedule';
 import { nextDay, orderedDays } from './plan-cycle';
 
-/**
- * Extra sets make `results[i].sets.length` exceed the plan's target.
- * `plannedSets` records how many sets were originally required – without it a
- * 4th set would be indistinguishable from a target of "4 sets".
- *
- * Deliberately declared here instead of in `training.ts`: the field belongs to
- * the overflow mechanic. If you prefer it in the core model, move it onto
- * `BlockResult` and delete this block – `createSession()` should then populate
- * it with `block.sets` right away.
- */
-declare module './training' {
-  interface BlockResult {
-    plannedSets?: number;
-  }
-}
-
 /* ------------------------------------------------------------------ */
 /* Ladders                                                             */
 /* ------------------------------------------------------------------ */
@@ -83,7 +67,12 @@ export const MONTHLY_TIERS: RankTier[] = [
   { key: 'helheim', name: 'Helheim', gloss: 'Realm of Hel', share: 0.1 },
   { key: 'muspelheim', name: 'Muspelheim', gloss: 'World of fire', share: 0.22 },
   { key: 'jotunheim', name: 'Jötunheim', gloss: 'Land of the giants', share: 0.35 },
-  { key: 'svartalfaheim', name: 'Svartálfaheim', gloss: 'Realm of the dark elves', share: 0.48 },
+  {
+    key: 'svartalfaheim',
+    name: 'Svartálfaheim',
+    gloss: 'Realm of the dark elves',
+    share: 0.48,
+  },
   { key: 'midgard', name: 'Midgard', gloss: 'World of humans', share: 0.61 },
   { key: 'alfheim', name: 'Álfheim', gloss: 'Realm of the light elves', share: 0.74 },
   { key: 'vanaheim', name: 'Vanaheim', gloss: 'Home of the Vanir', share: 0.87 },
@@ -256,10 +245,7 @@ function plannedSetsOf(result: BlockResult): number {
 }
 
 /** XP of a completed session. */
-export function sessionXp(
-  session: WorkoutSession,
-  cfg: XpConfig = DEFAULT_XP,
-): number {
+export function sessionXp(session: WorkoutSession, cfg: XpConfig = DEFAULT_XP): number {
   if (session.status === 'rest') return cfg.restDay;
   if (session.status !== 'done') return 0;
 
@@ -357,10 +343,7 @@ function addDays(date: Date, days: number): Date {
 }
 
 /** First day and length of the period that `date` falls into. */
-export function periodRange(
-  scope: RankScope,
-  date: Date,
-): { start: Date; days: number } {
+export function periodRange(scope: RankScope, date: Date): { start: Date; days: number } {
   if (scope === 'week') {
     return { start: addDays(date, -((date.getDay() + 6) % 7)), days: 7 };
   }
@@ -474,8 +457,7 @@ export function perfectSetBase(
     if (plan.days.length === 0) return 0;
     const exact = cyclicSum(plan, days, startDayId, (d) => setBaseXp(d, cfg));
     if (exact !== null) return exact;
-    const avg =
-      plan.days.reduce((s, d) => s + setBaseXp(d, cfg), 0) / plan.days.length;
+    const avg = plan.days.reduce((s, d) => s + setBaseXp(d, cfg), 0) / plan.days.length;
     return Math.round(avg * days);
   }
 
@@ -614,11 +596,7 @@ export function tierFor(scope: RankScope, xp: number, max: number): ResolvedTier
   return current;
 }
 
-export function nextTier(
-  scope: RankScope,
-  xp: number,
-  max: number,
-): ResolvedTier | null {
+export function nextTier(scope: RankScope, xp: number, max: number): ResolvedTier | null {
   return resolveTiers(scope, max).find((t) => t.minXp > xp) ?? null;
 }
 

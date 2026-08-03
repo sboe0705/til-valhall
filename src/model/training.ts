@@ -6,13 +6,7 @@
 export type Id = string;
 
 export type MuscleGroup =
-  | 'core'
-  | 'chest'
-  | 'back'
-  | 'shoulders'
-  | 'arms'
-  | 'legs'
-  | 'fullBody';
+  'core' | 'chest' | 'back' | 'shoulders' | 'arms' | 'legs' | 'fullBody';
 
 /** Master data of an exercise – independent of sets/reps. */
 export interface Exercise {
@@ -74,8 +68,7 @@ export type WeekdayAssignments = Record<Weekday, Id | null>;
  * - `weekly`: fixed weekday → day mapping, e.g. weekends off.
  */
 export type PlanSchedule =
-  | { kind: 'cyclic' }
-  | { kind: 'weekly'; assignments: WeekdayAssignments };
+  { kind: 'cyclic' } | { kind: 'weekly'; assignments: WeekdayAssignments };
 
 /** The plan itself: `days` = definition, `schedule` = mapping onto the calendar. */
 export interface TrainingPlan {
@@ -106,15 +99,19 @@ export interface BlockResult {
   blockId: Id;
   exerciseId: Id;
   sets: SetResult[];
+  /**
+   * How many sets the plan asked for when the session was created.
+   *
+   * Extra sets make `sets.length` exceed the target – without this field a 4th
+   * set would be indistinguishable from a target of "4 sets". Written by
+   * `createSession()`; consumers fall back to `sets.length` for sessions that
+   * were persisted before the field existed.
+   */
+  plannedSets?: number;
   note?: string;
 }
 
-export type SessionStatus =
-  | 'planned'
-  | 'inProgress'
-  | 'done'
-  | 'skipped'
-  | 'rest';
+export type SessionStatus = 'planned' | 'inProgress' | 'done' | 'skipped' | 'rest';
 
 /** A concrete workout on a given date. */
 export interface WorkoutSession {
@@ -152,10 +149,8 @@ export interface TrainingState {
 /* Type guards                                                         */
 /* ------------------------------------------------------------------ */
 
-export const isRepTarget = (
-  t: Target,
-): t is Extract<Target, { kind: 'reps' }> => t.kind === 'reps';
+export const isRepTarget = (t: Target): t is Extract<Target, { kind: 'reps' }> =>
+  t.kind === 'reps';
 
-export const isDurationTarget = (
-  t: Target,
-): t is Extract<Target, { kind: 'duration' }> => t.kind === 'duration';
+export const isDurationTarget = (t: Target): t is Extract<Target, { kind: 'duration' }> =>
+  t.kind === 'duration';

@@ -51,8 +51,9 @@ describe('ladders', () => {
   });
 
   it('weekly thresholds for a perfect week of the weekly plan', () => {
-    expect(resolveTiers('week', perfectXp(weeklyPlan, 'week', AUG)).map((t) => t.minXp))
-      .toEqual([0, 98, 221, 353, 490]);
+    expect(
+      resolveTiers('week', perfectXp(weeklyPlan, 'week', AUG)).map((t) => t.minXp),
+    ).toEqual([0, 98, 221, 353, 490]);
   });
 
   it('without a reference value the lowest tier stands', () => {
@@ -64,7 +65,9 @@ describe('ladders', () => {
 
 describe('XP curves', () => {
   it('three-set block including extra sets', () => {
-    expect([1, 2, 3, 4, 5, 6, 7].map((c) => blockXp(c, 3))).toEqual([5, 12, 30, 38, 41, 41, 41]);
+    expect([1, 2, 3, 4, 5, 6, 7].map((c) => blockXp(c, 3))).toEqual([
+      5, 12, 30, 38, 41, 41, 41,
+    ]);
   });
 
   it('interpolates for differing set counts', () => {
@@ -72,7 +75,9 @@ describe('XP curves', () => {
   });
 
   it('daily XP of the seed data', () => {
-    expect(orderedDays(weeklyPlan).map((d) => potentialXp(d))).toEqual([140, 110, 110, 110, 20]);
+    expect(orderedDays(weeklyPlan).map((d) => potentialXp(d))).toEqual([
+      140, 110, 110, 110, 20,
+    ]);
   });
 
   it('a fully completed session equals potentialXp', () => {
@@ -81,7 +86,9 @@ describe('XP curves', () => {
   });
 
   it('a rest day session counts as a flat rate', () => {
-    expect(sessionXp(createSession(weeklyPlan, weeklyPlan.days[4], AUG, 'r'))).toBe(DEFAULT_XP.restDay);
+    expect(sessionXp(createSession(weeklyPlan, weeklyPlan.days[4], AUG, 'r'))).toBe(
+      DEFAULT_XP.restDay,
+    );
   });
 
   it('extra sets are capped and only possible once the target is met', () => {
@@ -160,7 +167,12 @@ describe('periods', () => {
 
   it('rollOver archives and is idempotent', () => {
     let ranks = createRankState(weeklyPlan, AUG);
-    ranks = applySession(ranks, completed(defaultPlan, defaultPlan.days[0]), weeklyPlan, AUG);
+    ranks = applySession(
+      ranks,
+      completed(defaultPlan, defaultPlan.days[0]),
+      weeklyPlan,
+      AUG,
+    );
     expect(ranks.week.xp).toBe(140);
 
     const rolled = rollOver(ranks, weeklyPlan, new Date(2026, 7, 10));
@@ -183,13 +195,14 @@ describe('year simulation 2026', () => {
       let day: TrainingDay | null;
       if (plan.schedule.kind === 'weekly') {
         const id = plan.schedule.assignments[isoWeekday(date)];
-        day = id ? byId.get(id) ?? null : null;
+        day = id ? (byId.get(id) ?? null) : null;
       } else {
         day = cyclic;
         cyclic = nextDay(plan, cyclic.id);
       }
       // rotating miss – hits every weekday equally often
-      const skip = skipEvery > 0 && i % skipEvery === Math.floor(i / skipEvery) % skipEvery;
+      const skip =
+        skipEvery > 0 && i % skipEvery === Math.floor(i / skipEvery) % skipEvery;
       if (day && !skip) xp += potentialXp(day);
       if (!odin && xp >= Math.round(0.9 * max)) odin = toIsoDate(date);
     }

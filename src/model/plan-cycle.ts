@@ -122,6 +122,7 @@ export function createSession(
   const results: BlockResult[] = blocksInOrder(day).map((b) => ({
     blockId: b.id,
     exerciseId: b.exerciseId,
+    plannedSets: b.sets,
     sets: Array.from({ length: b.sets }, (_, setIndex) => ({
       setIndex,
       completed: false,

@@ -1,0 +1,8 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" width="512" height="512" role="img" aria-label="Til Valhall">
+  <!-- Maskable: the glyph stays inside the inner 80 % safe zone. -->
+  <rect width="512" height="512" fill="#0F1416"/>
+  <g fill="none" stroke="#D4A537" stroke-width="28" stroke-linecap="square" stroke-linejoin="miter">
+    <path d="M256 180 V 372"/>
+    <path d="M195 244 L 256 174 L 317 244"/>
+  </g>
+</svg>

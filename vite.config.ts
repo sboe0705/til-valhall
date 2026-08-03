@@ -4,8 +4,16 @@ import vue from '@vitejs/plugin-vue';
 import { defineConfig } from 'vite';
 import { VitePWA } from 'vite-plugin-pwa';
 
+/**
+ * GitHub Pages serves a project repo from /<repo>/, so the CI build passes the
+ * prefix in. Locally and in `npm run dev` it stays the domain root — which also
+ * keeps the Playwright `baseURL` valid.
+ */
+const base = process.env.VITE_BASE ?? '/';
+
 // https://vite.dev/config/
 export default defineConfig({
+  base,
   plugins: [
     vue(),
     VitePWA({
@@ -17,7 +25,9 @@ export default defineConfig({
         description:
           'Trainingsplan und Rangleitern – jeder abgehakte Satz füllt Woche, Monat und Jahr.',
         lang: 'de',
-        start_url: '/',
+        // Must follow `base`, or the installed PWA opens outside its own scope.
+        start_url: base,
+        scope: base,
         display: 'standalone',
         orientation: 'portrait',
         background_color: '#0F1416',

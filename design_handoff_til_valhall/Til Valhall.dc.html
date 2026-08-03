@@ -1,0 +1,1032 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet data-dc-atomics>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Grenze+Gotisch:wght@400;500;600;700&family=Grenze:ital,wght@0,400;0,500;0,600;0,700;1,400&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500;600&family=Noto+Sans+Runic&display=swap" rel="stylesheet">
+<style>
+html,body{margin:0;padding:0;background:#0F1416}
+body{font-family:'IBM Plex Sans',system-ui,sans-serif;color:#E8EDEF;-webkit-font-smoothing:antialiased;text-wrap:pretty}
+*{box-sizing:border-box}
+a{color:#D4A537;text-decoration:none}
+a:hover{color:#E0B23C}
+button{font-family:inherit;cursor:pointer}
+::-webkit-scrollbar{width:0;height:0}
+@keyframes vhrise{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
+@keyframes vhpop{0%{transform:scale(1)}45%{transform:scale(1.14)}100%{transform:scale(1)}}
+</style>
+</helmet>
+
+<div style="min-height:100vh;background:#0F1416;display:flex;justify-content:center;align-items:flex-start;padding:32px 16px 56px">
+<div style="display:flex;flex-direction:column;align-items:center;gap:16px">
+
+<div style="display:flex;align-items:center;gap:10px">
+<span style="font:400 18px/1 'Noto Sans Runic',serif;color:#D4A537">ᛏᛁᛚ</span>
+<span style="font:600 15px/1 'Grenze Gotisch',serif;letter-spacing:.22em;text-transform:uppercase;color:#6B7B84">Til Valhall</span>
+<span style="font:400 18px/1 'Noto Sans Runic',serif;color:#D4A537">ᚹᚨᛚᚺᚨᛚ</span>
+</div>
+
+<div style="width:390px;height:844px;background:#0F1416;border:1px solid #2C383E;border-radius:38px;overflow:hidden;display:flex;flex-direction:column;position:relative;outline:10px solid #161D21">
+
+<div style="height:42px;flex:none;display:flex;align-items:center;justify-content:space-between;padding:0 24px;font:500 12px/1 'IBM Plex Mono',monospace;color:#AFBCC2">
+<span>07:14</span>
+<span style="display:flex;gap:6px;align-items:center"><span style="font:400 11px/1 'IBM Plex Mono',monospace;color:#6B7B84">LTE</span><span style="width:22px;height:10px;border:1px solid #6B7B84;border-radius:2px;display:inline-block;position:relative"><span style="position:absolute;left:1px;top:1px;bottom:1px;width:14px;background:#AFBCC2;display:block"></span></span></span>
+</div>
+
+<div style="flex:1;overflow-y:auto;overflow-x:hidden">
+
+<sc-if value="{{ isHeute }}" hint-placeholder-val="{{ true }}">
+<div style="padding:8px 18px 28px;display:flex;flex-direction:column;gap:16px;animation:vhrise .24s ease">
+
+<div style="display:flex;flex-direction:column;gap:5px">
+<div style="display:flex;align-items:center;justify-content:space-between">
+<span style="font:500 10px/1 'IBM Plex Mono',monospace;letter-spacing:.18em;text-transform:uppercase;color:#6B7B84">{{ headerDate }}</span>
+<span style="font:500 10px/1 'IBM Plex Mono',monospace;letter-spacing:.12em;color:#6B7B84">{{ planName }}</span>
+</div>
+<h1 style="margin:0;font:600 32px/1.02 'Grenze Gotisch',serif;color:#E8EDEF">{{ todayDayName }}</h1>
+<span style="font:400 13px/1.45 'IBM Plex Sans',sans-serif;color:#AFBCC2">{{ todaySub }}</span>
+</div>
+
+<div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;padding:13px 14px;background:#161D21;border:1px solid #2C383E;border-radius:12px">
+<sc-for list="{{ strip }}" as="s" hint-placeholder-count="3">
+<div style="display:flex;flex-direction:column;gap:6px;min-width:0">
+<span style="font:500 9px/1 'IBM Plex Mono',monospace;letter-spacing:.16em;text-transform:uppercase;color:#6B7B84">{{ s.label }}</span>
+<span style="font:600 15px/1.1 'Grenze',serif;color:#E8EDEF;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">{{ s.tierName }}</span>
+<div style="height:3px;background:#2C383E;border-radius:2px;overflow:hidden"><div style="height:3px;border-radius:2px;transition:width .35s ease;width: {{ s.pct }}%;background: {{ s.color }}"></div></div>
+<span style="font:400 10px/1 'IBM Plex Mono',monospace;color:#6B7B84">{{ s.pctText }}</span>
+</div>
+</sc-for>
+</div>
+
+<div style="padding:15px 16px;background:#161D21;border:1px solid #2C383E;border-radius:14px;display:flex;flex-direction:column;gap:12px;position:relative">
+<div style="position:absolute;top:9px;right:11px;font:400 15px/1 'Noto Sans Runic',serif;color:#2C383E">ᛞ</div>
+<div style="display:flex;align-items:flex-end;justify-content:space-between;gap:12px">
+<div style="display:flex;flex-direction:column;gap:3px">
+<span style="font:500 9px/1 'IBM Plex Mono',monospace;letter-spacing:.16em;text-transform:uppercase;color:#6B7B84">Tagesbeute</span>
+<div style="display:flex;align-items:baseline;gap:5px">
+<span style="font:600 30px/1 'IBM Plex Mono',monospace;color:#D4A537;transition:color .2s">{{ todayXp }}</span>
+<span style="font:400 13px/1 'IBM Plex Mono',monospace;color:#6B7B84">/ {{ todayXpMax }} XP</span>
+</div>
+</div>
+<span style="font:400 11px/1.3 'IBM Plex Sans',sans-serif;color:#AFBCC2;text-align:right;max-width:150px">{{ todayHint }}</span>
+</div>
+<div style="height:6px;background:#0F1416;border:1px solid #2C383E;border-radius:4px;overflow:hidden;padding:0">
+<div style="height:4px;background:#D4A537;transition:width .35s ease;width: {{ todayPct }}%"></div>
+</div>
+</div>
+
+<div style="display:flex;align-items:center;gap:10px;margin-top:2px">
+<span style="font:500 10px/1 'IBM Plex Mono',monospace;letter-spacing:.18em;text-transform:uppercase;color:#6B7B84">Sätze</span>
+<div style="flex:1;height:1px;background:#2C383E"></div>
+<span style="font:400 10px/1 'IBM Plex Mono',monospace;color:#6B7B84">{{ setsDoneText }}</span>
+</div>
+
+<sc-for list="{{ blocks }}" as="b" hint-placeholder-count="3">
+<div style="background:#161D21;border:1px solid #2C383E;border-radius:14px;padding:14px 15px 15px;display:flex;flex-direction:column;gap:12px;border-left-width:1px">
+<div style="display:flex;align-items:flex-start;justify-content:space-between;gap:10px">
+<div style="display:flex;flex-direction:column;gap:4px;min-width:0">
+<span style="font:600 17px/1.15 'Grenze',serif;color:#E8EDEF">{{ b.name }}</span>
+<span style="font:400 12px/1.3 'IBM Plex Mono',monospace;color:#AFBCC2">{{ b.target }}</span>
+<span style="font:400 11px/1.3 'IBM Plex Sans',sans-serif;color:#6B7B84">{{ b.muscles }}</span>
+</div>
+<span style="font:500 11px/1 'IBM Plex Mono',monospace;color: {{ b.xpColor }};white-space:nowrap;padding-top:2px">{{ b.xpText }}</span>
+</div>
+<div style="display:flex;gap:8px;flex-wrap:wrap;align-items:center">
+<sc-for list="{{ b.sets }}" as="s" hint-placeholder-count="3">
+<button type="button" onClick="{{ s.onClick }}" style="width:52px;height:52px;border-radius:10px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;padding:0;transition:background .18s,border-color .18s,color .18s;background: {{ s.bg }};border: 1px solid {{ s.border }};color: {{ s.fg }}" style-hover="border-color:#6B7B84">
+<span style="font:500 15px/1 'IBM Plex Mono',monospace">{{ s.mark }}</span>
+<span style="font:400 9px/1 'IBM Plex Mono',monospace;opacity:.72">{{ s.xp }}</span>
+</button>
+</sc-for>
+<sc-if value="{{ b.canExtra }}" hint-placeholder-val="{{ false }}">
+<button type="button" onClick="{{ b.onExtra }}" style="height:52px;padding:0 13px;border-radius:10px;background:#0F1416;border:1px dashed #B5763A;color:#B5763A;font:500 11px/1.2 'IBM Plex Mono',monospace;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px" style-hover="background:#1F282D">
+<span style="font:400 14px/1 'Noto Sans Runic',serif">ᚹ</span>
+<span>Extra</span>
+</button>
+</sc-if>
+</div>
+<sc-if value="{{ b.hasNote }}" hint-placeholder-val="{{ false }}">
+<span style="font:400 11px/1.35 'IBM Plex Sans',sans-serif;color: {{ b.noteColor }}">{{ b.note }}</span>
+</sc-if>
+</div>
+</sc-for>
+
+<span style="font:400 11px/1.4 'IBM Plex Sans',sans-serif;color:#6B7B84;text-align:center;margin-top:2px">{{ finishHint }}</span>
+
+</div>
+</sc-if>
+
+<sc-if value="{{ isPlan }}" hint-placeholder-val="{{ false }}">
+<div style="padding:8px 18px 28px;display:flex;flex-direction:column;gap:16px;animation:vhrise .24s ease">
+
+<div style="display:flex;flex-direction:column;gap:5px">
+<span style="font:500 10px/1 'IBM Plex Mono',monospace;letter-spacing:.18em;text-transform:uppercase;color:#6B7B84">Der Plan</span>
+<h1 style="margin:0;font:600 30px/1.05 'Grenze Gotisch',serif;color:#E8EDEF">{{ planName }}</h1>
+<span style="font:400 13px/1.45 'IBM Plex Sans',sans-serif;color:#AFBCC2">{{ planSub }}</span>
+</div>
+
+<div style="display:flex;gap:0;background:#161D21;border:1px solid #2C383E;border-radius:11px;padding:4px">
+<sc-for list="{{ kindTabs }}" as="k" hint-placeholder-count="2">
+<button type="button" onClick="{{ k.onClick }}" style="flex:1;height:38px;border:none;border-radius:8px;font:500 12px/1 'IBM Plex Sans',sans-serif;letter-spacing:.04em;transition:background .18s,color .18s;background: {{ k.bg }};color: {{ k.fg }}">{{ k.label }}</button>
+</sc-for>
+</div>
+
+<sc-if value="{{ isCyclic }}" hint-placeholder-val="{{ true }}">
+<div style="background:#161D21;border:1px solid #2C383E;border-radius:14px;padding:15px;display:flex;flex-direction:column;gap:13px">
+<div style="display:flex;align-items:center;justify-content:space-between">
+<span style="font:500 9px/1 'IBM Plex Mono',monospace;letter-spacing:.16em;text-transform:uppercase;color:#6B7B84">Rotation</span>
+<span style="font:400 10px/1 'IBM Plex Mono',monospace;color:#6B7B84">kalenderunabhängig</span>
+</div>
+<div style="display:flex;align-items:center;gap:6px">
+<sc-for list="{{ cycleChips }}" as="c" hint-placeholder-count="4">
+<div style="flex:1;display:flex;flex-direction:column;align-items:center;gap:6px">
+<div style="width:100%;height:46px;border-radius:9px;display:flex;align-items:center;justify-content:center;font:600 15px/1 'Grenze',serif;background: {{ c.bg }};border: 1px solid {{ c.border }};color: {{ c.fg }}">{{ c.short }}</div>
+<span style="font:400 9px/1 'IBM Plex Mono',monospace;color: {{ c.markColor }}">{{ c.mark }}</span>
+</div>
+</sc-for>
+</div>
+<span style="font:400 11px/1.45 'IBM Plex Sans',sans-serif;color:#6B7B84">Der Zeiger rückt erst vor, wenn ein Tag abgeschlossen ist – nach einer Pause geht es dort weiter, wo du aufgehört hast.</span>
+</div>
+</sc-if>
+
+<sc-if value="{{ isWeekly }}" hint-placeholder-val="{{ false }}">
+<div style="background:#161D21;border:1px solid #2C383E;border-radius:14px;padding:15px;display:flex;flex-direction:column;gap:12px">
+<span style="font:500 9px/1 'IBM Plex Mono',monospace;letter-spacing:.16em;text-transform:uppercase;color:#6B7B84">Wochentage</span>
+<div style="display:grid;grid-template-columns:repeat(7,1fr);gap:5px">
+<sc-for list="{{ weekdayCells }}" as="w" hint-placeholder-count="7">
+<div style="display:flex;flex-direction:column;align-items:center;gap:5px">
+<span style="font:500 10px/1 'IBM Plex Mono',monospace;color:#6B7B84">{{ w.wd }}</span>
+<div style="width:100%;height:54px;border-radius:8px;display:flex;align-items:center;justify-content:center;font:600 13px/1 'Grenze',serif;background: {{ w.bg }};border: 1px solid {{ w.border }};color: {{ w.fg }}">{{ w.label }}</div>
+</div>
+</sc-for>
+</div>
+<span style="font:400 11px/1.45 'IBM Plex Sans',sans-serif;color:#6B7B84">Die Belegung folgt der Reihenfolge der Tage-Liste, beginnend am Montag. Verschiebe die Tage unten, um die Woche umzustellen.</span>
+</div>
+</sc-if>
+
+<div style="display:flex;align-items:center;gap:10px;margin-top:2px">
+<span style="font:500 10px/1 'IBM Plex Mono',monospace;letter-spacing:.18em;text-transform:uppercase;color:#6B7B84">Tage</span>
+<div style="flex:1;height:1px;background:#2C383E"></div>
+<span style="font:400 10px/1 'IBM Plex Mono',monospace;color:#6B7B84">{{ planTotalText }}</span>
+</div>
+
+<sc-for list="{{ planDays }}" as="d" hint-placeholder-count="5">
+<div style="background:#161D21;border-radius:14px;border: 1px solid {{ d.cardBorder }};overflow:hidden">
+<div style="display:flex;align-items:stretch;transition:background .18s" style-hover="background:#1F282D">
+<div style="flex:none;display:flex;flex-direction:column;justify-content:center;gap:4px;padding:10px 0 10px 10px">
+<button type="button" onClick="{{ d.onUp }}" style="width:28px;height:25px;border-radius:6px;background:#0F1416;border:1px solid #2C383E;padding:0;font:500 11px/1 'IBM Plex Mono',monospace;color: {{ d.upColor }}" style-hover="border-color:#6B7B84">▴</button>
+<button type="button" onClick="{{ d.onDown }}" style="width:28px;height:25px;border-radius:6px;background:#0F1416;border:1px solid #2C383E;padding:0;font:500 11px/1 'IBM Plex Mono',monospace;color: {{ d.downColor }}" style-hover="border-color:#6B7B84">▾</button>
+</div>
+<button type="button" onClick="{{ d.onToggle }}" style="flex:1;min-width:0;background:none;border:none;padding:14px 15px;display:flex;align-items:center;justify-content:space-between;gap:12px;text-align:left">
+<div style="display:flex;flex-direction:column;gap:4px;min-width:0">
+<div style="display:flex;align-items:center;gap:8px">
+<span style="font:600 17px/1.1 'Grenze',serif;color:#E8EDEF">{{ d.name }}</span>
+<sc-if value="{{ d.hasSlot }}" hint-placeholder-val="{{ false }}">
+<span style="font:500 9px/1 'IBM Plex Mono',monospace;letter-spacing:.1em;text-transform:uppercase;padding:3px 6px;border-radius:4px;color: {{ d.slotFg }};background: {{ d.slotBg }}">{{ d.slot }}</span>
+</sc-if>
+</div>
+<span style="font:400 11px/1.3 'IBM Plex Sans',sans-serif;color:#6B7B84">{{ d.meta }}</span>
+</div>
+<div style="display:flex;align-items:center;gap:10px;flex:none">
+<span style="font:500 12px/1 'IBM Plex Mono',monospace;color: {{ d.xpColor }}">{{ d.xpText }}</span>
+<span style="font:400 12px/1 'IBM Plex Mono',monospace;color:#6B7B84">{{ d.caret }}</span>
+</div>
+</button>
+</div>
+<sc-if value="{{ d.open }}" hint-placeholder-val="{{ false }}">
+<div style="padding:13px 15px 15px;display:flex;flex-direction:column;gap:9px;border-top:1px solid #2C383E">
+<sc-for list="{{ d.rows }}" as="r" hint-placeholder-count="2">
+<div style="display:flex;align-items:center;justify-content:space-between;gap:10px">
+<div style="display:flex;flex-direction:column;gap:2px;min-width:0">
+<span style="font:500 13px/1.2 'IBM Plex Sans',sans-serif;color:#E8EDEF">{{ r.name }}</span>
+<span style="font:400 11px/1.2 'IBM Plex Mono',monospace;color:#6B7B84">{{ r.target }}</span>
+</div>
+<span style="font:500 12px/1 'IBM Plex Mono',monospace;color:#AFBCC2;flex:none">{{ r.setsText }}</span>
+</div>
+</sc-for>
+<sc-if value="{{ d.isRest }}" hint-placeholder-val="{{ false }}">
+<div style="display:flex;align-items:center;gap:9px;padding:11px 12px;background:#0F1416;border:1px solid #2C383E;border-radius:9px">
+<span style="font:400 15px/1 'Noto Sans Runic',serif;color:#5B8CA8">ᛁ</span>
+<span style="font:400 11px/1.4 'IBM Plex Sans',sans-serif;color:#AFBCC2">Geplanter Ruhetag. Zählt in der Rotation mit und bringt 20 XP – belohnt wird der Plan, nicht die Aktivität.</span>
+</div>
+</sc-if>
+<div style="display:flex;align-items:center;justify-content:space-between;gap:12px;padding-top:11px;border-top:1px solid #2C383E">
+<span style="font:400 10px/1.4 'IBM Plex Sans',sans-serif;color:#6B7B84;min-width:0">Übungen und Sätze werden beim Anlegen eines Tages festgelegt.</span>
+<button type="button" onClick="{{ d.onDelete }}" style="flex:none;height:34px;padding:0 12px;border-radius:8px;background:#0F1416;font:500 11px/1 'IBM Plex Sans',sans-serif;border: 1px solid {{ d.delBorder }};color: {{ d.delColor }}" style-hover="border-color:#C8452B;color:#C8452B">{{ d.delLabel }}</button>
+</div>
+</div>
+</sc-if>
+</div>
+</sc-for>
+
+<sc-if value="{{ addOpen }}" hint-placeholder-val="{{ false }}">
+<div style="background:#161D21;border:1px solid #D4A537;border-radius:14px;padding:15px;display:flex;flex-direction:column;gap:13px">
+<div style="display:flex;align-items:center;justify-content:space-between;gap:10px">
+<span style="font:600 17px/1.1 'Grenze',serif;color:#E8EDEF">Neuer Tag</span>
+<span style="font:500 12px/1 'IBM Plex Mono',monospace;color:#D4A537">{{ draftXpText }}</span>
+</div>
+<input value="{{ draftName }}" onChange="{{ onDraftName }}" placeholder="Bezeichnung, z. B. Zug &amp; Rumpf" style="height:44px;border-radius:9px;background:#0F1416;border:1px solid #2C383E;color:#E8EDEF;padding:0 13px;font:500 14px/1 'IBM Plex Sans',sans-serif;outline:none" style-focus="border-color:#D4A537" />
+<div style="display:flex;gap:8px">
+<button type="button" onClick="{{ onDraftWork }}" style="flex:1;height:38px;border-radius:8px;font:500 12px/1 'IBM Plex Sans',sans-serif;background: {{ workBg }};border: 1px solid {{ workBorder }};color: {{ workFg }}">Trainingstag</button>
+<button type="button" onClick="{{ onDraftRest }}" style="flex:1;height:38px;border-radius:8px;font:500 12px/1 'IBM Plex Sans',sans-serif;background: {{ restBg }};border: 1px solid {{ restBorder }};color: {{ restFg }}">Ruhetag</button>
+</div>
+<sc-if value="{{ draftIsWork }}" hint-placeholder-val="{{ true }}">
+<div style="display:flex;flex-direction:column;gap:9px">
+<sc-for list="{{ draftBlocks }}" as="r" hint-placeholder-count="0">
+<div style="display:flex;align-items:center;justify-content:space-between;gap:9px;padding:10px 11px;background:#0F1416;border:1px solid #2C383E;border-radius:9px">
+<div style="display:flex;flex-direction:column;gap:2px;min-width:0">
+<span style="font:500 13px/1.2 'IBM Plex Sans',sans-serif;color:#E8EDEF">{{ r.name }}</span>
+<span style="font:400 11px/1.2 'IBM Plex Mono',monospace;color:#6B7B84">{{ r.target }}</span>
+</div>
+<div style="display:flex;align-items:center;gap:6px;flex:none">
+<button type="button" onClick="{{ r.onMinus }}" style="width:30px;height:30px;border-radius:7px;background:#161D21;border:1px solid #2C383E;color:#AFBCC2;font:500 15px/1 'IBM Plex Mono',monospace;padding:0" style-hover="border-color:#6B7B84">−</button>
+<span style="font:500 12px/1 'IBM Plex Mono',monospace;color:#E8EDEF;min-width:20px;text-align:center">{{ r.sets }}</span>
+<button type="button" onClick="{{ r.onPlus }}" style="width:30px;height:30px;border-radius:7px;background:#161D21;border:1px solid #2C383E;color:#AFBCC2;font:500 15px/1 'IBM Plex Mono',monospace;padding:0" style-hover="border-color:#6B7B84">+</button>
+<button type="button" onClick="{{ r.onRemove }}" style="width:30px;height:30px;border-radius:7px;background:#161D21;border:1px solid #2C383E;color:#A63A2C;font:500 13px/1 'IBM Plex Mono',monospace;padding:0" style-hover="border-color:#A63A2C">×</button>
+</div>
+</div>
+</sc-for>
+<span style="font:500 9px/1 'IBM Plex Mono',monospace;letter-spacing:.16em;text-transform:uppercase;color:#6B7B84;padding-top:2px">Übungskatalog</span>
+<div style="display:flex;flex-wrap:wrap;gap:6px">
+<sc-for list="{{ catalog }}" as="c" hint-placeholder-count="9">
+<button type="button" onClick="{{ c.onAdd }}" style="padding:8px 11px;border-radius:8px;font:400 12px/1.2 'IBM Plex Sans',sans-serif;background:#0F1416;border: 1px solid {{ c.border }};color: {{ c.fg }}" style-hover="border-color:#6B7B84">{{ c.label }}</button>
+</sc-for>
+</div>
+</div>
+</sc-if>
+<div style="display:flex;gap:8px;padding-top:11px;border-top:1px solid #2C383E">
+<button type="button" onClick="{{ onDraftCancel }}" style="flex:1;height:46px;border-radius:10px;background:#0F1416;border:1px solid #2C383E;color:#AFBCC2;font:500 13px/1 'IBM Plex Sans',sans-serif" style-hover="border-color:#6B7B84">Abbrechen</button>
+<button type="button" onClick="{{ onDraftSave }}" style="flex:1;height:46px;border-radius:10px;font:600 13px/1 'Grenze',serif;letter-spacing:.06em;text-transform:uppercase;background: {{ saveBg }};border: 1px solid {{ saveBorder }};color: {{ saveFg }}">Tag anlegen</button>
+</div>
+</div>
+</sc-if>
+
+<sc-if value="{{ canAdd }}" hint-placeholder-val="{{ true }}">
+<button type="button" onClick="{{ onAddStart }}" style="height:48px;border-radius:11px;background:#0F1416;border:1px dashed #6B7B84;color:#AFBCC2;font:500 13px/1 'IBM Plex Sans',sans-serif;display:flex;align-items:center;justify-content:center;gap:8px" style-hover="border-color:#D4A537;color:#D4A537">
+<span style="font:400 15px/1 'IBM Plex Mono',monospace">+</span>
+<span>Tag hinzufügen</span>
+</button>
+</sc-if>
+
+<div style="display:flex;align-items:flex-start;gap:10px;padding:13px 14px;background:#161D21;border:1px solid #2C383E;border-radius:12px;margin-top:2px">
+<span style="font:400 15px/1 'Noto Sans Runic',serif;color: {{ validColor }}">{{ validRune }}</span>
+<div style="display:flex;flex-direction:column;gap:3px">
+<span style="font:500 12px/1.2 'IBM Plex Sans',sans-serif;color: {{ validColor }}">{{ validTitle }}</span>
+<span style="font:400 11px/1.4 'IBM Plex Sans',sans-serif;color:#6B7B84">{{ validText }}</span>
+</div>
+</div>
+
+</div>
+</sc-if>
+
+<sc-if value="{{ isChronik }}" hint-placeholder-val="{{ false }}">
+<div style="padding:8px 18px 28px;display:flex;flex-direction:column;gap:16px;animation:vhrise .24s ease">
+
+<div style="display:flex;flex-direction:column;gap:5px">
+<span style="font:500 10px/1 'IBM Plex Mono',monospace;letter-spacing:.18em;text-transform:uppercase;color:#6B7B84">Chronik</span>
+<div style="display:flex;align-items:center;justify-content:space-between;gap:12px">
+<h1 style="margin:0;font:600 30px/1.05 'Grenze Gotisch',serif;color:#E8EDEF">{{ monthLabel }}</h1>
+<div style="display:flex;gap:7px">
+<button type="button" onClick="{{ onPrevMonth }}" style="width:34px;height:34px;border-radius:8px;background:#161D21;border:1px solid #2C383E;color:#AFBCC2;font:500 13px/1 'IBM Plex Mono',monospace;padding:0" style-hover="border-color:#6B7B84">‹</button>
+<button type="button" onClick="{{ onNextMonth }}" style="width:34px;height:34px;border-radius:8px;background:#161D21;border:1px solid #2C383E;color:#AFBCC2;font:500 13px/1 'IBM Plex Mono',monospace;padding:0" style-hover="border-color:#6B7B84">›</button>
+</div>
+</div>
+</div>
+
+<div style="background:#161D21;border:1px solid #2C383E;border-radius:14px;padding:14px 13px 15px;display:flex;flex-direction:column;gap:9px">
+<div style="display:grid;grid-template-columns:repeat(7,1fr);gap:4px">
+<sc-for list="{{ weekdayHeads }}" as="h" hint-placeholder-count="7">
+<span style="text-align:center;font:500 9px/1 'IBM Plex Mono',monospace;letter-spacing:.1em;color:#6B7B84">{{ h.label }}</span>
+</sc-for>
+</div>
+<div style="display:grid;grid-template-columns:repeat(7,1fr);gap:4px">
+<sc-for list="{{ calCells }}" as="c" hint-placeholder-count="35">
+<button type="button" onClick="{{ c.onClick }}" style="aspect-ratio:1;border-radius:8px;padding:0;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px;font:500 12px/1 'IBM Plex Mono',monospace;transition:background .16s;background: {{ c.bg }};border: 1px solid {{ c.border }};color: {{ c.fg }}">
+<span>{{ c.label }}</span>
+<span style="width:5px;height:5px;border-radius:50%;background: {{ c.dot }}"></span>
+</button>
+</sc-for>
+</div>
+<div style="display:flex;flex-wrap:wrap;gap:12px;padding-top:5px;border-top:1px solid #2C383E">
+<sc-for list="{{ legend }}" as="l" hint-placeholder-count="4">
+<span style="display:flex;align-items:center;gap:5px;font:400 10px/1 'IBM Plex Sans',sans-serif;color:#6B7B84"><span style="width:6px;height:6px;border-radius:50%;background: {{ l.color }}"></span>{{ l.label }}</span>
+</sc-for>
+</div>
+</div>
+
+<div style="background:#161D21;border:1px solid #2C383E;border-radius:14px;padding:15px;display:flex;flex-direction:column;gap:13px">
+<div style="display:flex;align-items:center;justify-content:space-between">
+<span style="font:600 17px/1.1 'Grenze',serif;color:#E8EDEF">{{ selTitle }}</span>
+<span style="font:500 11px/1 'IBM Plex Mono',monospace;color: {{ selColor }}">{{ selStatus }}</span>
+</div>
+<sc-for list="{{ selRows }}" as="r" hint-placeholder-count="3">
+<div style="display:flex;align-items:center;justify-content:space-between;gap:10px">
+<span style="font:400 13px/1.2 'IBM Plex Sans',sans-serif;color:#AFBCC2;min-width:0">{{ r.name }}</span>
+<div style="display:flex;align-items:center;gap:9px;flex:none">
+<span style="font:400 11px/1 'IBM Plex Mono',monospace;color:#6B7B84">{{ r.sets }}</span>
+<div style="display:flex;gap:3px">
+<sc-for list="{{ r.pips }}" as="p" hint-placeholder-count="3">
+<span style="width:9px;height:9px;border-radius:2px;background: {{ p.bg }};border: 1px solid {{ p.border }}"></span>
+</sc-for>
+</div>
+</div>
+</div>
+</sc-for>
+<div style="display:flex;align-items:center;justify-content:space-between;padding-top:11px;border-top:1px solid #2C383E">
+<span style="font:400 11px/1.3 'IBM Plex Sans',sans-serif;color:#6B7B84">{{ selNote }}</span>
+<span style="font:500 15px/1 'IBM Plex Mono',monospace;color:#D4A537">{{ selXp }}</span>
+</div>
+</div>
+
+<div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:9px">
+<sc-for list="{{ monthStats }}" as="m" hint-placeholder-count="3">
+<div style="background:#161D21;border:1px solid #2C383E;border-radius:12px;padding:12px 11px;display:flex;flex-direction:column;gap:5px">
+<span style="font:600 20px/1 'IBM Plex Mono',monospace;color: {{ m.color }}">{{ m.value }}</span>
+<span style="font:400 10px/1.25 'IBM Plex Sans',sans-serif;color:#6B7B84">{{ m.label }}</span>
+</div>
+</sc-for>
+</div>
+
+<div style="display:flex;align-items:center;gap:10px;margin-top:2px">
+<span style="font:500 10px/1 'IBM Plex Mono',monospace;letter-spacing:.18em;text-transform:uppercase;color:#6B7B84">Verlauf</span>
+<div style="flex:1;height:1px;background:#2C383E"></div>
+</div>
+
+<sc-for list="{{ sessionList }}" as="s" hint-placeholder-count="6">
+<button type="button" onClick="{{ s.onClick }}" style="text-align:left;background:#161D21;border-radius:12px;padding:12px 14px;display:flex;align-items:center;justify-content:space-between;gap:12px;border: 1px solid {{ s.border }}" style-hover="background:#1F282D">
+<div style="display:flex;align-items:center;gap:12px;min-width:0">
+<span style="width:3px;height:32px;border-radius:2px;flex:none;background: {{ s.accent }}"></span>
+<div style="display:flex;flex-direction:column;gap:3px;min-width:0">
+<span style="font:500 13px/1.2 'IBM Plex Sans',sans-serif;color:#E8EDEF">{{ s.title }}</span>
+<span style="font:400 11px/1.2 'IBM Plex Mono',monospace;color:#6B7B84">{{ s.sub }}</span>
+</div>
+</div>
+<span style="font:500 13px/1 'IBM Plex Mono',monospace;flex:none;color: {{ s.xpColor }}">{{ s.xp }}</span>
+</button>
+</sc-for>
+
+</div>
+</sc-if>
+
+<sc-if value="{{ isRaenge }}" hint-placeholder-val="{{ false }}">
+<div style="padding:8px 18px 28px;display:flex;flex-direction:column;gap:16px;animation:vhrise .24s ease">
+
+<div style="display:flex;flex-direction:column;gap:5px">
+<span style="font:500 10px/1 'IBM Plex Mono',monospace;letter-spacing:.18em;text-transform:uppercase;color:#6B7B84">Drei Leitern, eine Quelle</span>
+<h1 style="margin:0;font:600 30px/1.05 'Grenze Gotisch',serif;color:#E8EDEF">Ränge</h1>
+<span style="font:400 13px/1.45 'IBM Plex Sans',sans-serif;color:#AFBCC2">Jeder abgehakte Satz zählt einmal und füllt Woche, Monat und Jahr gleichzeitig.</span>
+</div>
+
+<sc-for list="{{ ladders }}" as="l" hint-placeholder-count="3">
+<div style="background:#161D21;border:1px solid #2C383E;border-radius:14px;padding:15px;display:flex;flex-direction:column;gap:13px">
+<div style="display:flex;align-items:center;gap:15px">
+<div style="width:86px;height:86px;flex:none;position:relative">
+<svg width="86" height="86" viewBox="0 0 86 86" style="display:block">
+<circle cx="43" cy="43" r="37" fill="none" stroke="#2C383E" strokeWidth="5"></circle>
+<circle cx="43" cy="43" r="37" fill="none" strokeWidth="5" strokeLinecap="butt" transform="rotate(-90 43 43)" stroke="{{ l.color }}" strokeDasharray="{{ l.dash }}"></circle>
+</svg>
+<span style="position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font:500 16px/1 'IBM Plex Mono',monospace;color:#E8EDEF">{{ l.pctText }}</span>
+</div>
+<div style="display:flex;flex-direction:column;gap:5px;min-width:0">
+<span style="font:500 9px/1 'IBM Plex Mono',monospace;letter-spacing:.16em;text-transform:uppercase;color:#6B7B84">{{ l.scopeLabel }}</span>
+<div style="display:flex;align-items:center;gap:8px">
+<span style="width:9px;height:9px;border-radius:50%;flex:none;background: {{ l.color }};border:1px solid #0F1416"></span>
+<span style="font:600 22px/1.05 'Grenze Gotisch',serif;color:#E8EDEF">{{ l.tierName }}</span>
+</div>
+<span style="font:400 11px/1.35 'IBM Plex Sans',sans-serif;color:#AFBCC2">{{ l.remainText }}</span>
+<span style="font:400 10px/1.3 'IBM Plex Mono',monospace;color:#6B7B84">{{ l.xpText }}</span>
+</div>
+</div>
+<div style="display:flex;align-items:center;gap:4px;padding-top:11px;border-top:1px solid #2C383E">
+<sc-for list="{{ l.tiers }}" as="t" hint-placeholder-count="5">
+<div style="flex:1;display:flex;flex-direction:column;align-items:center;gap:5px">
+<span style="width:100%;height:4px;border-radius:2px;background: {{ t.barColor }}"></span>
+<span style="font:400 8px/1.1 'IBM Plex Mono',monospace;text-align:center;color: {{ t.labelColor }}">{{ t.short }}</span>
+</div>
+</sc-for>
+</div>
+</div>
+</sc-for>
+
+<div style="display:flex;align-items:center;gap:10px;margin-top:2px">
+<span style="font:500 10px/1 'IBM Plex Mono',monospace;letter-spacing:.18em;text-transform:uppercase;color:#6B7B84">Bestmarken</span>
+<div style="flex:1;height:1px;background:#2C383E"></div>
+<span style="font:400 10px/1 'IBM Plex Mono',monospace;color:#6B7B84">überlebt jeden Reset</span>
+</div>
+
+<div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:9px">
+<sc-for list="{{ records }}" as="r" hint-placeholder-count="3">
+<div style="background:#161D21;border:1px solid #2C383E;border-radius:12px;padding:13px 11px;display:flex;flex-direction:column;gap:7px;align-items:flex-start">
+<span style="font:400 17px/1 'Noto Sans Runic',serif;color: {{ r.color }}">{{ r.rune }}</span>
+<span style="font:600 14px/1.1 'Grenze',serif;color:#E8EDEF">{{ r.tier }}</span>
+<span style="font:400 9px/1.2 'IBM Plex Mono',monospace;letter-spacing:.08em;text-transform:uppercase;color:#6B7B84">{{ r.label }}</span>
+</div>
+</sc-for>
+</div>
+
+<div style="display:flex;align-items:center;gap:10px;margin-top:2px">
+<span style="font:500 10px/1 'IBM Plex Mono',monospace;letter-spacing:.18em;text-transform:uppercase;color:#6B7B84">Abgeschlossene Perioden</span>
+<div style="flex:1;height:1px;background:#2C383E"></div>
+</div>
+
+<sc-for list="{{ chronicle }}" as="c" hint-placeholder-count="5">
+<div style="display:flex;align-items:center;justify-content:space-between;gap:12px;padding:11px 14px;background:#161D21;border:1px solid #2C383E;border-radius:11px">
+<div style="display:flex;align-items:center;gap:11px;min-width:0">
+<span style="width:8px;height:8px;border-radius:50%;flex:none;background: {{ c.color }}"></span>
+<div style="display:flex;flex-direction:column;gap:2px">
+<span style="font:500 13px/1.2 'IBM Plex Sans',sans-serif;color:#E8EDEF">{{ c.tier }}</span>
+<span style="font:400 10px/1.2 'IBM Plex Mono',monospace;color:#6B7B84">{{ c.period }}</span>
+</div>
+</div>
+<span style="font:400 11px/1 'IBM Plex Mono',monospace;color:#AFBCC2">{{ c.xp }}</span>
+</div>
+</sc-for>
+
+</div>
+</sc-if>
+
+</div>
+
+<div style="flex:none;height:74px;background:#161D21;border-top:1px solid #2C383E;display:grid;grid-template-columns:repeat(4,1fr);align-items:center;padding:0 6px">
+<sc-for list="{{ tabs }}" as="t" hint-placeholder-count="4">
+<button type="button" onClick="{{ t.onClick }}" style="height:60px;background:none;border:none;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:5px;padding:0;transition:color .18s;color: {{ t.color }}">
+<span style="font:400 19px/1 'Noto Sans Runic',serif">{{ t.rune }}</span>
+<span style="font:500 10px/1 'IBM Plex Sans',sans-serif;letter-spacing:.06em">{{ t.label }}</span>
+<span style="width:16px;height:2px;border-radius:1px;background: {{ t.underline }}"></span>
+</button>
+</sc-for>
+</div>
+
+</div>
+
+<span style="font:400 11px/1.5 'IBM Plex Sans',sans-serif;color:#6B7B84;max-width:390px;text-align:center">Klickbarer Prototyp · Sätze abhaken, Plan umstellen, Chronik blättern, Ränge verfolgen</span>
+
+</div>
+</div>
+
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props="{&quot;$preview&quot;:{&quot;width&quot;:&quot;100%&quot;,&quot;height&quot;:1040},&quot;planKind&quot;:{&quot;editor&quot;:&quot;enum&quot;,&quot;options&quot;:[&quot;cyclic&quot;,&quot;weekly&quot;],&quot;default&quot;:&quot;cyclic&quot;,&quot;tsType&quot;:&quot;'cyclic' | 'weekly'&quot;,&quot;section&quot;:&quot;Plan&quot;},&quot;startState&quot;:{&quot;editor&quot;:&quot;enum&quot;,&quot;options&quot;:[&quot;mid&quot;,&quot;fresh&quot;],&quot;default&quot;:&quot;mid&quot;,&quot;tsType&quot;:&quot;'mid' | 'fresh'&quot;,&quot;section&quot;:&quot;Daten&quot;},&quot;showRunes&quot;:{&quot;editor&quot;:&quot;boolean&quot;,&quot;default&quot;:true,&quot;tsType&quot;:&quot;boolean&quot;,&quot;section&quot;:&quot;Darstellung&quot;}}">
+class Component extends DCLogic {
+  static XP = { perSet: 10, dayCompleted: 50, restDay: 20 };
+  static CURVE = [0.15, 0.4, 1];
+  static OVERFLOW = [0.25, 0.1];
+  static TODAY = new Date(2026, 7, 2);
+  static MONTHS = ['Januar','Februar','März','April','Mai','Juni','Juli','August','September','Oktober','November','Dezember'];
+  static WD = ['Montag','Dienstag','Mittwoch','Donnerstag','Freitag','Samstag','Sonntag'];
+  static WDS = ['Mo','Di','Mi','Do','Fr','Sa','So'];
+
+  static EX = {
+    'ex-pullup':   { name: 'Klimmzüge',        muscles: 'Rücken · Bizeps',      perSide: false },
+    'ex-bow-pull': { name: 'Bogenzug',         muscles: 'Rücken · Schulter',    perSide: true  },
+    'ex-side-plank':{ name: 'Seitstütz',       muscles: 'Rumpf · seitlich',     perSide: true  },
+    'ex-pushup':   { name: 'Liegestütze',      muscles: 'Brust · Trizeps',      perSide: false },
+    'ex-triceps':  { name: 'Trizepsdrücken',   muscles: 'Trizeps',              perSide: true  },
+    'ex-squat':    { name: 'Kniebeugen',       muscles: 'Beine · Gesäß',        perSide: false },
+    'ex-lunge':    { name: 'Ausfallschritte',  muscles: 'Beine · Balance',      perSide: true  },
+    'ex-plank':    { name: 'Unterarmstütz',    muscles: 'Rumpf',                perSide: false },
+    'ex-biceps':   { name: 'Bizepscurl',       muscles: 'Bizeps',               perSide: true  },
+  };
+
+  static DAYS = [
+    { id: 'day-1', name: 'Tag 1', title: 'Zug & Rumpf', blocks: [
+      { id: 'b11', ex: 'ex-pullup',    sets: 3, target: { kind: 'reps', reps: 8 } },
+      { id: 'b12', ex: 'ex-bow-pull',  sets: 3, target: { kind: 'reps', reps: 20 } },
+      { id: 'b13', ex: 'ex-side-plank',sets: 3, target: { kind: 'hold', sec: 60 } },
+    ]},
+    { id: 'day-2', name: 'Tag 2', title: 'Druck', blocks: [
+      { id: 'b21', ex: 'ex-pushup',  sets: 3, target: { kind: 'reps', reps: 20 } },
+      { id: 'b22', ex: 'ex-triceps', sets: 3, target: { kind: 'reps', reps: 40 } },
+    ]},
+    { id: 'day-3', name: 'Tag 3', title: 'Beine', blocks: [
+      { id: 'b31', ex: 'ex-squat', sets: 3, target: { kind: 'reps', reps: 25 } },
+      { id: 'b32', ex: 'ex-lunge', sets: 3, target: { kind: 'reps', reps: 15 } },
+    ]},
+    { id: 'day-4', name: 'Tag 4', title: 'Halt', blocks: [
+      { id: 'b41', ex: 'ex-plank',  sets: 3, target: { kind: 'hold', sec: 90 } },
+      { id: 'b42', ex: 'ex-biceps', sets: 3, target: { kind: 'reps', reps: 30 } },
+    ]},
+    { id: 'day-5', name: 'Ruhetag', title: 'Bewusste Pause', restDay: true, blocks: [] },
+  ];
+
+  static TIERS = {
+    week: { label: 'Woche', system: 'Ständeleiter der Rígsþula', reset: 'Reset montags (ISO)', tiers: [
+      { key: 'drengr',  name: 'Drengr',  short: 'Dre', share: 0,    color: '#B9AC94', rune: 'ᛞ' },
+      { key: 'karl',    name: 'Karl',    short: 'Karl',share: 0.2,  color: '#C08A2E', rune: 'ᚲ' },
+      { key: 'hersir',  name: 'Hersir',  short: 'Her', share: 0.45, color: '#A63A2C', rune: 'ᚺ' },
+      { key: 'jarl',    name: 'Jarl',    short: 'Jarl',share: 0.72, color: '#2F5D8C', rune: 'ᛃ' },
+      { key: 'konungr', name: 'Konungr', short: 'Kon', share: 1,    color: '#E0B23C', rune: 'ᚲ' },
+    ]},
+    month: { label: 'Monat', system: 'Die Neun Welten', reset: 'Reset am 1.', tiers: [
+      { key: 'niflheim',     name: 'Niflheim',      short: 'Nifl', share: 0,    color: '#86A0AE', rune: 'ᚾ' },
+      { key: 'helheim',      name: 'Helheim',       short: 'Hel',  share: 0.12, color: '#3F4A47', rune: 'ᚺ' },
+      { key: 'muspelheim',   name: 'Muspelheim',    short: 'Mus',  share: 0.24, color: '#C8452B', rune: 'ᛗ' },
+      { key: 'jotunheim',    name: 'Jötunheim',     short: 'Jöt',  share: 0.36, color: '#7B6E5D', rune: 'ᛃ' },
+      { key: 'svartalfaheim',name: 'Svartalfaheim', short: 'Sva',  share: 0.48, color: '#4B3A63', rune: 'ᛊ' },
+      { key: 'midgard',      name: 'Midgard',       short: 'Mid',  share: 0.6,  color: '#4E7A4A', rune: 'ᛗ' },
+      { key: 'alfheim',      name: 'Alfheim',       short: 'Alf',  share: 0.72, color: '#E6D9A8', rune: 'ᚨ' },
+      { key: 'vanaheim',     name: 'Vanaheim',      short: 'Van',  share: 0.85, color: '#2E8B84', rune: 'ᚹ' },
+      { key: 'asgard',       name: 'Asgard',        short: 'Asg',  share: 1,    color: '#E8B93C', rune: 'ᚨ' },
+    ]},
+    year: { label: 'Jahr', system: 'Zwölf Asen nach Rang', reset: 'Reset am 1. Januar', tiers: [
+      { key: 'bragi',    name: 'Bragi',    short: 'Bra', share: 0,    color: '#5E6B7A', rune: 'ᛒ' },
+      { key: 'forseti',  name: 'Forseti',  short: 'For', share: 0.08, color: '#5A7480', rune: 'ᚠ' },
+      { key: 'ullr',     name: 'Ullr',     short: 'Ull', share: 0.16, color: '#567D80', rune: 'ᚢ' },
+      { key: 'vidar',    name: 'Vidar',    short: 'Vid', share: 0.24, color: '#567F72', rune: 'ᚹ' },
+      { key: 'vali',     name: 'Vali',     short: 'Val', share: 0.32, color: '#628060', rune: 'ᚹ' },
+      { key: 'njord',    name: 'Njörd',    short: 'Njö', share: 0.40, color: '#7C8557', rune: 'ᚾ' },
+      { key: 'freyr',    name: 'Freyr',    short: 'Fre', share: 0.48, color: '#948652', rune: 'ᚠ' },
+      { key: 'heimdallr',name: 'Heimdall', short: 'Hei', share: 0.56, color: '#AC8850', rune: 'ᚺ' },
+      { key: 'baldr',    name: 'Baldr',    short: 'Bal', share: 0.64, color: '#C08E4E', rune: 'ᛒ' },
+      { key: 'tyr',      name: 'Týr',      short: 'Týr', share: 0.72, color: '#CE9645', rune: 'ᛏ' },
+      { key: 'thorr',    name: 'Thor',     short: 'Thor',share: 0.81, color: '#DFA93A', rune: 'ᚦ' },
+      { key: 'odinn',    name: 'Odin',     short: 'Odin',share: 0.90, color: '#F2C64B', rune: 'ᛟ' },
+    ]},
+  };
+
+  static DEFT = {
+    'ex-pullup': { kind: 'reps', reps: 8 }, 'ex-bow-pull': { kind: 'reps', reps: 20 },
+    'ex-side-plank': { kind: 'hold', sec: 60 }, 'ex-pushup': { kind: 'reps', reps: 20 },
+    'ex-triceps': { kind: 'reps', reps: 40 }, 'ex-squat': { kind: 'reps', reps: 25 },
+    'ex-lunge': { kind: 'reps', reps: 15 }, 'ex-plank': { kind: 'hold', sec: 90 },
+    'ex-biceps': { kind: 'reps', reps: 30 },
+  };
+
+  state = {
+    tab: 'heute',
+    kind: null,
+    results: {},
+    openDayId: null,
+    days: Component.DAYS.map(d => ({ ...d, blocks: d.blocks.map(b => ({ ...b })) })),
+    draft: null,
+    monthOffset: -1,
+    selDate: null,
+  };
+
+  /* ---------- xp maths ---------- */
+  curveAt(p) {
+    const C = Component.CURVE, n = C.length;
+    const pts = [[0, 0]];
+    for (let i = 0; i < n; i++) pts.push([(i + 1) / n, C[i]]);
+    for (let i = 1; i < pts.length; i++) {
+      if (p <= pts[i][0] + 1e-9) {
+        const [x0, y0] = pts[i - 1], [x1, y1] = pts[i];
+        return y0 + (y1 - y0) * ((p - x0) / (x1 - x0));
+      }
+    }
+    return 1;
+  }
+  setTotals(sets) {
+    const base = Component.XP.perSet * sets;
+    const out = [];
+    for (let k = 1; k <= sets; k++) out.push(Math.round(base * this.curveAt(k / sets)));
+    let acc = base;
+    for (let i = 0; i < Component.OVERFLOW.length; i++) { acc += base * Component.OVERFLOW[i]; out.push(Math.round(acc)); }
+    return out;
+  }
+  blockXp(done, sets) { if (done <= 0) return 0; const t = this.setTotals(sets); return t[Math.min(done, t.length) - 1]; }
+  dayXp(day) {
+    if (day.restDay) return Component.XP.restDay;
+    let xp = Component.XP.dayCompleted;
+    for (const b of day.blocks) xp += this.blockXp(b.sets, b.sets);
+    return xp;
+  }
+  setsOf(dayId, b) { return b.sets; }
+
+  /* ---------- plan ---------- */
+  get kind() { return this.state.kind || this.props.planKind || 'cyclic'; }
+  get fresh() { return (this.props.startState || 'mid') === 'fresh'; }
+  get days() { return this.state.days; }
+  get today() { return this.days.find(d => d.id === 'day-1') || this.days[0]; }
+  get workDays() { return this.days.filter(d => !d.restDay); }
+
+  perfectWeek() {
+    if (this.kind === 'weekly') {
+      let xp = 0;
+      for (let i = 0; i < Math.min(7, this.days.length); i++) xp += this.dayXp(this.days[i]);
+      return xp;
+    }
+    let xp = 0;
+    const w = this.days.length ? this.days : [{ restDay: true, blocks: [] }];
+    for (let i = 0; i < 7; i++) xp += this.dayXp(w[i % w.length]);
+    return xp;
+  }
+
+  /* ---------- history ---------- */
+  history() {
+    if (this._hist) return this._hist;
+    const out = [];
+    const t = Component.TODAY;
+    for (let back = 120; back >= 1; back--) {
+      const d = new Date(t.getFullYear(), t.getMonth(), t.getDate() - back);
+      const i = 120 - back;
+      const day = this.workDays[i % 4];
+      const total = day.blocks.reduce((a, b) => a + b.sets, 0);
+      const missed = (i % 9 === 4) || (i % 17 === 11);
+      const partial = !missed && (i % 7 === 3);
+      let doneSets = missed ? 0 : (partial ? total - 2 : total);
+      let xp = 0;
+      if (!missed) {
+        let left = doneSets;
+        for (const b of day.blocks) { const dn = Math.min(b.sets, left); left -= dn; xp += this.blockXp(dn, b.sets); }
+        if (doneSets === total) xp += Component.XP.dayCompleted;
+      }
+      out.push({ date: d, dayId: day.id, dayName: day.name, title: day.title, total, done: doneSets, xp, status: missed ? 'missed' : (partial ? 'partial' : 'done') });
+    }
+    this._hist = out;
+    return out;
+  }
+  key(d) { return d.getFullYear() + '-' + d.getMonth() + '-' + d.getDate(); }
+
+  /* ---------- live xp ---------- */
+  todayXpNow() {
+    let xp = 0;
+    const day = this.today;
+    let all = true;
+    for (const b of day.blocks) {
+      const r = this.state.results[b.id] || 0;
+      if (r < this.setsOf(day.id, b)) all = false;
+      xp += this.blockXp(r, this.setsOf(day.id, b));
+    }
+    if (all) xp += Component.XP.dayCompleted;
+    return xp;
+  }
+  baseXp() {
+    if (this.fresh) return { week: 0, month: 0, year: 0 };
+    return { week: 468, month: 2180, year: 24800 };
+  }
+  maxXp() {
+    const pw = this.perfectWeek();
+    return { week: pw, month: Math.round(pw / 7 * 31), year: Math.round(pw / 7 * 365) };
+  }
+
+  ladderData() {
+    const base = this.baseXp(), max = this.maxXp(), add = this.todayXpNow();
+    return ['week', 'month', 'year'].map(scope => {
+      const def = Component.TIERS[scope];
+      const xp = base[scope] + add;
+      const m = max[scope];
+      const thresholds = def.tiers.map(t => Math.round(t.share * m));
+      let idx = 0;
+      for (let i = 0; i < thresholds.length; i++) if (xp >= thresholds[i]) idx = i;
+      const cur = def.tiers[idx], next = def.tiers[idx + 1] || null;
+      const nextTh = next ? thresholds[idx + 1] : null;
+      const tierPct = next ? Math.max(0, Math.min(100, ((xp - thresholds[idx]) / (nextTh - thresholds[idx])) * 100)) : 100;
+      const pct = Math.max(0, Math.min(100, (xp / m) * 100));
+      return { scope, def, xp, max: m, thresholds, idx, cur, next, nextTh, tierPct, pct };
+    });
+  }
+
+  fmtBlock(b, dayId) {
+    const ex = Component.EX[b.ex];
+    const sets = this.setsOf(dayId, b);
+    let t;
+    if (b.target.kind === 'reps') t = b.target.reps + ' Wdh.';
+    else { const m = Math.floor(b.target.sec / 60), s = b.target.sec % 60; t = m + ':' + String(s).padStart(2, '0') + ' Min'; }
+    return sets + ' × ' + t + (ex.perSide ? ' pro Seite' : '');
+  }
+
+  n(v) { return String(v).replace(/\B(?=(\d{3})+(?!\d))/g, '.'); }
+
+  renderVals() {
+    const S = this.state, self = this;
+    const tab = S.tab;
+    const day = this.today;
+    const ladders = this.ladderData();
+    const addXp = this.todayXpNow();
+
+    /* --- nav --- */
+    const tabDefs = [['heute', 'Heute', 'ᛞ'], ['plan', 'Plan', 'ᛃ'], ['chronik', 'Chronik', 'ᚱ'], ['raenge', 'Ränge', 'ᛊ']];
+    const tabs = tabDefs.map(([id, label, rune]) => ({
+      id, label, rune: (this.props.showRunes === false) ? '·' : rune,
+      color: tab === id ? '#D4A537' : '#6B7B84',
+      underline: tab === id ? '#D4A537' : 'transparent',
+      onClick: () => this.setState({ tab: id }),
+    }));
+
+    /* --- heute --- */
+    const totalSets = day.blocks.reduce((a, b) => a + this.setsOf(day.id, b), 0);
+    const doneSets = day.blocks.reduce((a, b) => a + Math.min(S.results[b.id] || 0, this.setsOf(day.id, b)), 0);
+    const allDone = day.blocks.every(b => (S.results[b.id] || 0) >= this.setsOf(day.id, b));
+    const dayMax = this.dayXp(day);
+
+    const blocks = day.blocks.map(b => {
+      const ex = Component.EX[b.ex];
+      const sets = this.setsOf(day.id, b);
+      const totals = this.setTotals(sets);
+      const done = S.results[b.id] || 0;
+      const complete = done >= sets;
+      const extra = Math.max(0, done - sets);
+      const pills = [];
+      for (let i = 1; i <= sets + extra; i++) {
+        const isExtra = i > sets;
+        const on = i <= done;
+        pills.push({
+          i, mark: on ? '✓' : String(i),
+          xp: (on ? '+' : '') + totals[i - 1] + (on ? '' : ' XP'),
+          bg: on ? (isExtra ? '#2A1D12' : '#14231A') : '#0F1416',
+          border: on ? (isExtra ? '#B5763A' : '#4FA86A') : '#2C383E',
+          fg: on ? (isExtra ? '#B5763A' : '#4FA86A') : '#6B7B84',
+          onClick: () => {
+            const cur = self.state.results[b.id] || 0;
+            const nv = cur === i ? i - 1 : i;
+            self.setState({ results: Object.assign({}, self.state.results, { [b.id]: nv }), dayFinished: false });
+          },
+        });
+      }
+      const canExtra = complete && extra < Component.OVERFLOW.length;
+      return {
+        id: b.id, name: ex.name, muscles: ex.muscles, target: this.fmtBlock(b, day.id),
+        sets: pills, canExtra,
+        onExtra: () => self.setState({ results: Object.assign({}, self.state.results, { [b.id]: (self.state.results[b.id] || 0) + 1 }) }),
+        xpText: this.blockXp(done, sets) + ' / ' + totals[sets - 1] + ' XP',
+        xpColor: complete ? (extra ? '#B5763A' : '#4FA86A') : '#6B7B84',
+        hasNote: complete,
+        note: extra ? ('Extrasatz gebucht · Aufschlag ' + (Component.OVERFLOW[extra - 1] * 100) + ' % auf die Satzbasis, danach ist Schluss.')
+                    : 'Block voll – der letzte Satz war mehr wert als die ersten beiden zusammen.',
+        noteColor: extra ? '#B5763A' : '#4FA86A',
+      };
+    });
+
+    const strip = ladders.map(l => ({
+      label: l.def.label, tierName: l.cur.name, color: l.cur.color,
+      pct: Math.round(l.pct), pctText: Math.round(l.pct) + ' %',
+    }));
+
+    /* --- plan --- */
+    const kindTabs = [['cyclic', 'Zyklus'], ['weekly', 'Wochentage']].map(([id, label]) => ({
+      label, bg: this.kind === id ? '#2C383E' : 'transparent', fg: this.kind === id ? '#E8EDEF' : '#6B7B84',
+      onClick: () => this.setState({ kind: id }),
+    }));
+    const cursorId = 'day-1';
+    let dnum = 0;
+    const dayNo = this.days.map(d => (d.restDay ? null : ++dnum));
+    const cycleChips = this.days.slice(0, 6).map((d, i) => ({
+      short: d.restDay ? 'ᛁ' : String(dayNo[i]),
+      bg: d.id === cursorId ? '#1F282D' : '#0F1416',
+      border: d.id === cursorId ? '#D4A537' : '#2C383E',
+      fg: d.id === cursorId ? '#D4A537' : '#AFBCC2',
+      mark: d.id === cursorId ? 'Zeiger' : '→',
+      markColor: d.id === cursorId ? '#D4A537' : '#6B7B84',
+    }));
+    const weekdayCells = Component.WDS.map((wd, i) => {
+      const d = this.days[i] || null;
+      const rest = d && d.restDay;
+      return {
+        wd, label: d ? (rest ? 'Ruhe' : 'T' + dayNo[i]) : 'frei',
+        bg: d ? (rest ? '#12202A' : '#1F282D') : '#0F1416',
+        border: d ? (rest ? '#5B8CA8' : '#2C383E') : '#2C383E',
+        fg: d ? (rest ? '#5B8CA8' : '#E8EDEF') : '#6B7B84',
+      };
+    });
+    const move = (i, dir) => {
+      const arr = self.state.days.slice();
+      const j = i + dir;
+      if (j < 0 || j >= arr.length) return;
+      const t = arr[i]; arr[i] = arr[j]; arr[j] = t;
+      self.setState({ days: arr });
+    };
+    const planDays = this.days.map((d, i) => {
+      const open = S.openDayId === d.id;
+      const sets = d.blocks.reduce((a, b) => a + b.sets, 0);
+      const isCursor = this.kind === 'cyclic' && d.id === cursorId;
+      const wdName = i < 7 ? Component.WDS[i] : null;
+      return {
+        id: d.id, name: d.restDay ? 'Ruhetag' : ('Tag ' + dayNo[i] + ' · ' + d.title),
+        meta: d.restDay ? 'kein Block · rotiert mit' : (d.blocks.length + ' Übungen · ' + sets + ' Sätze'),
+        xpText: this.dayXp(d) + ' XP',
+        xpColor: d.restDay ? '#5B8CA8' : '#D4A537',
+        hasSlot: this.kind === 'weekly' ? !!wdName : isCursor,
+        slot: this.kind === 'weekly' ? (wdName || '') : 'jetzt',
+        slotBg: this.kind === 'weekly' ? '#2C383E' : '#D4A537',
+        slotFg: this.kind === 'weekly' ? '#AFBCC2' : '#0F1416',
+        isRest: !!d.restDay, open, caret: open ? '▴' : '▾',
+        cardBorder: open ? '#6B7B84' : '#2C383E',
+        upColor: i === 0 ? '#2C383E' : '#AFBCC2',
+        downColor: i === this.days.length - 1 ? '#2C383E' : '#AFBCC2',
+        onUp: () => move(i, -1),
+        onDown: () => move(i, 1),
+        onToggle: () => self.setState({ openDayId: open ? null : d.id }),
+        delLabel: this.days.length > 1 ? 'Tag löschen' : 'letzter Tag',
+        delBorder: this.days.length > 1 ? '#2C383E' : '#2C383E',
+        delColor: this.days.length > 1 ? '#A63A2C' : '#6B7B84',
+        onDelete: () => {
+          if (self.state.days.length <= 1) return;
+          self.setState({ days: self.state.days.filter(x => x.id !== d.id), openDayId: null });
+        },
+        rows: d.blocks.map(b => ({
+          name: Component.EX[b.ex].name, target: this.fmtBlock(b, d.id), setsText: b.sets + ' Sätze',
+        })),
+      };
+    });
+    const weekEmpty = this.days.every(d => d.restDay);
+
+    /* --- neuer tag --- */
+    const draft = S.draft;
+    const setDraft = patch => self.setState({ draft: Object.assign({}, self.state.draft, patch) });
+    const draftBlocks = draft ? draft.blocks.map((b, i) => ({
+      name: Component.EX[b.ex].name, sets: b.sets,
+      target: this.fmtBlock(b, 'draft'),
+      onMinus: () => { const bl = draft.blocks.slice(); bl[i] = { ...bl[i], sets: Math.max(1, bl[i].sets - 1) }; setDraft({ blocks: bl }); },
+      onPlus: () => { const bl = draft.blocks.slice(); bl[i] = { ...bl[i], sets: Math.min(6, bl[i].sets + 1) }; setDraft({ blocks: bl }); },
+      onRemove: () => setDraft({ blocks: draft.blocks.filter((x, k) => k !== i) }),
+    })) : [];
+    const catalog = Object.keys(Component.EX).map(id => {
+      const used = draft ? draft.blocks.some(b => b.ex === id) : false;
+      return {
+        label: Component.EX[id].name,
+        border: used ? '#4FA86A' : '#2C383E',
+        fg: used ? '#4FA86A' : '#AFBCC2',
+        onAdd: () => { if (!used) setDraft({ blocks: draft.blocks.concat([{ id: 'nb' + Date.now(), ex: id, sets: 3, target: Component.DEFT[id] }]) }); },
+      };
+    });
+    const draftValid = !!draft && draft.name.trim().length > 0 && (draft.restDay || draft.blocks.length > 0);
+    const draftXp = draft ? (draft.restDay ? Component.XP.restDay : this.dayXp({ restDay: false, blocks: draft.blocks })) : 0;
+
+    /* --- chronik --- */
+    const hist = this.history();
+    const map = {};
+    hist.forEach(h => { map[this.key(h.date)] = h; });
+    const mDate = new Date(Component.TODAY.getFullYear(), Component.TODAY.getMonth() + S.monthOffset, 1);
+    const first = (mDate.getDay() + 6) % 7;
+    const dim = new Date(mDate.getFullYear(), mDate.getMonth() + 1, 0).getDate();
+    const selKey = S.selDate || this.key(new Date(mDate.getFullYear(), mDate.getMonth(), Math.min(dim, 15)));
+    const calCells = [];
+    for (let i = 0; i < first; i++) calCells.push({ label: '', bg: 'transparent', border: 'transparent', fg: 'transparent', dot: 'transparent', onClick: () => {} });
+    for (let dnum = 1; dnum <= dim; dnum++) {
+      const dt = new Date(mDate.getFullYear(), mDate.getMonth(), dnum);
+      const k = this.key(dt);
+      const h = map[k];
+      const sel = k === selKey;
+      const future = dt > Component.TODAY;
+      let dot = '#2C383E';
+      if (h && h.status === 'done') dot = '#4FA86A';
+      else if (h && h.status === 'partial') dot = '#D4A537';
+      else if (h && h.status === 'missed') dot = '#A63A2C';
+      calCells.push({
+        label: String(dnum), dot: future ? '#2C383E' : dot,
+        bg: sel ? '#1F282D' : '#0F1416',
+        border: sel ? '#D4A537' : '#2C383E',
+        fg: future ? '#6B7B84' : '#E8EDEF',
+        onClick: () => self.setState({ selDate: k }),
+      });
+    }
+    const sel = map[selKey];
+    const selDateObj = sel ? sel.date : new Date(mDate.getFullYear(), mDate.getMonth(), Math.min(dim, 15));
+    const selDay = sel ? (this.days.find(d => d.id === sel.dayId) || Component.DAYS.find(d => d.id === sel.dayId)) : null;
+    let left = sel ? sel.done : 0;
+    const selRows = selDay ? selDay.blocks.map(b => {
+      const dn = Math.min(b.sets, left); left -= dn;
+      const pips = [];
+      for (let i = 1; i <= b.sets; i++) pips.push({ bg: i <= dn ? '#4FA86A' : 'transparent', border: i <= dn ? '#4FA86A' : '#2C383E' });
+      return { name: Component.EX[b.ex].name, sets: dn + '/' + b.sets, pips };
+    }) : [];
+    const monthHist = hist.filter(h => h.date.getMonth() === mDate.getMonth() && h.date.getFullYear() === mDate.getFullYear());
+    const mXp = monthHist.reduce((a, h) => a + h.xp, 0);
+    const mDone = monthHist.filter(h => h.status !== 'missed').length;
+    const mPerfect = Math.round(this.perfectWeek() / 7 * dim);
+
+    const sessionList = monthHist.slice().reverse().slice(0, 12).map(h => ({
+      title: h.dayName + ' · ' + h.title,
+      sub: Component.WDS[(h.date.getDay() + 6) % 7] + ', ' + h.date.getDate() + '. ' + Component.MONTHS[h.date.getMonth()] + ' · ' + h.done + '/' + h.total + ' Sätze',
+      xp: h.status === 'missed' ? '—' : ('+' + h.xp),
+      xpColor: h.status === 'missed' ? '#6B7B84' : '#D4A537',
+      accent: h.status === 'done' ? '#4FA86A' : (h.status === 'partial' ? '#D4A537' : '#A63A2C'),
+      border: this.key(h.date) === selKey ? '#6B7B84' : '#2C383E',
+      onClick: () => self.setState({ selDate: self.key(h.date) }),
+    }));
+
+    /* --- ränge --- */
+    const C = 2 * Math.PI * 37;
+    const ladderVals = ladders.map(l => ({
+      scopeLabel: l.def.label, system: l.def.system, color: l.cur.color, rune: l.cur.rune,
+      tierName: l.cur.name,
+      pct: Math.round(l.pct), pctText: Math.round(l.pct) + ' %',
+      tierPct: Math.round(l.tierPct),
+      dash: (C * l.pct / 100).toFixed(1) + ' ' + C.toFixed(1),
+      xpText: this.n(l.xp) + ' / ' + this.n(l.max) + ' XP · ' + l.def.reset,
+      remainText: l.next ? ((l.nextTh - l.xp) + ' XP bis ' + l.next.name) : 'Höchster Rang erreicht',
+      tiers: l.def.tiers.map((t, i) => ({
+        name: t.name, short: t.short, rune: t.rune,
+        current: i === l.idx,
+        barColor: i <= l.idx ? t.color : '#2C383E',
+        railColor: i <= l.idx ? t.color : '#2C383E',
+        labelColor: i === l.idx ? '#E8EDEF' : '#6B7B84',
+        nameColor: i === l.idx ? '#E8EDEF' : (i < l.idx ? '#AFBCC2' : '#6B7B84'),
+        rowBg: i === l.idx ? '#1F282D' : 'transparent',
+        chipBg: i === l.idx ? '#1F282D' : '#0F1416',
+        chipBorder: i === l.idx ? t.color : '#2C383E',
+        threshText: this.n(l.thresholds[i]),
+        threshColor: i === l.idx ? '#AFBCC2' : '#6B7B84',
+      })),
+    }));
+    const recDefs = [['week', 'konungr', 'Beste Woche'], ['month', 'vanaheim', 'Bester Monat'], ['year', 'thorr', 'Bestes Jahr']];
+    const records = recDefs.map(([scope, key, label]) => {
+      const t = Component.TIERS[scope].tiers.find(x => x.key === key);
+      return { tier: this.fresh ? '—' : t.name, color: this.fresh ? '#2C383E' : t.color, rune: t.rune, label };
+    });
+    const chronicle = this.fresh ? [] : [
+      { tier: 'Jarl', period: 'KW 30 · 2026', xp: '612 XP', color: '#2F5D8C' },
+      { tier: 'Konungr', period: 'KW 29 · 2026', xp: '830 XP', color: '#E0B23C' },
+      { tier: 'Hersir', period: 'KW 28 · 2026', xp: '498 XP', color: '#A63A2C' },
+      { tier: 'Vanaheim', period: 'Juli 2026', xp: '3.190 XP', color: '#2E8B84' },
+      { tier: 'Midgard', period: 'Juni 2026', xp: '2.410 XP', color: '#4E7A4A' },
+      { tier: 'Thor', period: 'Jahr 2025', xp: '36.020 XP', color: '#DFA93A' },
+    ];
+
+    const wd = Component.WD[(Component.TODAY.getDay() + 6) % 7];
+
+    return {
+      tabs, isHeute: tab === 'heute', isPlan: tab === 'plan', isChronik: tab === 'chronik', isRaenge: tab === 'raenge',
+
+      headerDate: wd + ', ' + Component.TODAY.getDate() + '. ' + Component.MONTHS[Component.TODAY.getMonth()],
+      planName: this.kind === 'cyclic' ? 'Walhall-Zyklus' : 'Wochenplan',
+      planSub: this.kind === 'cyclic'
+        ? 'Vier Tage, die sich drehen: Tag 1 → 2 → 3 → 4 → 1. Der Kalender spielt keine Rolle.'
+        : 'Feste Wochentage. Was nicht belegt ist, ist frei – ein Ruhetag ist etwas anderes als nichts.',
+      todayDayName: 'Tag ' + (dayNo[this.days.indexOf(day)] || 1) + ' · ' + day.title,
+      todaySub: day.blocks.length + ' Übungen · ' + totalSets + ' Sätze · geschätzt 37 Min',
+      todayXp: addXp, todayXpMax: dayMax,
+      todayPct: Math.min(100, Math.round(addXp / dayMax * 100)),
+      todayHint: allDone ? 'Tag vollständig – Tagesbonus verbucht.' : 'Der letzte Satz eines Blocks zahlt am meisten.',
+      setsDoneText: doneSets + ' / ' + totalSets,
+      blocks, strip,
+      finishHint: allDone
+        ? '+' + Component.XP.dayCompleted + ' XP Tagesbonus gebucht · Zeiger rückt auf Tag 2'
+        : 'Erst wenn alle Pflichtsätze stehen, gibt es die ' + Component.XP.dayCompleted + ' XP für den vollen Tag.',
+
+      isCyclic: this.kind === 'cyclic', isWeekly: this.kind === 'weekly',
+      kindTabs, cycleChips, weekdayCells, planDays,
+      planTotalText: 'perfekte Woche: ' + this.n(this.perfectWeek()) + ' XP',
+      validRune: weekEmpty ? 'ᚦ' : 'ᛗ',
+      validColor: weekEmpty ? '#C8452B' : '#4FA86A',
+      validTitle: weekEmpty ? 'Plan ohne Training' : 'Plan gültig',
+      validText: weekEmpty
+        ? 'Nur Ruhetage in der Liste – so lässt sich kein Referenzwert berechnen.'
+        : 'Mindestens ein Trainingstag vorhanden. Die Rangschwellen wurden aus der aktuellen Liste neu berechnet.',
+
+      addOpen: !!draft, canAdd: !draft,
+      onAddStart: () => self.setState({ draft: { name: '', restDay: false, blocks: [] }, openDayId: null }),
+      onDraftCancel: () => self.setState({ draft: null }),
+      onDraftName: e => setDraft({ name: e.target.value }),
+      draftName: draft ? draft.name : '',
+      draftIsWork: !!draft && !draft.restDay,
+      onDraftWork: () => setDraft({ restDay: false }),
+      onDraftRest: () => setDraft({ restDay: true }),
+      workBg: draft && !draft.restDay ? '#1F282D' : '#0F1416',
+      workBorder: draft && !draft.restDay ? '#D4A537' : '#2C383E',
+      workFg: draft && !draft.restDay ? '#E8EDEF' : '#6B7B84',
+      restBg: draft && draft.restDay ? '#12202A' : '#0F1416',
+      restBorder: draft && draft.restDay ? '#5B8CA8' : '#2C383E',
+      restFg: draft && draft.restDay ? '#5B8CA8' : '#6B7B84',
+      draftBlocks, catalog,
+      draftXpText: draftXp + ' XP',
+      saveBg: draftValid ? '#D4A537' : '#161D21',
+      saveBorder: draftValid ? '#D4A537' : '#2C383E',
+      saveFg: draftValid ? '#0F1416' : '#6B7B84',
+      onDraftSave: () => {
+        if (!draftValid) return;
+        const nd = {
+          id: 'day-' + Date.now(), name: draft.name.trim(),
+          title: draft.name.trim(),
+          restDay: draft.restDay, blocks: draft.restDay ? [] : draft.blocks.slice(),
+        };
+        self.setState({ days: self.state.days.concat([nd]), draft: null, openDayId: nd.id });
+      },
+
+      monthLabel: Component.MONTHS[mDate.getMonth()] + ' ' + mDate.getFullYear(),
+      onPrevMonth: () => self.setState({ monthOffset: self.state.monthOffset - 1, selDate: null }),
+      onNextMonth: () => self.setState({ monthOffset: Math.min(0, self.state.monthOffset + 1), selDate: null }),
+      weekdayHeads: Component.WDS.map(w => ({ label: w })),
+      calCells,
+      legend: [
+        { label: 'voll', color: '#4FA86A' }, { label: 'teilweise', color: '#D4A537' },
+        { label: 'verpasst', color: '#A63A2C' }, { label: 'offen', color: '#2C383E' },
+      ],
+      selTitle: selDateObj.getDate() + '. ' + Component.MONTHS[selDateObj.getMonth()] + (selDay ? ' · ' + selDay.name : ''),
+      selStatus: sel ? (sel.status === 'done' ? 'vollständig' : sel.status === 'partial' ? 'teilweise' : 'verpasst') : 'kein Eintrag',
+      selColor: sel ? (sel.status === 'done' ? '#4FA86A' : sel.status === 'partial' ? '#D4A537' : '#A63A2C') : '#6B7B84',
+      selRows,
+      selNote: sel ? (sel.done + ' von ' + sel.total + ' Sätzen abgehakt') : 'Für diesen Tag liegt keine Session vor',
+      selXp: sel && sel.xp ? '+' + sel.xp + ' XP' : '—',
+      monthStats: [
+        { value: mDone + '/' + monthHist.length, label: 'Tage trainiert', color: '#E8EDEF' },
+        { value: this.n(mXp), label: 'XP im Monat', color: '#D4A537' },
+        { value: Math.round(mXp / mPerfect * 100) + '%', label: 'der perfekten Periode', color: '#4FA86A' },
+      ],
+      sessionList,
+
+      ladders: ladderVals, records, chronicle,
+    };
+  }
+}
+
+</script>
+</body>
+</html>

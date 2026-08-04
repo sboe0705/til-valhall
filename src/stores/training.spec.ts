@@ -2,7 +2,7 @@ import { createPinia, setActivePinia } from 'pinia';
 import { beforeEach, describe, expect, it } from 'vitest';
 
 import { initialState } from '@/data/default-plan';
-import { DEFAULT_XP, perfectXp } from '@/model/ranks';
+import { DAY_XP, REST_XP, SCOPE_MAX } from '@/model/ranks';
 import { __setNow } from '@/composables/useNow';
 import { useRankStore } from './ranks';
 import { useTrainingStore } from './training';
@@ -45,36 +45,36 @@ describe('seeding', () => {
     expect(training.todaySession?.results.map((r) => r.plannedSets)).toEqual([3, 3, 3]);
   });
 
-  it('builds the ladders phase-exactly from the cursor', () => {
+  it('builds the ladders against the absolute maxima', () => {
     const ranks = useRankStore();
-    expect(ranks.state?.week.max).toBe(830);
-    expect(ranks.state?.week.max).toBe(
-      perfectXp(initialState.plans['plan-default'], 'week', MONDAY, DEFAULT_XP, 'day-1'),
-    );
+    expect(ranks.state?.week.max).toBe(SCOPE_MAX.week);
+    expect(ranks.state?.month.max).toBe(SCOPE_MAX.month);
+    expect(ranks.state?.year.max).toBe(SCOPE_MAX.year);
   });
 });
 
 describe('booking a workout', () => {
-  it('books the day bonus implicitly and advances the cursor', () => {
+  it('books the full day and advances the cursor', () => {
     const { training, ranks } = setup();
     completeToday(training);
 
     expect(training.todaySession?.status).toBe('done');
-    expect(ranks.state?.week.xp).toBe(140);
-    expect(ranks.state?.month.xp).toBe(140);
-    expect(ranks.state?.year.xp).toBe(140);
+    expect(ranks.state?.week.xp).toBe(DAY_XP);
+    expect(ranks.state?.month.xp).toBe(DAY_XP);
+    expect(ranks.state?.year.xp).toBe(DAY_XP);
     expect(training.cursorDayId).toBe('day-2');
     // The screen keeps showing the day that was worked, not the next one.
     expect(training.todayDay?.id).toBe('day-1');
   });
 
-  it('revokes the bonus and the cursor advance when a set is unchecked', () => {
+  it('gives the XP back and undoes the cursor advance when a set is unchecked', () => {
     const { training, ranks } = setup();
     completeToday(training);
 
     training.toggleSet('b-1-2', 3);
 
-    expect(ranks.state?.week.xp).toBe(140 - DEFAULT_XP.dayCompleted - 30 + 12);
+    // One of the three blocks falls from 40 back to 16.
+    expect(ranks.state?.week.xp).toBe(DAY_XP - 40 + 16);
     expect(training.cursorDayId).toBe('day-1');
     expect(training.todaySession?.status).toBe('inProgress');
   });
@@ -84,14 +84,14 @@ describe('booking a workout', () => {
     completeToday(training);
 
     training.addExtraSet('b-1-1');
-    expect(ranks.state?.week.xp).toBe(148);
+    expect(ranks.state?.week.xp).toBe(124);
 
     training.addExtraSet('b-1-1');
-    expect(ranks.state?.week.xp).toBe(151);
+    expect(ranks.state?.week.xp).toBe(126);
 
-    // Third extra set – the overflow curve has only two entries.
+    // Third extra set – maxSets(3) is 5, so there is no sixth pill.
     training.addExtraSet('b-1-1');
-    expect(ranks.state?.week.xp).toBe(151);
+    expect(ranks.state?.week.xp).toBe(126);
   });
 
   it('never books the same XP twice', () => {
@@ -99,7 +99,7 @@ describe('booking a workout', () => {
     completeToday(training);
     completeToday(training);
     completeToday(training);
-    expect(ranks.state?.week.xp).toBe(140);
+    expect(ranks.state?.week.xp).toBe(DAY_XP);
   });
 });
 
@@ -124,13 +124,16 @@ describe('period roll-over', () => {
 });
 
 describe('plan editing', () => {
-  it('converts the schedule and recomputes the reference week', () => {
+  it('converts the schedule and recomputes what the plan can reach', () => {
     const { training } = setup();
-    expect(training.perfectWeek).toBe(830);
+    // The cycle fills every calendar day, so it can reach the weekly maximum.
+    expect(training.perfectWeek).toBe(840);
+    expect(training.perfectWeekMax).toBe(SCOPE_MAX.week);
 
     training.setScheduleKind('weekly');
-    // Mon–Thu carry the four days, Friday and the weekend stay free.
-    expect(training.perfectWeek).toBe(470);
+    // Mon–Thu carry the four days, Friday and the weekend stay free – Konungr
+    // is out of reach from here on, which is exactly what the caption shows.
+    expect(training.perfectWeek).toBe(480);
     expect(training.activePlan?.schedule.kind).toBe('weekly');
   });
 
@@ -150,7 +153,7 @@ describe('plan editing', () => {
 
     expect(training.todayDay?.id).toBe(restId);
     expect(training.todaySession?.status).toBe('rest');
-    expect(useRankStore().state?.week.xp).toBe(DEFAULT_XP.restDay);
+    expect(useRankStore().state?.week.xp).toBe(REST_XP);
   });
 
   it('leaves a session that has progress in it alone', () => {

@@ -37,7 +37,7 @@ test('checking every set books the day and advances the cursor', async ({ page }
   await freshApp(page);
 
   await expect(page.locator('.loot__xp')).toHaveText('0');
-  await expect(page.locator('.loot__max')).toHaveText('/ 140 XP');
+  await expect(page.locator('.loot__max')).toHaveText('/ 120 XP');
 
   // Tap the last planned pill of every block – that checks all sets below it.
   const cards = page.locator('.block');
@@ -46,16 +46,16 @@ test('checking every set books the day and advances the cursor', async ({ page }
     await pills.nth((await pills.count()) - 1).click();
   }
 
-  await expect(page.locator('.loot__xp')).toHaveText('140');
-  await expect(page.locator('.finish')).toContainText('Tagesbonus gebucht');
-  // 140 of a perfect 830 week.
-  await expect(page.locator('.strip__pct').first()).toHaveText('17 %');
+  await expect(page.locator('.loot__xp')).toHaveText('120');
+  await expect(page.locator('.finish')).toContainText('Tag vollständig');
+  // 120 of the 840 XP a perfect week is worth.
+  await expect(page.locator('.strip__pct').first()).toHaveText('14 %');
 
   // One extra set is offered, and only two of them ever.
   await cards.first().locator('.block__extra').click();
-  await expect(page.locator('.loot__xp')).toHaveText('148');
+  await expect(page.locator('.loot__xp')).toHaveText('124');
   await cards.first().locator('.block__extra').click();
-  await expect(page.locator('.loot__xp')).toHaveText('151');
+  await expect(page.locator('.loot__xp')).toHaveText('126');
   await expect(cards.first().locator('.block__extra')).toHaveCount(0);
 
   // The cursor moved on.
@@ -71,7 +71,7 @@ test('checking every set books the day and advances the cursor', async ({ page }
   // Survives a reload.
   await page.reload();
   await tab(page, 'Heute').click();
-  await expect(page.locator('.loot__xp')).toHaveText('151');
+  await expect(page.locator('.loot__xp')).toHaveText('126');
 });
 
 test('the schedule switch converts the plan and keeps the days', async ({ page }) => {
@@ -79,7 +79,7 @@ test('the schedule switch converts the plan and keeps the days', async ({ page }
 
   await expect(page.locator('.rotation')).toBeVisible();
   await expect(page.locator('.rule__caption').first()).toHaveText(
-    'perfekte Woche: 830 XP',
+    'perfekte Woche: 840 / 840 XP',
   );
 
   await page.getByRole('button', { name: 'Wochentage' }).click();
@@ -87,7 +87,7 @@ test('the schedule switch converts the plan and keeps the days', async ({ page }
   await expect(page.locator('.week__grid')).toBeVisible();
   await expect(page.locator('.day')).toHaveCount(4);
   await expect(page.locator('.rule__caption').first()).toHaveText(
-    'perfekte Woche: 470 XP',
+    'perfekte Woche: 480 / 840 XP',
   );
   await expect(page.locator('.week__tile--free')).toHaveCount(3);
 
@@ -109,7 +109,7 @@ test('a new day can be drafted, opened and removed again', async ({ page }) => {
 
   await page.locator('.draft__input').fill('Nacken & Griff');
   await page.locator('.draft__chip', { hasText: 'Klimmzüge' }).click();
-  await expect(page.locator('.draft__xp')).toHaveText('80 XP');
+  await expect(page.locator('.draft__xp')).toHaveText('120 XP');
   await expect(save).toHaveClass(/draft__save--valid/);
 
   await save.click();
@@ -152,7 +152,7 @@ test('a backup survives a wiped localStorage', async ({ page }) => {
     const pills = cards.nth(i).locator('.pill');
     await pills.nth((await pills.count()) - 1).click();
   }
-  await expect(page.locator('.loot__xp')).toHaveText('140');
+  await expect(page.locator('.loot__xp')).toHaveText('120');
 
   await page.goto('/impressum');
   const downloading = page.waitForEvent('download');
@@ -190,8 +190,8 @@ test('a backup survives a wiped localStorage', async ({ page }) => {
   await page.getByRole('button', { name: 'Überschreiben' }).click();
 
   await page.goto('/heute');
-  await expect(page.locator('.loot__xp')).toHaveText('140');
-  await expect(page.locator('.finish')).toContainText('Tagesbonus gebucht');
+  await expect(page.locator('.loot__xp')).toHaveText('120');
+  await expect(page.locator('.finish')).toContainText('Tag vollständig');
 });
 
 test('the chronicle steps back but never past the current month', async ({ page }) => {

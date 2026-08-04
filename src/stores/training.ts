@@ -17,7 +17,7 @@ import {
   toIsoDate,
   validatePlan,
 } from '@/model/schedule';
-import { DEFAULT_XP, perfectXp, withExtraSet } from '@/model/ranks';
+import { SCOPE_MAX, weeklyPotential, withExtraSet } from '@/model/ranks';
 import type { DayDraft } from '@/model/plan-edit';
 import { addDay, dayNumbers, makeDay, moveDay, removeDay } from '@/model/plan-edit';
 import {
@@ -76,12 +76,17 @@ export const useTrainingStore = defineStore(
       activePlan.value ? validatePlan(activePlan.value) : [],
     );
 
-    /** Reference value of a gapless week under the *current* plan. */
+    /**
+     * What a gapless week is worth under the *current* plan, against what the
+     * weekly ladder asks for. The two differ as soon as a plan leaves calendar
+     * days empty – a weekday plan cannot reach Konungr, and the Plan screen
+     * says so rather than letting the user find out on a Sunday.
+     */
     const perfectWeek = computed(() =>
-      activePlan.value
-        ? perfectXp(activePlan.value, 'week', now.value, DEFAULT_XP, cursorDayId.value)
-        : 0,
+      activePlan.value ? weeklyPotential(activePlan.value, cursorDayId.value) : 0,
     );
+
+    const perfectWeekMax = SCOPE_MAX.week;
 
     function sessionOn(iso: string): WorkoutSession | null {
       const planId = state.value.activePlanId;
@@ -115,9 +120,9 @@ export const useTrainingStore = defineStore(
       const plan = activePlan.value;
       if (!plan) return;
       const ranks = useRankStore();
-      const xp = liveSessionXp(session, DEFAULT_XP);
+      const xp = liveSessionXp(session);
       const delta = xp - (bookedXp.value[session.id] ?? 0);
-      ranks.award(delta, plan, now.value, cursorDayId.value);
+      ranks.award(delta, now.value);
       bookedXp.value[session.id] = xp;
     }
 
@@ -157,8 +162,8 @@ export const useTrainingStore = defineStore(
       if (i >= 0) state.value.sessions[i] = stored;
       else state.value.sessions.push(stored);
 
-      // Book before moving the cursor: `perfectXp` wants the cursor of the
-      // period that is being credited.
+      // Order is free since the ladders no longer read the plan – booking first
+      // simply keeps the XP and the cursor in the order the user perceives them.
       book(stored);
       syncCursor(stored);
       return stored;
@@ -188,9 +193,7 @@ export const useTrainingStore = defineStore(
       if (!plan) return;
 
       const booked = bookedXp.value[session.id] ?? 0;
-      if (booked !== 0) {
-        useRankStore().award(-booked, plan, now.value, cursorDayId.value);
-      }
+      if (booked !== 0) useRankStore().award(-booked, now.value);
       delete bookedXp.value[session.id];
 
       const previous = advancedBy.value[session.id];
@@ -239,7 +242,7 @@ export const useTrainingStore = defineStore(
     function addExtraSet(blockId: Id): void {
       const session = todaySession.value;
       if (!session) return;
-      persistSession(withExtraSet(session, blockId, DEFAULT_XP));
+      persistSession(withExtraSet(session, blockId));
     }
 
     /* ---------------- plan editing ---------------- */
@@ -293,9 +296,8 @@ export const useTrainingStore = defineStore(
 
     /** App start and every date change: close out expired periods first. */
     function refresh(): void {
-      const plan = activePlan.value;
-      if (!plan) return;
-      useRankStore().refresh(plan, now.value, cursorDayId.value);
+      if (!activePlan.value) return;
+      useRankStore().refresh(now.value);
       startToday();
     }
 
@@ -318,6 +320,7 @@ export const useTrainingStore = defineStore(
       days,
       planErrors,
       perfectWeek,
+      perfectWeekMax,
       todaySession,
       todayDay,
       sessionOn,

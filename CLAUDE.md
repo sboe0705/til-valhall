@@ -89,7 +89,8 @@ RankState                              // src/model/ranks.ts — a SEPARATE slic
 ```
 
 `RankState` is **not** part of `TrainingState` and has no seed value — the rank store
-constructs it with `createRankState(plan, now, cfg, cursorDayId)` on first use. The two
+constructs it with `createRankState(now)` on first use — no plan, no config, no cursor,
+since the maxima are absolute. The two
 slices persist under **two separate keys**: `til-valhall.training` and
 `til-valhall.ranks` — defined once as `TRAINING_KEY` / `RANKS_KEY` in
 `src/app/backup.ts` and imported by the stores as their `persist.key`. Clearing
@@ -131,37 +132,48 @@ Two discriminated unions drive nearly all branching; always handle both arms:
 
 ## Invariants that must not be broken
 
-- **A gapless period lands on the top tier.** Tier thresholds are relative
-  (`RankTier.share`, 0..1) against `perfectXp(plan, scope, …)`, never absolute.
+- **A completed training day is worth exactly `DAY_XP` (120), whatever its layout.**
+  The budget is split across the blocks with `splitEqually()`, and
+  `completionShare(n, n) === 1` exactly — so no clamp is needed at the day level.
+  If a day ever stops landing on 120, the curve or the split is broken.
+- **Thresholds are absolute.** `RankTier.share` (0..1) resolves against
+  `SCOPE_MAX` (840 / 3600 / 43200), never against the plan. `month`/`year` are
+  *nominal* (30 / 360 days), so `completion` stays clamped with `Math.min(xp/max, 1)`.
 - `assertLadder()`: lowest tier `share === 0`, top tier `share` in `(0, 1]`, strictly
-  monotonic. Week and month top out at `1`; the year tops out at `0.9` on purpose
-  (holidays/illness budget — Odin at ~90 % consistency).
-- **Extra sets must never compensate for a missed training day.** Enforced by
-  `overflowHeadroom()` / `assertOverflowSafe()`. `defaultPlan` (cyclic, 7 workout
-  days/week) *deliberately fails* this check with `DEFAULT_XP` — that's an
-  intentional, documented finding, not a bug to fix. Σ `overflow` ≲ 0.266 is safe
-  there.
-- `SetCurve` is cumulative, strictly increasing, last value exactly `1`.
-  `OVERFLOW_CURVE`'s array **length is a hard ceiling** (nothing past the 5th set);
-  do not replace it with an asymptotic tail.
-- `ScopeProgress.max` is frozen at period start so a mid-period plan edit can't
-  retroactively distort the running period.
+  monotonic. The week tops out at `1`; month `0.9` and year `0.85` are the
+  holidays/illness budget — 3 spare days a month, 59 a year.
+- **Extra sets must never compensate for a missed training day.** Holds by
+  construction: a day maxes at 138 XP, so 6 × 138 = 828 < 840. The one exception is
+  a **4+ block day** (base 30, and 30 × 1.15 = 34.5 rounds up → 140, 141 at seven
+  blocks), which ties the weekly maximum. That is a known, tested rounding artefact
+  — see `ranks.test.ts` — not a bug to "fix" by clamping the day.
+- `completionShare()` is strictly increasing on `[0, MAX_RATIO]`, exactly 1 at the
+  target, 1.15 at the ceiling. The kink at `p = 1` **is** the "finishing pays"
+  incentive; do not smooth it. `maxSets()` is a hard ceiling — do not replace it
+  with an asymptotic tail.
+- `ScopeProgress.max` is frozen at period start. It always equals `SCOPE_MAX` today,
+  but `history` entries need the value they were graded against.
 - `rollOver()` is idempotent — safe to call on every app start / date change.
-- Reps, duration and `perSide` do **not** affect XP; only set counts do. Weighting by
-  reps would reward easy high-rep exercises. If differentiation is ever wanted, it
-  belongs on `Exercise` (e.g. `intensity?: number` scaling `perSet`), not on reps.
+- Reps, duration, `perSide` and **set counts** do not affect XP; only the *share* of
+  the planned sets that is done. Weighting by reps or volume would reward easy
+  high-rep exercises and turn consistency into volume. If differentiation is ever
+  wanted, it belongs on `Exercise` (e.g. `intensity?: number` scaling the block's
+  base), not on reps.
 
 ## App rules
 
 - **XP is booked as a delta.** `awardXp()` only ever adds, but the design re-books on
   every tap including unchecking. The training store computes
   `liveSessionXp(session) − bookedXp[session.id]` and hands *that* to the rank store.
-  Negative deltas are what revokes the day bonus; `bestTier()` never regresses, so
+  Negative deltas are what gives the XP back; `bestTier()` never regresses, so
   records survive it — and every reset.
-- **There is no "finish day" button.** `dayCompleted` is part of `liveSessionXp()`, so
-  it appears the moment the last planned set is checked and disappears when one is
-  unchecked. The cursor advance follows the same condition and is undone from
-  `advancedBy`.
+- **There is no "finish day" button.** The jump to the full 120 XP sits in the kink of
+  the completion curve, so it appears the moment the last planned set is checked and
+  disappears when one is unchecked. The cursor advance follows `isComplete()` and is
+  undone from `advancedBy`.
+- **A block's base is not derivable from the block.** It depends on how many blocks
+  share the day — `blockBasesOf(session)` computes the split, `HeuteView` hands each
+  `ExerciseBlockCard` its `base`.
 - **Today's day comes from today's session, not from the cursor.** Completing a day
   advances the cursor; resolving the screen from the cursor would make it jump to
   tomorrow's day mid-tap. `dayForDate()` is only consulted when no session exists yet.
@@ -186,15 +198,16 @@ Two discriminated unions drive nearly all branching; always handle both arms:
 - **Never use `toISOString()` for calendar dates.** Use `toIsoDate()`, which reads
   local date parts — `toISOString()` shifts to UTC and returns the previous day for
   local midnight east of Greenwich (CET/CEST).
-- **`perfectXp` for cyclic plans is phase-dependent.** Without `startDayId` it falls
-  back to a daily average that can be off by ±3 % (4-day seed: 800–830 XP/week), and a
-  gapless week can then stall at 97.2 % and miss the top tier. Pass
-  `state.cursors[plan.id]` through `createRankState`/`rollOver`/`awardXp`/
-  `applySession` whenever it is available. Ignored for weekly plans.
+- **`weeklyPotential()` is display only.** It is the one function left that reads XP
+  off a plan, and it feeds the Plan screen's `perfekte Woche: N / 840 XP` caption.
+  Nothing grades against it — do not reach for it in the ladders.
+- **A plan that leaves calendar days empty cannot reach Konungr.** A weekday plan
+  maxes out at 600 of 840 and a rest day costs 100 XP against the ladder. That is
+  the accepted price of an absolute weekly maximum, not an oversight.
 - **Two different kinds of "off"**: `assignments[wd] === null` means nothing is
   scheduled that weekday (Sat/Sun); `day.restDay === true` is a deliberate rest day
   that exists as a day, rotates with the cycle, appears in history and earns
-  `restDay` XP.
+  `REST_XP`.
 - `agenda()` advances the cyclic rotation once per calendar day, but the real cursor
   only moves on completion — the preview is an "if all goes to plan" projection.
 - `weekKey()` is ISO-8601 while `monthKey()`/`yearKey()` are calendar-based, so a date
@@ -243,15 +256,18 @@ Display names are German (`Seitstütz`, `Rumpf & Trizeps`); **ids, set counts, t
 and `order` are unchanged** from the original English seed, which is why every figure
 below still holds.
 
-With `DEFAULT_XP` (`perSet: 10`, `dayCompleted: 50`, `restDay: 20`,
-`CURVE_MODERATE = [0.15, 0.4, 1]`, `OVERFLOW_CURVE = [0.25, 0.1]`):
+With `DAY_XP = 120`, `REST_XP = 20`, `MAX_RATIO = 5/3` and
+`SCOPE_MAX = { week: 840, month: 3600, year: 43200 }`:
 
 | | value |
 |---|---|
-| Day 1 / Days 2–4 / rest day | 140 / 110 / 20 XP |
-| 3-set block, 1…7 sets done | 5, 12, 30, 38, 41, 41, 41 XP |
-| `weeklyPlan` perfect week / Aug / year | 490 / 2,100 / 25,590 |
-| `defaultPlan` perfect week (cursor `day-1` / `day-2` / none) | 830 / 800 / 823 |
+| Day 1 / Days 2–4 / rest day | 120 / 120 / 20 XP |
+| block base: Day 1 (3 blocks) / Days 2–4 (2 blocks) | 40 / 60 XP |
+| 3-set block on base 40, 1…5 sets done | 6, 16, 40, 44, 46 XP |
+| 3-set block on base 120 (single-block day) | 18, 48, 120, 132, 138 XP |
+| `maxSets()` for 1…6 planned sets | 1, 3, 5, 6, 8, 10 |
+| `weeklyPotential`: `defaultPlan` / `weeklyPlan` / `defaultPlan` as weekly | 840 / 500 / 480 |
+| days needed for Konungr / Asgard / Odin | 7 / 27 / 306 |
 
 These figures are asserted in `ranks.test.ts` and again, through the store and the
 DOM, in `src/stores/training.spec.ts` and `e2e/smoke.spec.ts`. If a change moves them,

@@ -6,9 +6,8 @@
  * `state.sessions` and the plan.
  */
 
-import type { Id, TrainingPlan, WorkoutSession } from '@/model/training';
-import type { XpConfig } from '@/model/ranks';
-import { DEFAULT_XP, perfectXp } from '@/model/ranks';
+import type { TrainingPlan, WorkoutSession } from '@/model/training';
+import { SCOPE_MAX } from '@/model/ranks';
 import { isWeekly, isoWeekday, toIsoDate } from '@/model/schedule';
 import { doneSetsOf, isComplete, liveSessionXp, plannedSetsOf } from './session-xp';
 
@@ -79,7 +78,6 @@ export function monthEntries(
   plan: TrainingPlan,
   sessions: WorkoutSession[],
   today: Date = new Date(),
-  cfg: XpConfig = DEFAULT_XP,
 ): DayEntry[] {
   const byDate = sessionsByDate(sessions);
   const year = month.getFullYear();
@@ -97,7 +95,7 @@ export function monthEntries(
       day: i + 1,
       session,
       status: statusOf(plan, date, today, session),
-      xp: session ? liveSessionXp(session, cfg) : 0,
+      xp: session ? liveSessionXp(session) : 0,
       doneSets: sets.done,
       totalSets: sets.total,
     };
@@ -108,26 +106,25 @@ export interface MonthStats {
   trainedDays: number;
   totalDays: number;
   xp: number;
-  /** 0..1 against `perfectXp` of that month. */
+  /** 0..1 against `SCOPE_MAX.month`, clamped like `TierProgress.completion`. */
   share: number;
 }
 
-export function monthStats(
-  entries: DayEntry[],
-  month: Date,
-  plan: TrainingPlan,
-  cfg: XpConfig = DEFAULT_XP,
-  startDayId?: Id,
-): MonthStats {
+/**
+ * The month against the monthly ladder's reference value.
+ *
+ * `SCOPE_MAX.month` is nominal (30 × 120), so a gapless 31-day month yields
+ * 3720 – hence the clamp, exactly as `tierProgress()` clamps `completion`.
+ */
+export function monthStats(entries: DayEntry[]): MonthStats {
   const xp = entries.reduce((sum, e) => sum + e.xp, 0);
-  const max = perfectXp(plan, 'month', month, cfg, startDayId);
 
   return {
     trainedDays: entries.filter((e) => e.status === 'done' || e.status === 'partial')
       .length,
     totalDays: entries.length,
     xp,
-    share: max > 0 ? xp / max : 0,
+    share: Math.min(xp / SCOPE_MAX.month, 1),
   };
 }
 

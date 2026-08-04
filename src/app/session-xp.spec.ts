@@ -2,8 +2,9 @@ import { describe, expect, it } from 'vitest';
 
 import { defaultPlan, weeklyPlan } from '@/data/default-plan';
 import { createSession } from '@/model/plan-cycle';
-import { DEFAULT_XP, potentialXp, sessionXp, withExtraSet } from '@/model/ranks';
+import { REST_XP, potentialXp, sessionXp, withExtraSet } from '@/model/ranks';
 import {
+  blockBasesOf,
   extraSetsOf,
   isComplete,
   liveSessionXp,
@@ -14,7 +15,7 @@ import {
 } from './session-xp';
 
 const AUG = new Date(2026, 7, 2);
-const day1 = defaultPlan.days[0]; // 3 blocks × 3 sets = 140 XP
+const day1 = defaultPlan.days[0]; // 3 blocks × 3 sets → 120 XP, 40 per block
 const fresh = () => createSession(defaultPlan, day1, AUG, 'test-session');
 
 /** Check `count` sets on every block of the session. */
@@ -30,13 +31,20 @@ describe('planned sets', () => {
   });
 });
 
+describe('block bases', () => {
+  it('splits the day across the session’s blocks', () => {
+    expect(blockBasesOf(fresh())).toEqual([40, 40, 40]);
+  });
+});
+
 describe('pillTotals', () => {
-  it('three planned sets plus the overflow ceiling', () => {
-    expect(pillTotals(3)).toEqual([5, 12, 30, 38, 41]);
+  it('three planned sets plus the extra sets up to the ceiling', () => {
+    expect(pillTotals(3, 40)).toEqual([6, 16, 40, 44, 46]);
   });
 
-  it('interpolates for other set counts', () => {
-    expect(pillTotals(5).slice(0, 5)).toEqual([5, 10, 18, 32, 50]);
+  it('scales with the base and stops where maxSets does', () => {
+    expect(pillTotals(3, 120)).toEqual([18, 48, 120, 132, 138]);
+    expect(pillTotals(5, 40)).toHaveLength(8);
   });
 });
 
@@ -45,17 +53,17 @@ describe('liveSessionXp', () => {
     expect(liveSessionXp(fresh())).toBe(0);
   });
 
-  it('counts partial blocks without the day bonus', () => {
-    // 5 + 5 + 5, no bonus
-    expect(liveSessionXp(checkAll(1))).toBe(15);
+  it('counts partial blocks along the curve', () => {
+    // A third of each block: 6 + 6 + 6.
+    expect(liveSessionXp(checkAll(1))).toBe(18);
     expect(isComplete(checkAll(1))).toBe(false);
   });
 
-  it('books the day bonus implicitly on the last planned set', () => {
+  it('reaches the full day the moment the last planned set is checked', () => {
     const done = checkAll(3);
     expect(isComplete(done)).toBe(true);
     expect(liveSessionXp(done)).toBe(potentialXp(day1));
-    expect(liveSessionXp(done)).toBe(140);
+    expect(liveSessionXp(done)).toBe(120);
   });
 
   it('agrees with sessionXp once the session is closed', () => {
@@ -65,7 +73,7 @@ describe('liveSessionXp', () => {
 
   it('a rest day is a flat rate', () => {
     const rest = createSession(weeklyPlan, weeklyPlan.days[4], AUG, 'rest');
-    expect(liveSessionXp(rest)).toBe(DEFAULT_XP.restDay);
+    expect(liveSessionXp(rest)).toBe(REST_XP);
   });
 });
 
@@ -83,10 +91,11 @@ describe('set pill semantics', () => {
     expect(one.results[0].sets.map((s) => s.completed)).toEqual([true, false, false]);
   });
 
-  it('revokes the day bonus when a set is unchecked', () => {
+  it('gives the XP back when a set is unchecked', () => {
     const done = checkAll(3);
     const undone = setDoneCount(done, 'b-1-2', 3);
-    expect(liveSessionXp(undone)).toBe(140 - DEFAULT_XP.dayCompleted - 30 + 12);
+    // One block drops from the top of the curve back to two thirds: 40 → 16.
+    expect(liveSessionXp(undone)).toBe(120 - 40 + 16);
     expect(isComplete(undone)).toBe(false);
   });
 
@@ -94,7 +103,7 @@ describe('set pill semantics', () => {
     const done = checkAll(3);
     const extra = withExtraSet(done, 'b-1-1');
     expect(extraSetsOf(extra.results[0])).toBe(1);
-    expect(liveSessionXp(extra)).toBe(140 + 8);
+    expect(liveSessionXp(extra)).toBe(120 + 4);
 
     // Unchecking back to two sets must not leave an open overflow set behind,
     // which would block withExtraSet() forever.

@@ -2,8 +2,14 @@
 import { computed, onMounted } from 'vue';
 
 import { blocksInOrder } from '@/model/plan-cycle';
-import { DEFAULT_XP, potentialXp } from '@/model/ranks';
-import { doneSetsOf, isComplete, liveSessionXp, plannedSetsOf } from '@/app/session-xp';
+import { DAY_XP, REST_XP, potentialXp } from '@/model/ranks';
+import {
+  blockBasesOf,
+  doneSetsOf,
+  isComplete,
+  liveSessionXp,
+  plannedSetsOf,
+} from '@/app/session-xp';
 import * as de from '@/app/format-de';
 import AppFooter from '@/components/AppFooter.vue';
 import ExerciseBlockCard from '@/components/ExerciseBlockCard.vue';
@@ -42,8 +48,8 @@ const subline = computed(() => {
   return `${blocks.value.length} Übungen · ${sets} Sätze · geschätzt ${minutes} Min`;
 });
 
-const xp = computed(() => (session.value ? liveSessionXp(session.value, DEFAULT_XP) : 0));
-const maxXp = computed(() => (day.value ? potentialXp(day.value, DEFAULT_XP) : 0));
+const xp = computed(() => (session.value ? liveSessionXp(session.value) : 0));
+const maxXp = computed(() => (day.value ? potentialXp(day.value) : 0));
 
 const setsDone = computed(() =>
   (session.value?.results ?? []).reduce(
@@ -62,29 +68,34 @@ const lootHint = computed(() => {
   if (isRest.value)
     return 'Geplanter Ruhetag. Belohnt wird der Plan, nicht die Aktivität.';
   return complete.value
-    ? 'Tag vollständig – Tagesbonus verbucht.'
+    ? 'Tag vollständig – die vollen Tagespunkte stehen.'
     : 'Der letzte Satz eines Blocks zahlt am meisten.';
 });
 
 const finishHint = computed(() =>
   complete.value
-    ? `+${DEFAULT_XP.dayCompleted} XP Tagesbonus gebucht · Zeiger rückt weiter`
-    : `Erst wenn alle Pflichtsätze stehen, gibt es die ${DEFAULT_XP.dayCompleted} XP für den vollen Tag.`,
+    ? `Tag vollständig · ${DAY_XP} XP gebucht · Zeiger rückt weiter`
+    : `Jeder Tag ist ${DAY_XP} XP wert – zu holen sind sie erst, wenn alle Pflichtsätze stehen.`,
 );
 
-/** Display data per block – the result is the session's, the copy the plan's. */
-const rows = computed(() =>
-  (session.value?.results ?? []).map((result) => {
+/**
+ * Display data per block – the result is the session's, the copy the plan's,
+ * and `base` the block's share of the day's 120 XP.
+ */
+const rows = computed(() => {
+  const bases = session.value ? blockBasesOf(session.value) : [];
+  return (session.value?.results ?? []).map((result, i) => {
     const block = blocks.value.find((b) => b.id === result.blockId);
     const exercise = training.exercises[result.exerciseId];
     return {
       result,
+      base: bases[i] ?? 0,
       name: exercise?.name ?? 'Übung',
       target: block ? de.blockDe(block, exercise) : '',
       muscles: de.musclesDe(exercise),
     };
-  }),
-);
+  });
+});
 </script>
 
 <template>
@@ -113,7 +124,7 @@ const rows = computed(() =>
         <span class="rest__rune vh-rune">ᛁ</span>
         <span class="rest__text">
           Geplanter Ruhetag. Zählt in der Rotation mit und bringt
-          {{ DEFAULT_XP.restDay }} XP – belohnt wird der Plan, nicht die Aktivität.
+          {{ REST_XP }} XP – belohnt wird der Plan, nicht die Aktivität.
         </span>
       </div>
     </template>
@@ -135,6 +146,7 @@ const rows = computed(() =>
         v-for="row in rows"
         :key="row.result.blockId"
         :result="row.result"
+        :base="row.base"
         :name="row.name"
         :target="row.target"
         :muscles="row.muscles"

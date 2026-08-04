@@ -2,7 +2,6 @@
 import { computed, ref } from 'vue';
 
 import type { WorkoutSession } from '@/model/training';
-import { DEFAULT_XP } from '@/model/ranks';
 import type { DayEntry } from '@/app/history';
 import { monthCursor, monthEntries, monthStats } from '@/app/history';
 import { doneSetsOf, plannedSetsOf } from '@/app/session-xp';
@@ -30,27 +29,11 @@ const canGoForward = computed(() => monthCursor(month.value) < monthCursor(now.v
 
 const entries = computed<DayEntry[]>(() =>
   training.activePlan
-    ? monthEntries(
-        month.value,
-        training.activePlan,
-        training.state.sessions,
-        now.value,
-        DEFAULT_XP,
-      )
+    ? monthEntries(month.value, training.activePlan, training.state.sessions, now.value)
     : [],
 );
 
-const stats = computed(() =>
-  training.activePlan
-    ? monthStats(
-        entries.value,
-        month.value,
-        training.activePlan,
-        DEFAULT_XP,
-        training.cursorDayId,
-      )
-    : { trainedDays: 0, totalDays: 0, xp: 0, share: 0 },
-);
+const stats = computed(() => monthStats(entries.value));
 
 /** Default selection: the most recent day that is not in the future. */
 const selectedIso = computed(

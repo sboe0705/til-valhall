@@ -2,7 +2,7 @@
 import { computed, ref } from 'vue';
 
 import type { Exercise, Id, TrainingPlan } from '@/model/training';
-import { DEFAULT_XP, potentialXp } from '@/model/ranks';
+import { potentialXp } from '@/model/ranks';
 import type { DayDraft } from '@/model/plan-edit';
 import { MAX_SETS, MIN_SETS, defaultTargetFor } from '@/model/plan-edit';
 import * as de from '@/app/format-de';
@@ -35,22 +35,19 @@ const rows = computed(() =>
 );
 
 const previewXp = computed(() =>
-  potentialXp(
-    {
-      id: 'draft',
-      name: draft.value.name,
-      order: 0,
-      restDay: draft.value.restDay,
-      blocks: draft.value.blocks.map((b, order) => ({
-        id: `draft-${order}`,
-        exerciseId: b.exerciseId,
-        sets: b.sets,
-        target: b.target,
-        order,
-      })),
-    },
-    DEFAULT_XP,
-  ),
+  potentialXp({
+    id: 'draft',
+    name: draft.value.name,
+    order: 0,
+    restDay: draft.value.restDay,
+    blocks: draft.value.blocks.map((b, order) => ({
+      id: `draft-${order}`,
+      exerciseId: b.exerciseId,
+      sets: b.sets,
+      target: b.target,
+      order,
+    })),
+  }),
 );
 
 /** Valid = a name **and** (rest day or at least one block). */

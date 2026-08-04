@@ -2,7 +2,7 @@
 import { computed } from 'vue';
 
 import type { BlockResult } from '@/model/training';
-import { DEFAULT_XP, maxExtraSets } from '@/model/ranks';
+import { completionShare, maxSets } from '@/model/ranks';
 import {
   doneSetsOf,
   extraSetsOf,
@@ -14,6 +14,9 @@ import SetPill from './SetPill.vue';
 
 const props = defineProps<{
   result: BlockResult;
+  /** The block's share of the day's budget – it depends on how many blocks
+   *  share the day, so it has to come down from the screen. */
+  base: number;
   name: string;
   target: string;
   muscles: string;
@@ -24,11 +27,12 @@ defineEmits<{ toggle: [k: number]; extra: [] }>();
 const planned = computed(() => plannedSetsOf(props.result));
 const done = computed(() => doneSetsOf(props.result));
 const extras = computed(() => extraSetsOf(props.result));
-const totals = computed(() => pillTotals(planned.value));
+const totals = computed(() => pillTotals(planned.value, props.base));
 const complete = computed(() => done.value >= planned.value);
 
 const xpText = computed(
-  () => `${liveBlockXp(props.result)} / ${totals.value[planned.value - 1] ?? 0} XP`,
+  () =>
+    `${liveBlockXp(props.result, props.base)} / ${totals.value[planned.value - 1] ?? 0} XP`,
 );
 
 const state = computed(() =>
@@ -43,7 +47,7 @@ const canExtra = computed(
   () =>
     complete.value &&
     done.value === props.result.sets.length &&
-    extras.value < maxExtraSets(DEFAULT_XP),
+    props.result.sets.length < maxSets(planned.value),
 );
 
 const note = computed(() => {
@@ -54,9 +58,15 @@ const note = computed(() => {
       variant: 'done' as const,
     };
   }
-  const share = (DEFAULT_XP.overflow[extras.value - 1] ?? 0) * 100;
+  // The surcharge of the last extra set, read off the curve itself.
+  const n = planned.value + extras.value;
+  const share =
+    (completionShare(n, planned.value) - completionShare(n - 1, planned.value)) * 100;
+  const last = extras.value >= maxSets(planned.value) - planned.value;
   return {
-    text: `Extrasatz gebucht · Aufschlag ${Math.round(share)} % auf die Satzbasis, danach ist Schluss.`,
+    text:
+      `Extrasatz gebucht · Aufschlag ${Math.round(share)} % auf den Block` +
+      (last ? ', danach ist Schluss.' : '.'),
     variant: 'overflow' as const,
   };
 });

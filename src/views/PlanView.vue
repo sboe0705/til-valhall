@@ -3,7 +3,7 @@ import { computed, ref } from 'vue';
 
 import type { Id, PlanSchedule } from '@/model/training';
 import { blocksInOrder } from '@/model/plan-cycle';
-import { DEFAULT_XP, potentialXp } from '@/model/ranks';
+import { REST_XP, potentialXp } from '@/model/ranks';
 import { isWeekly, WEEKDAYS } from '@/model/schedule';
 import type { DayDraft } from '@/model/plan-edit';
 import * as de from '@/app/format-de';
@@ -57,7 +57,7 @@ const items = computed(() =>
       meta: day.restDay
         ? 'kein Block · rotiert mit'
         : `${blocks.length} Übungen · ${sets} Sätze`,
-      xpText: `${potentialXp(day, DEFAULT_XP)} XP`,
+      xpText: `${potentialXp(day)} XP`,
       rest: day.restDay === true,
       badge: cyclic.value
         ? day.id === training.cursorDayId
@@ -123,7 +123,7 @@ function remove(dayId: Id): void {
 
     <SectionRule
       label="Tage"
-      :caption="`perfekte Woche: ${de.thousands(training.perfectWeek)} XP`"
+      :caption="`perfekte Woche: ${de.thousands(training.perfectWeek)} / ${de.thousands(training.perfectWeekMax)} XP`"
     />
 
     <DayListItem
@@ -139,7 +139,7 @@ function remove(dayId: Id): void {
       :can-down="item.canDown"
       :can-delete="canDelete"
       :rows="item.rows"
-      :rest-xp="DEFAULT_XP.restDay"
+      :rest-xp="REST_XP"
       @toggle="toggle(item.day.id)"
       @up="training.shiftDay(item.day.id, -1)"
       @down="training.shiftDay(item.day.id, 1)"

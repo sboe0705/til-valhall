@@ -6,10 +6,12 @@
  *   - month → Nine Worlds,              resets on the 1st of the month
  *   - year  → Twelve Æsir,              resets on January 1st
  *
- * The thresholds are **relative**: every tier is a share of the perfect period,
- * which is derived from the plan (`perfectXp`). Week and month therefore end
- * exactly on the top tier when training is gapless; the year deliberately
- * leaves room for holidays and illness with `share: 0.9`.
+ * XP is a **fixed budget**, not a function of volume: a completed training day
+ * is always worth `DAY_XP`, split equally across its blocks. The ladders
+ * therefore grade against **absolute** maxima (`SCOPE_MAX`) rather than a
+ * plan-derived reference value – every day is worth the same, so the scale is
+ * plan-independent by construction. `share` stays the source of truth for the
+ * ladder shape; `minXp` is resolved against `SCOPE_MAX[scope]`.
  *
  * Pure functions, no framework dependencies – same as `plan-cycle.ts`.
  */
@@ -21,7 +23,7 @@ import type {
   TrainingPlan,
   WorkoutSession,
 } from './training';
-import { isWeekly, isoWeekday } from './schedule';
+import { isWeekly } from './schedule';
 import { nextDay, orderedDays } from './plan-cycle';
 
 /* ------------------------------------------------------------------ */
@@ -38,8 +40,8 @@ export interface RankTier {
   /** Short English explanation for tooltips / detail views. */
   gloss: string;
   /**
-   * Share of the perfect period, 0..1. The lowest tier is always 0, the top
-   * tier at most 1 – see `assertLadder`.
+   * Share of `SCOPE_MAX`, 0..1. The lowest tier is always 0, the top tier at
+   * most 1 – see `assertLadder`.
    */
   share: number;
 }
@@ -55,51 +57,57 @@ export interface ResolvedTier extends RankTier {
  */
 export const WEEKLY_TIERS: RankTier[] = [
   { key: 'drengr', name: 'Drengr', gloss: 'Young warrior – the beginning', share: 0 },
-  { key: 'karl', name: 'Karl', gloss: 'Free farmer', share: 0.2 },
-  { key: 'hersir', name: 'Hersir', gloss: 'Leader of a war band', share: 0.45 },
-  { key: 'jarl', name: 'Jarl', gloss: 'Earl', share: 0.72 },
+  { key: 'karl', name: 'Karl', gloss: 'Free farmer', share: 0.25 },
+  { key: 'hersir', name: 'Hersir', gloss: 'Leader of a war band', share: 0.5 },
+  { key: 'jarl', name: 'Jarl', gloss: 'Earl', share: 0.75 },
   { key: 'konungr', name: 'Konungr', gloss: 'King – the perfect week', share: 1 },
 ];
 
-/** Month – ascent through the Nine Worlds, from primordial cold up to Asgard. */
+/**
+ * Month – ascent through the Nine Worlds, from primordial cold up to Asgard.
+ *
+ * The top sits at `share: 0.9` (3240 XP = 27 gapless days). Against the nominal
+ * 30-day month that is three days of slack, four in a 31-day month and one even
+ * in February – enough for a rest day, which costs 100 XP against the ladder.
+ */
 export const MONTHLY_TIERS: RankTier[] = [
   { key: 'niflheim', name: 'Niflheim', gloss: 'World of mist and ice', share: 0 },
-  { key: 'helheim', name: 'Helheim', gloss: 'Realm of Hel', share: 0.1 },
-  { key: 'muspelheim', name: 'Muspelheim', gloss: 'World of fire', share: 0.22 },
-  { key: 'jotunheim', name: 'Jötunheim', gloss: 'Land of the giants', share: 0.35 },
+  { key: 'helheim', name: 'Helheim', gloss: 'Realm of Hel', share: 0.11 },
+  { key: 'muspelheim', name: 'Muspelheim', gloss: 'World of fire', share: 0.23 },
+  { key: 'jotunheim', name: 'Jötunheim', gloss: 'Land of the giants', share: 0.34 },
   {
     key: 'svartalfaheim',
     name: 'Svartálfaheim',
     gloss: 'Realm of the dark elves',
-    share: 0.48,
+    share: 0.45,
   },
-  { key: 'midgard', name: 'Midgard', gloss: 'World of humans', share: 0.61 },
-  { key: 'alfheim', name: 'Álfheim', gloss: 'Realm of the light elves', share: 0.74 },
-  { key: 'vanaheim', name: 'Vanaheim', gloss: 'Home of the Vanir', share: 0.87 },
-  { key: 'asgard', name: 'Asgard', gloss: 'Stronghold of the Æsir', share: 1 },
+  { key: 'midgard', name: 'Midgard', gloss: 'World of humans', share: 0.56 },
+  { key: 'alfheim', name: 'Álfheim', gloss: 'Realm of the light elves', share: 0.68 },
+  { key: 'vanaheim', name: 'Vanaheim', gloss: 'Home of the Vanir', share: 0.79 },
+  { key: 'asgard', name: 'Asgard', gloss: 'Stronghold of the Æsir', share: 0.9 },
 ];
 
 /**
  * Year – twelve Æsir, ascending by prominence (Snorri's Gylfaginning).
  *
- * The top deliberately sits at `share: 0.9` rather than 1: across twelve months
+ * The top deliberately sits at `share: 0.85` rather than 1: across twelve months
  * holidays, illness and days without a pull-up bar are a certainty. Odin thus
- * demands roughly 90 % consistency instead of perfection – the remaining tiers
- * are scaled proportionally.
+ * demands 306 gapless days out of 365 – reached on November 2nd in a gapless
+ * year, with 59 days of slack. The remaining tiers are scaled proportionally.
  */
 export const YEARLY_TIERS: RankTier[] = [
   { key: 'bragi', name: 'Bragi', gloss: 'God of poetry', share: 0 },
-  { key: 'forseti', name: 'Forseti', gloss: 'God of justice', share: 0.07 },
+  { key: 'forseti', name: 'Forseti', gloss: 'God of justice', share: 0.08 },
   { key: 'ullr', name: 'Ullr', gloss: 'Archer and hunter', share: 0.15 },
   { key: 'vidar', name: 'Vídar', gloss: 'The silent one', share: 0.23 },
-  { key: 'vali', name: 'Váli', gloss: 'The avenger', share: 0.32 },
-  { key: 'njord', name: 'Njörd', gloss: 'God of the sea', share: 0.4 },
-  { key: 'freyr', name: 'Freyr', gloss: 'God of fertility', share: 0.48 },
-  { key: 'heimdallr', name: 'Heimdall', gloss: 'Warden of the Bifröst', share: 0.56 },
-  { key: 'baldr', name: 'Baldr', gloss: 'The shining one', share: 0.64 },
-  { key: 'tyr', name: 'Týr', gloss: 'God of battle', share: 0.72 },
-  { key: 'thorr', name: 'Thor', gloss: 'Protector of Midgard', share: 0.81 },
-  { key: 'odinn', name: 'Odin', gloss: 'Allfather – lord of Valhalla', share: 0.9 },
+  { key: 'vali', name: 'Váli', gloss: 'The avenger', share: 0.31 },
+  { key: 'njord', name: 'Njörd', gloss: 'God of the sea', share: 0.39 },
+  { key: 'freyr', name: 'Freyr', gloss: 'God of fertility', share: 0.46 },
+  { key: 'heimdallr', name: 'Heimdall', gloss: 'Warden of the Bifröst', share: 0.54 },
+  { key: 'baldr', name: 'Baldr', gloss: 'The shining one', share: 0.62 },
+  { key: 'tyr', name: 'Týr', gloss: 'God of battle', share: 0.7 },
+  { key: 'thorr', name: 'Thor', gloss: 'Protector of Midgard', share: 0.77 },
+  { key: 'odinn', name: 'Odin', gloss: 'Allfather – lord of Valhalla', share: 0.85 },
 ];
 
 export const TIERS: Record<RankScope, RankTier[]> = {
@@ -128,155 +136,138 @@ export function assertLadder(tiers: RankTier[]): void {
 /* Awarding XP                                                         */
 /* ------------------------------------------------------------------ */
 
+/** What a completed training day is worth – always, regardless of its volume. */
+export const DAY_XP = 120;
+
+/** A consciously taken rest day – rewards sticking to the plan, not activity. */
+export const REST_XP = 20;
+
+/** Hard ceiling for extra sets: nothing past 166 % of the target. */
+export const MAX_RATIO = 5 / 3;
+
 /**
- * Cumulative share of an exercise's total points after n sets.
- * Strictly increasing, last value always 1.
+ * Reference value for 100 % per ladder.
  *
- * The jump at the end is the actual incentive: the final set is the most
- * valuable one, not the most tedious.
+ * `month` and `year` are **nominal**, not calendar-exact: a gapless 31-day month
+ * yields 3720 and a gapless 365-day year 43800, both above the reference. That
+ * is why `completion` stays clamped at 1.
  */
-export type SetCurve = number[];
-
-/**
- * Default curve: the third set is worth more than the first two combined,
- * while a two-set day still counts for something.
- */
-export const CURVE_MODERATE: SetCurve = [0.15, 0.4, 1];
-
-/**
- * Bonus per set **beyond** the target, as a share of the block base.
- * With three planned sets that means: 4th set +25 %, 5th set +10 %.
- *
- * The length is the hard ceiling – a 6th set deliberately yields nothing.
- * A curve that approaches zero but never ends would be an incentive to
- * overtrain; a visible end point is more honest.
- */
-export const OVERFLOW_CURVE: SetCurve = [0.25, 0.1];
-
-export interface XpConfig {
-  /**
-   * Point base per set. Total points of an exercise = `perSet * block.sets`;
-   * the curve only distributes how much of that is unlocked when.
-   */
-  perSet: number;
-  /** Flat bonus for a fully completed training day. */
-  dayCompleted: number;
-  /** A consciously taken rest day – rewards sticking to the plan. */
-  restDay: number;
-  curve: SetCurve;
-  /**
-   * Extra sets beyond the target. Applies to the set base only, not to
-   * `dayCompleted` or `restDay`: the day bonus stands for completeness,
-   * not for volume.
-   */
-  overflow: SetCurve;
-}
-
-export const DEFAULT_XP: XpConfig = {
-  perSet: 10,
-  dayCompleted: 50,
-  restDay: 20,
-  curve: CURVE_MODERATE,
-  overflow: OVERFLOW_CURVE,
+export const SCOPE_MAX: Record<RankScope, number> = {
+  week: 840, //   7 × 120
+  month: 3600, //  30 × 120 (nominal month)
+  year: 43200, // 360 × 120 (nominal year)
 };
 
 /**
- * Cumulative share after `completed` of `total` sets.
+ * Share of a block's XP after `completed` of `planned` sets. Capped at 115 %.
  *
- * If the set count matches the curve length, its values are used directly.
- * Otherwise the normalised position is interpolated linearly – so blocks with
- * 4 or 5 sets work as well.
+ * Two segments anchored on five points, `p = completed / planned`:
+ * (⅓, .15) (⅔, .40) (1, 1) (4/3, 1.10) (5/3, 1.15).
+ *
+ * Both are strictly increasing on their domain (f′ has a negative discriminant,
+ * g′(⅔) = 0.075 > 0). The kink at `p = 1` is deliberate – it is the
+ * "finishing pays" incentive that used to be carried by a flat day bonus.
  */
-export function setShare(
-  completed: number,
-  total: number,
-  curve: SetCurve = DEFAULT_XP.curve,
-): number {
-  if (total <= 0 || completed <= 0) return 0;
-  if (completed >= total) return 1;
-  if (total === curve.length) return curve[completed - 1];
-
-  // Support points sit at (j + 1) / curve.length; we are looking for p.
-  const p = completed / total;
-  const x = p * curve.length - 1;
-  const lo = Math.floor(x);
-  const hi = Math.ceil(x);
-  if (lo === hi) return curve[lo];
-
-  const a = lo < 0 ? 0 : curve[lo];
-  const b = curve[Math.min(hi, curve.length - 1)];
-  return a + (b - a) * (x - lo);
+export function completionShare(completed: number, planned: number): number {
+  if (planned <= 0 || completed <= 0) return 0;
+  const p = Math.min(completed / planned, MAX_RATIO);
+  // Cubic through (0,0), (⅓,.15), (⅔,.40), (1,1).
+  if (p <= 1) return ((1.125 * p - 0.675) * p + 0.55) * p;
+  // Quadratic through (1,1), (4/3,1.10), (5/3,1.15).
+  const d = p - 1;
+  return 1 + (0.375 - 0.225 * d) * d;
 }
 
 /**
- * XP of a single block.
+ * Highest set number that still yields XP: 1→1, 2→3, 3→5, 4→6, 5→8, 6→10.
  *
- * Up to the target: total points times the unlocked share of `curve`.
- * Beyond it: a bonus per extra set according to `overflow`, capped by its
- * length. `planned` is the target from the plan, not the number of set entries
- * that actually exist.
+ * A visible full stop is more honest than a curve that tends towards zero but
+ * never ends – the latter would be an incentive to overtrain.
  */
-export function blockXp(
-  completed: number,
-  planned: number,
-  cfg: XpConfig = DEFAULT_XP,
+export function maxSets(planned: number): number {
+  return Math.floor((planned * 5) / 3);
+}
+
+/**
+ * Split `total` into `n` integer parts that sum exactly to `total`.
+ * Cumulative rounding, so the parts never drift apart from the total
+ * (7 → 17,17,17,18,17,17,17). For 1–4 blocks the division is exact anyway.
+ */
+export function splitEqually(total: number, n: number): number[] {
+  if (n <= 0) return [];
+  let prev = 0;
+  return Array.from({ length: n }, (_, i) => {
+    const cum = Math.round((total * (i + 1)) / n);
+    const part = cum - prev;
+    prev = cum;
+    return part;
+  });
+}
+
+/**
+ * The day's budget split equally across its blocks – 1 block 120, 2 blocks 60,
+ * 3 blocks 40, 4 blocks 30.
+ *
+ * Balancing the blocks against each other is the user's job: a 5-set block is
+ * deliberately not weighted higher than a 2-set one. A day that feels lopsided
+ * gets reshaped, it does not get re-weighted.
+ */
+export function blockBases(day: TrainingDay, dayXpMax = DAY_XP): number[] {
+  return splitEqually(dayXpMax, day.blocks.length);
+}
+
+/** XP of one block – integer. `planned` is the target, not the set count. */
+export function blockXp(completed: number, planned: number, base: number): number {
+  return Math.round(base * completionShare(completed, planned));
+}
+
+/**
+ * XP of a whole day from plan + results – exactly `DAY_XP` when everything is
+ * checked off, for any block count, because `completionShare(n, n) === 1`.
+ */
+export function dayXp(
+  day: TrainingDay,
+  results: BlockResult[],
+  dayXpMax = DAY_XP,
 ): number {
-  if (planned <= 0) return 0;
-  const base = planned * cfg.perSet;
-
-  if (completed <= planned) {
-    return Math.round(base * setShare(completed, planned, cfg.curve));
-  }
-
-  const extras = Math.min(completed - planned, cfg.overflow.length);
-  let bonus = 0;
-  for (let i = 0; i < extras; i++) bonus += cfg.overflow[i];
-  return Math.round(base * (1 + bonus));
+  const bases = blockBases(day, dayXpMax);
+  return day.blocks.reduce((sum, b, i) => {
+    const r = results.find((x) => x.blockId === b.id);
+    const done = r ? r.sets.filter((s) => s.completed).length : 0;
+    return sum + blockXp(done, b.sets, bases[i]);
+  }, 0);
 }
 
-/** How many sets beyond the target still yield any XP at all. */
-export function maxExtraSets(cfg: XpConfig = DEFAULT_XP): number {
-  return cfg.overflow.length;
-}
-
-/** Planned set count of a result; without `plannedSets` the actual count wins. */
-function plannedSetsOf(result: BlockResult): number {
-  return result.plannedSets ?? result.sets.length;
-}
-
-/** XP of a completed session. */
-export function sessionXp(session: WorkoutSession, cfg: XpConfig = DEFAULT_XP): number {
-  if (session.status === 'rest') return cfg.restDay;
+/**
+ * XP of a completed session – computed from the **session**, not from the plan.
+ *
+ * That is what keeps the history honest: a later plan edit must not change what
+ * a past session was worth. It relies on `BlockResult.plannedSets`, which
+ * `createSession()` fills in for every block.
+ */
+export function sessionXp(session: WorkoutSession): number {
+  if (session.status === 'rest') return REST_XP;
   if (session.status !== 'done') return 0;
 
-  let xp = 0;
-  let allComplete = session.results.length > 0;
-
-  for (const result of session.results) {
-    const planned = plannedSetsOf(result);
-    const completed = result.sets.filter((s) => s.completed).length;
-    xp += blockXp(completed, planned, cfg);
-    if (completed < planned) allComplete = false;
-  }
-
-  return xp + (allComplete ? cfg.dayCompleted : 0);
+  const bases = splitEqually(DAY_XP, session.results.length);
+  return session.results.reduce((sum, r, i) => {
+    const planned = r.plannedSets ?? r.sets.length;
+    const done = r.sets.filter((s) => s.completed).length;
+    return sum + blockXp(done, planned, bases[i]);
+  }, 0);
 }
 
 /**
  * Append an extra set to a session (immutable).
- * Returns the session unchanged if the target is not yet met or the limit from
- * `overflow` has already been reached.
+ * Returns the session unchanged if the target is not yet met or the ceiling
+ * from `maxSets()` has already been reached.
  */
-export function withExtraSet(
-  session: WorkoutSession,
-  blockId: Id,
-  cfg: XpConfig = DEFAULT_XP,
-): WorkoutSession {
+export function withExtraSet(session: WorkoutSession, blockId: Id): WorkoutSession {
   const result = session.results.find((r) => r.blockId === blockId);
   if (!result) return session;
 
-  const planned = plannedSetsOf(result);
-  if (result.sets.length >= planned + maxExtraSets(cfg)) return session;
+  const planned = result.plannedSets ?? result.sets.length;
+  if (result.sets.length >= maxSets(planned)) return session;
   if (result.sets.some((s) => !s.completed)) return session;
 
   return {
@@ -294,13 +285,11 @@ export function withExtraSet(
 }
 
 /**
- * XP of a perfectly completed day – all sets plus the day bonus.
+ * XP of a perfectly completed day.
  * **Without** extra sets: 100 % means "plan fulfilled", not "maximum squeezed out".
  */
-export function potentialXp(day: TrainingDay, cfg: XpConfig = DEFAULT_XP): number {
-  if (day.restDay) return cfg.restDay;
-  const sets = day.blocks.reduce((sum, b) => sum + b.sets, 0);
-  return sets * cfg.perSet + cfg.dayCompleted;
+export function potentialXp(day: TrainingDay): number {
+  return day.restDay ? REST_XP : DAY_XP;
 }
 
 /* ------------------------------------------------------------------ */
@@ -358,171 +347,42 @@ export function periodRange(scope: RankScope, date: Date): { start: Date; days: 
 }
 
 /* ------------------------------------------------------------------ */
-/* The perfect period                                                  */
+/* What a plan can reach                                               */
 /* ------------------------------------------------------------------ */
 
 /**
- * Average daily XP of a cyclic plan.
- * The cycle advances once per calendar day, but which days fall into a given
- * week depends on the phase – the mean makes the scale independent of that.
+ * XP a gapless week would yield under this plan – **display only**.
+ *
+ * Nothing grades against it; the ladders use `SCOPE_MAX`. It exists so the plan
+ * editor can show the gap a plan can never close: a weekday plan with weekends
+ * off reaches 600 of 840 and therefore cannot become Konungr, which is a
+ * property of the plan the user should see rather than discover on a Sunday.
+ *
+ * Cyclic plans rotate seven days from `startDayId` – the phase only matters
+ * when the cycle contains rest days. Weekly plans sum their seven assignments.
  */
-export function dailyAverageXp(plan: TrainingPlan, cfg: XpConfig = DEFAULT_XP): number {
-  if (plan.days.length === 0) return 0;
-  const sum = plan.days.reduce((acc, d) => acc + potentialXp(d, cfg), 0);
-  return sum / plan.days.length;
-}
+export function weeklyPotential(plan: TrainingPlan, startDayId?: Id): number {
+  if (isWeekly(plan.schedule)) {
+    const byId = new Map(plan.days.map((d) => [d.id, d]));
+    let sum = 0;
+    for (const wd of [1, 2, 3, 4, 5, 6, 7] as const) {
+      const day = plan.schedule.assignments[wd];
+      const found = day ? byId.get(day) : undefined;
+      if (found) sum += potentialXp(found);
+    }
+    return sum;
+  }
 
-/**
- * Sum across `days` calendar days of a cyclic plan starting at `startDayId`.
- * `null` when no phase is known – then only the daily mean remains.
- */
-function cyclicSum(
-  plan: TrainingPlan,
-  days: number,
-  startDayId: Id | undefined,
-  value: (day: TrainingDay) => number,
-): number | null {
-  if (!startDayId || plan.days.length === 0) return null;
-  let day = orderedDays(plan).find((d) => d.id === startDayId);
-  if (!day) return null;
+  const ordered = orderedDays(plan);
+  if (ordered.length === 0) return 0;
 
+  let day = ordered.find((d) => d.id === startDayId) ?? ordered[0];
   let sum = 0;
-  for (let i = 0; i < days; i++) {
-    sum += value(day);
+  for (let i = 0; i < 7; i++) {
+    sum += potentialXp(day);
     day = nextDay(plan, day.id);
   }
   return sum;
-}
-
-/**
- * XP of a gaplessly completed period – the reference value for 100 %.
- *
- * Weekly plan: exactly across the calendar days, so that months of differing
- * length and weekends are counted correctly.
- *
- * Cyclic plan: the cycle falls into the period phase-dependently – with a
- * four-day cycle the weekly sum ranges from 800 to 830 depending on the start.
- * If the cursor at the start of the period is known (`startDayId`), the phase
- * is computed exactly; without it the daily mean remains as a plan-independent
- * approximation that can be off by up to ±3 %.
- */
-export function perfectXp(
-  plan: TrainingPlan,
-  scope: RankScope,
-  date: Date = new Date(),
-  cfg: XpConfig = DEFAULT_XP,
-  startDayId?: Id,
-): number {
-  const { start, days } = periodRange(scope, date);
-
-  if (!isWeekly(plan.schedule)) {
-    const exact = cyclicSum(plan, days, startDayId, (d) => potentialXp(d, cfg));
-    return exact ?? Math.round(dailyAverageXp(plan, cfg) * days);
-  }
-
-  const byId = new Map(plan.days.map((d) => [d.id, d]));
-  let sum = 0;
-  for (let i = 0; i < days; i++) {
-    const dayId = plan.schedule.assignments[isoWeekday(addDays(start, i))];
-    const day = dayId ? byId.get(dayId) : undefined;
-    if (day) sum += potentialXp(day, cfg);
-  }
-  return sum;
-}
-
-/* ------------------------------------------------------------------ */
-/* Overflow control                                                    */
-/* ------------------------------------------------------------------ */
-
-/** Set base of a day without bonuses – the quantity `overflow` acts on. */
-function setBaseXp(day: TrainingDay, cfg: XpConfig): number {
-  if (day.restDay) return 0;
-  return day.blocks.reduce((s, b) => s + b.sets, 0) * cfg.perSet;
-}
-
-/**
- * Set base of a gapless period – analogous to `perfectXp`, but without the
- * day and rest-day bonuses.
- */
-export function perfectSetBase(
-  plan: TrainingPlan,
-  scope: RankScope,
-  date: Date = new Date(),
-  cfg: XpConfig = DEFAULT_XP,
-  startDayId?: Id,
-): number {
-  const { start, days } = periodRange(scope, date);
-
-  if (!isWeekly(plan.schedule)) {
-    if (plan.days.length === 0) return 0;
-    const exact = cyclicSum(plan, days, startDayId, (d) => setBaseXp(d, cfg));
-    if (exact !== null) return exact;
-    const avg = plan.days.reduce((s, d) => s + setBaseXp(d, cfg), 0) / plan.days.length;
-    return Math.round(avg * days);
-  }
-
-  const byId = new Map(plan.days.map((d) => [d.id, d]));
-  let sum = 0;
-  for (let i = 0; i < days; i++) {
-    const dayId = plan.schedule.assignments[isoWeekday(addDays(start, i))];
-    const day = dayId ? byId.get(dayId) : undefined;
-    if (day) sum += setBaseXp(day, cfg);
-  }
-  return sum;
-}
-
-/**
- * The central condition for extra sets: they must **not** be able to make up
- * for a missed training day. Otherwise a consistency mechanic turns into a
- * volume mechanic.
- *
- * Both values are relative to the week **without** the missed day: `limit` is
- * the largest relative bonus on top of it that still fails to compensate the
- * day; `actual` is the bonus `cfg.overflow` produces at most – applied to the
- * set base of the remaining days, because the missed day yields no extra sets
- * either.
- */
-export function overflowHeadroom(
-  plan: TrainingPlan,
-  date: Date = new Date(),
-  cfg: XpConfig = DEFAULT_XP,
-): { limit: number; actual: number; safe: boolean } {
-  const week = perfectXp(plan, 'week', date, cfg);
-  const trainingDays = plan.days.filter((d) => !d.restDay);
-  if (trainingDays.length === 0 || week === 0) {
-    return { limit: 0, actual: 0, safe: true };
-  }
-
-  // Cheapest training day: the one whose absence weighs the least.
-  const cheapestDay = trainingDays.reduce((a, b) =>
-    potentialXp(a, cfg) <= potentialXp(b, cfg) ? a : b,
-  );
-  const cheapest = potentialXp(cheapestDay, cfg);
-  const rest = week - cheapest;
-  if (rest <= 0) return { limit: Infinity, actual: 0, safe: true };
-
-  const totalOverflow = cfg.overflow.reduce((a, b) => a + b, 0);
-  const base = perfectSetBase(plan, 'week', date, cfg) - setBaseXp(cheapestDay, cfg);
-
-  const limit = cheapest / rest;
-  const actual = (base * totalOverflow) / rest;
-
-  return { limit, actual, safe: actual < limit };
-}
-
-/** Throws if the overflow curve could compensate for a missed day. */
-export function assertOverflowSafe(
-  plan: TrainingPlan,
-  date: Date = new Date(),
-  cfg: XpConfig = DEFAULT_XP,
-): void {
-  const { limit, actual, safe } = overflowHeadroom(plan, date, cfg);
-  if (!safe) {
-    throw new Error(
-      `Extra sets too generous: +${(actual * 100).toFixed(1)} % against a ` +
-        `limit of ${(limit * 100).toFixed(1)} %.`,
-    );
-  }
 }
 
 /* ------------------------------------------------------------------ */
@@ -535,9 +395,10 @@ export interface ScopeProgress {
   period: string;
   xp: number;
   /**
-   * Reference value for 100 %, computed from the plan when the period starts.
-   * Stored in the state so that a later plan change does not retroactively
-   * distort the running period.
+   * Reference value for 100 %, frozen when the period starts. Always
+   * `SCOPE_MAX[scope]` today, but kept in the state because `history` entries
+   * need the value they were graded against – changing the maxima later must
+   * not retroactively regrade closed periods.
    */
   max: number;
 }
@@ -559,17 +420,11 @@ export interface RankState {
   }>;
 }
 
-export function createRankState(
-  plan: TrainingPlan,
-  now: Date = new Date(),
-  cfg: XpConfig = DEFAULT_XP,
-  /** Cursor of the cyclic plan - makes `max` phase-accurate. */
-  startDayId?: Id,
-): RankState {
+export function createRankState(now: Date = new Date()): RankState {
   const scope = (s: RankScope): ScopeProgress => ({
     period: periodKey(s, now),
     xp: 0,
-    max: perfectXp(plan, s, now, cfg, startDayId),
+    max: SCOPE_MAX[s],
   });
 
   return {
@@ -642,15 +497,8 @@ export function tierProgress(scope: RankScope, p: ScopeProgress): TierProgress {
 /**
  * Close out and reset expired periods.
  * Idempotent – safe to call on every app start or day change.
- * The new reference value is computed from the plan passed in.
  */
-export function rollOver(
-  state: RankState,
-  plan: TrainingPlan,
-  now: Date = new Date(),
-  cfg: XpConfig = DEFAULT_XP,
-  startDayId?: Id,
-): RankState {
+export function rollOver(state: RankState, now: Date = new Date()): RankState {
   let next = state;
 
   for (const scope of ['week', 'month', 'year'] as RankScope[]) {
@@ -660,7 +508,7 @@ export function rollOver(
 
     next = {
       ...next,
-      [scope]: { period: key, xp: 0, max: perfectXp(plan, scope, now, cfg, startDayId) },
+      [scope]: { period: key, xp: 0, max: SCOPE_MAX[scope] },
       history: [
         ...next.history,
         {
@@ -679,15 +527,8 @@ export function rollOver(
 }
 
 /** Credit XP; resets expired periods first. */
-export function awardXp(
-  state: RankState,
-  xp: number,
-  plan: TrainingPlan,
-  now: Date = new Date(),
-  cfg: XpConfig = DEFAULT_XP,
-  startDayId?: Id,
-): RankState {
-  const base = rollOver(state, plan, now, cfg, startDayId);
+export function awardXp(state: RankState, xp: number, now: Date = new Date()): RankState {
+  const base = rollOver(state, now);
 
   const week = { ...base.week, xp: base.week.xp + xp };
   const month = { ...base.month, xp: base.month.xp + xp };
@@ -710,12 +551,9 @@ export function awardXp(
 export function applySession(
   state: RankState,
   session: WorkoutSession,
-  plan: TrainingPlan,
   now: Date = new Date(),
-  cfg: XpConfig = DEFAULT_XP,
-  startDayId?: Id,
 ): RankState {
-  return awardXp(state, sessionXp(session, cfg), plan, now, cfg, startDayId);
+  return awardXp(state, sessionXp(session), now);
 }
 
 function bestTier(scope: RankScope, previous: Id | null, p: ScopeProgress): Id {

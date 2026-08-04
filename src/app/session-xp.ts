@@ -10,8 +10,7 @@
  */
 
 import type { BlockResult, Id, WorkoutSession } from '@/model/training';
-import type { XpConfig } from '@/model/ranks';
-import { DEFAULT_XP, blockXp, maxExtraSets } from '@/model/ranks';
+import { DAY_XP, REST_XP, blockXp, maxSets, splitEqually } from '@/model/ranks';
 
 /** Planned set count of a result; sessions persisted before `plannedSets`
  *  existed fall back to the number of set entries. */
@@ -36,37 +35,47 @@ export function isComplete(session: WorkoutSession): boolean {
 }
 
 /**
- * XP of a session as it stands right now – including the implicit day bonus.
+ * The day's XP budget split across the session's blocks.
  *
- * The design has no "finish day" button: `dayCompleted` is booked the moment
- * the last planned set is checked and revoked when one is unchecked, so the
- * bonus has to be part of the running total rather than of a closing step.
+ * A block's base is not derivable from the block itself – it depends on how
+ * many blocks share the day – so the UI has to carry it down alongside the
+ * result.
  */
-export function liveSessionXp(
-  session: WorkoutSession,
-  cfg: XpConfig = DEFAULT_XP,
-): number {
-  if (session.status === 'rest') return cfg.restDay;
-
-  const xp = session.results.reduce(
-    (sum, r) => sum + blockXp(doneSetsOf(r), plannedSetsOf(r), cfg),
-    0,
-  );
-  return xp + (isComplete(session) ? cfg.dayCompleted : 0);
-}
-
-/** XP of one block as it stands right now. */
-export function liveBlockXp(result: BlockResult, cfg: XpConfig = DEFAULT_XP): number {
-  return blockXp(doneSetsOf(result), plannedSetsOf(result), cfg);
+export function blockBasesOf(session: WorkoutSession): number[] {
+  return splitEqually(DAY_XP, session.results.length);
 }
 
 /**
- * Cumulative XP after each set pill, planned sets first, then the overflow
- * ceiling: three planned sets yield `[5, 12, 30, 38, 41]`.
+ * XP of a session as it stands right now.
+ *
+ * The design has no "finish day" button, so there is nothing to book at the
+ * end: "finishing pays" sits in the kink of the completion curve at the target,
+ * which the running total picks up the moment the last planned set is checked –
+ * and gives back when one is unchecked.
  */
-export function pillTotals(planned: number, cfg: XpConfig = DEFAULT_XP): number[] {
-  const count = planned + maxExtraSets(cfg);
-  return Array.from({ length: count }, (_, i) => blockXp(i + 1, planned, cfg));
+export function liveSessionXp(session: WorkoutSession): number {
+  if (session.status === 'rest') return REST_XP;
+
+  const bases = blockBasesOf(session);
+  return session.results.reduce(
+    (sum, r, i) => sum + blockXp(doneSetsOf(r), plannedSetsOf(r), bases[i]),
+    0,
+  );
+}
+
+/** XP of one block as it stands right now. */
+export function liveBlockXp(result: BlockResult, base: number): number {
+  return blockXp(doneSetsOf(result), plannedSetsOf(result), base);
+}
+
+/**
+ * Cumulative XP after each set pill, planned sets first, then the extra sets up
+ * to `maxSets()`: three planned sets on a base of 40 yield `[6, 16, 40, 44, 46]`.
+ */
+export function pillTotals(planned: number, base: number): number[] {
+  return Array.from({ length: maxSets(planned) }, (_, i) =>
+    blockXp(i + 1, planned, base),
+  );
 }
 
 /* ------------------------------------------------------------------ */

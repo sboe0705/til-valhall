@@ -1,10 +1,8 @@
 import { defineStore } from 'pinia';
 import { computed, ref } from 'vue';
 
-import type { Id, TrainingPlan } from '@/model/training';
 import type { RankScope, RankState, TierProgress } from '@/model/ranks';
 import {
-  DEFAULT_XP,
   awardXp,
   createRankState,
   resolveTiers,
@@ -15,12 +13,10 @@ import { RANKS_KEY } from '@/app/backup';
 
 /**
  * The three ladders – a separate slice with its own storage key, exactly as the
- * model splits it. `RankState` has no seed value; it is constructed from the
- * plan on first use.
+ * model splits it. `RankState` has no seed value; it is constructed on first use.
  *
- * Every call passes the plan's cursor through so `perfectXp` is phase-exact for
- * cyclic plans (830 XP for the seed week, not the 823 XP daily-average
- * approximation).
+ * The plan does not enter into it: the maxima are absolute (`SCOPE_MAX`), so
+ * nothing here needs to know which plan is active or where its cursor stands.
  */
 export const useRankStore = defineStore(
   'ranks',
@@ -28,10 +24,8 @@ export const useRankStore = defineStore(
     const state = ref<RankState | null>(null);
 
     /** Construct the ladders on first use – `max` is frozen at period start. */
-    function ensure(plan: TrainingPlan, now: Date, cursorDayId?: Id): RankState {
-      if (!state.value) {
-        state.value = createRankState(plan, now, DEFAULT_XP, cursorDayId);
-      }
+    function ensure(now: Date): RankState {
+      if (!state.value) state.value = createRankState(now);
       return state.value;
     }
 
@@ -39,28 +33,22 @@ export const useRankStore = defineStore(
      * Close out expired periods. Idempotent – safe on every app start and on
      * every date change.
      */
-    function refresh(plan: TrainingPlan, now: Date, cursorDayId?: Id): void {
-      state.value = rollOver(
-        ensure(plan, now, cursorDayId),
-        plan,
-        now,
-        DEFAULT_XP,
-        cursorDayId,
-      );
+    function refresh(now: Date): void {
+      state.value = rollOver(ensure(now), now);
     }
 
     /**
      * Credit a delta to all three ladders. Negative deltas are the mechanism
-     * behind "unchecking a set revokes the day bonus"; records only ever
-     * ratchet upwards, so they survive it – and every reset.
+     * behind "unchecking a set gives its XP back"; records only ever ratchet
+     * upwards, so they survive it – and every reset.
      */
-    function award(delta: number, plan: TrainingPlan, now: Date, cursorDayId?: Id): void {
-      const base = ensure(plan, now, cursorDayId);
+    function award(delta: number, now: Date): void {
+      const base = ensure(now);
       if (delta === 0) {
-        refresh(plan, now, cursorDayId);
+        refresh(now);
         return;
       }
-      state.value = awardXp(base, delta, plan, now, DEFAULT_XP, cursorDayId);
+      state.value = awardXp(base, delta, now);
     }
 
     /** Wipe the ladders – used when the training data is reset. */

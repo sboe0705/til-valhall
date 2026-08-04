@@ -35,9 +35,10 @@ npm run build        # type-check + production bundle (installable PWA)
 
 The UI is a recreation of the developer handoff in
 [design_handoff_til_valhall/](design_handoff_til_valhall/): German, dark-only,
-mobile-first, four screens (Heute · Plan · Chronik · Ränge). The prototype in
-that folder re-implements the XP maths so the mock could be clickable; none of
-that is ported — every figure on screen comes from `ranks.ts`.
+mobile-first, four screens (Heute · Plan · Chronik · Ränge) plus an Impressum the
+handoff does not have. The prototype in that folder re-implements the XP maths so
+the mock could be clickable; none of that is ported — every figure on screen comes
+from `ranks.ts`.
 
 ## Structure
 
@@ -433,6 +434,16 @@ the handoff itself prescribes.
    border becomes a 2px ring via an inset shadow. The `✓` grows from 15px/500 to
    18px/600, and the XP line below it loses the `.72` dim, which is what carries
    it over 4.5:1 at 9px. Hover is scoped to the open pill.
+10. **The build stamp and the Impressum are net-new.** The handoff specifies four
+    screens and no about or legal surface, but a publicly reachable German site
+    needs one. `AppFooter.vue` closes the Heute content with
+    `v<commit> · <date> · Impressum` in `--vh-mono` / `--vh-400`; it scrolls with
+    the screen rather than becoming a fifth band above the tab bar. The link opens
+    `/impressum`, a plain `.vh-screen` of `SectionRule` + `.vh-card` blocks — not a
+    dialog, because the app has no modal pattern anywhere — and deliberately not a
+    fifth tab, since the tab bar is a `repeat(4, 1fr)` grid. The version itself
+    comes from `git log -1` at config load, injected as `__APP_COMMIT__` /
+    `__APP_COMMIT_DATE__`, falling back to `dev` without a `.git` directory.
 
 ## Extension points
 

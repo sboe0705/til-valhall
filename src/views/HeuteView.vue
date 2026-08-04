@@ -5,6 +5,7 @@ import { blocksInOrder } from '@/model/plan-cycle';
 import { DEFAULT_XP, potentialXp } from '@/model/ranks';
 import { doneSetsOf, isComplete, liveSessionXp, plannedSetsOf } from '@/app/session-xp';
 import * as de from '@/app/format-de';
+import AppFooter from '@/components/AppFooter.vue';
 import ExerciseBlockCard from '@/components/ExerciseBlockCard.vue';
 import LootCard from '@/components/LootCard.vue';
 import RankStrip from '@/components/RankStrip.vue';
@@ -143,6 +144,8 @@ const rows = computed(() =>
 
       <span class="finish">{{ finishHint }}</span>
     </template>
+
+    <AppFooter />
   </div>
 </template>
 

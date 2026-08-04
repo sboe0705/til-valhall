@@ -52,9 +52,9 @@ src/
 ├── stores/               Pinia — training + ranks, one storage key each
 ├── composables/useNow.ts the app clock (midnight tick, visibilitychange)
 ├── ui/                   tokens.css, base.css, tiers.ts (colours, runes, rail labels)
-├── components/           shared and screen-specific SFCs
-├── views/                Heute · Plan · Chronik · Ränge
-└── router/               one route per tab
+├── components/           shared and screen-specific SFCs (incl. AppFooter)
+├── views/                Heute · Plan · Chronik · Ränge · Impressum
+└── router/               one route per tab, plus /impressum
 e2e/                      Playwright smoke test
 ```
 
@@ -211,6 +211,17 @@ Two discriminated unions drive nearly all branching; always handle both arms:
 - **Inert controls use `aria-disabled`, not `disabled`** (day arrows at the ends,
   "letzter Tag", the clamped `›`, an invalid "Tag anlegen"). Playwright will refuse to
   click them — use `click({ force: true })` when a test asserts that nothing happens.
+- **`__APP_COMMIT__` / `__APP_COMMIT_DATE__`** are the only `define`s in
+  `vite.config.ts` (declared in `env.d.ts`, shown by `AppFooter.vue`). They are resolved
+  once while the config loads, so `npm run dev` keeps the hash it started with until the
+  server restarts, and a checkout without `.git` builds as `dev` — neither is a bug.
+- `/impressum` has no tab, so **no tab shows `router-link-active` while it is open**.
+  That is intended; the tab bar's grid is `repeat(4, 1fr)` and the handoff fixes the four
+  runes, so do not add a fifth tab.
+- **The router's `scrollBehavior` is inert on its own.** `.shell` is a `100dvh` frame with
+  `overflow: hidden`, so the window never scrolls; the real scroller is `.shell__scroll`
+  and `App.vue` rewinds it on every `route.fullPath` change. Without that, a screen
+  entered from the bottom of the previous one opens halfway down.
 
 ## Seed data reference
 

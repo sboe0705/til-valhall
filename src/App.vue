@@ -1,5 +1,6 @@
 <script setup lang="ts">
-import { watch } from 'vue';
+import { ref, watch } from 'vue';
+import { useRoute } from 'vue-router';
 
 import TabBar from '@/components/TabBar.vue';
 import { useNow } from '@/composables/useNow';
@@ -7,15 +8,28 @@ import { useTrainingStore } from '@/stores/training';
 
 const training = useTrainingStore();
 const { todayIso } = useNow();
+const route = useRoute();
 
 // `rollOver()` is idempotent, so running it on start and on every date change
 // is the whole date-boundary story.
 watch(todayIso, () => training.refresh(), { immediate: true });
+
+/**
+ * `.shell` is the 100dvh frame and never scrolls, so the router's
+ * `scrollBehavior` – which only ever addresses the window – has nothing to
+ * reset. The real scroller is this element, and it has to be rewound by hand or
+ * a screen entered from the bottom of the previous one opens halfway down.
+ */
+const scroller = ref<HTMLElement | null>(null);
+watch(
+  () => route.fullPath,
+  () => scroller.value?.scrollTo({ top: 0 }),
+);
 </script>
 
 <template>
   <div class="shell">
-    <main class="shell__scroll">
+    <main ref="scroller" class="shell__scroll">
       <RouterView />
     </main>
     <TabBar />

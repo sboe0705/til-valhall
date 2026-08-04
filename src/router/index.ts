@@ -3,8 +3,9 @@ import { createRouter, createWebHistory } from 'vue-router';
 import HeuteView from '@/views/HeuteView.vue';
 
 /**
- * One route per tab. The tab bar is the only navigation, but routes make the
- * four screens deep-linkable and give the e2e test something to address.
+ * One route per tab, plus `/impressum` – the only screen without a tab. The tab
+ * bar is otherwise the whole navigation, but routes make the screens
+ * deep-linkable and give the e2e test something to address.
  */
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
@@ -21,6 +22,11 @@ const router = createRouter({
       path: '/raenge',
       name: 'raenge',
       component: () => import('@/views/RaengeView.vue'),
+    },
+    {
+      path: '/impressum',
+      name: 'impressum',
+      component: () => import('@/views/ImpressumView.vue'),
     },
     { path: '/:pathMatch(.*)*', redirect: '/heute' },
   ],

@@ -122,6 +122,27 @@ test('a new day can be drafted, opened and removed again', async ({ page }) => {
   await expect(page.locator('.day')).toHaveCount(4);
 });
 
+test('the footer stamps the build and opens the Impressum', async ({ page }) => {
+  await freshApp(page);
+
+  await expect(page.locator('.foot__build')).toHaveText(/^v\S+ · \d{4}-\d{2}-\d{2}$/);
+
+  // The link sits at the very bottom of the longest screen, so the shell's
+  // scroller has to be rewound or the Impressum opens halfway down.
+  await page.locator('.foot__link').scrollIntoViewIfNeeded();
+  await page.locator('.foot__link').click();
+  await expect(page.getByRole('heading', { level: 1 })).toHaveText('Impressum');
+  await expect(page.getByText('Angaben gemäß § 5 DDG')).toBeVisible();
+  await expect(page.locator('.back')).toBeInViewport();
+
+  // The screen is deep-linkable, and `‹ zurück` leads back to Heute.
+  await page.reload();
+  await expect(page.getByRole('heading', { level: 1 })).toHaveText('Impressum');
+
+  await page.locator('.back').click();
+  await expect(page.locator('.head__title')).toContainText('Tag 1');
+});
+
 test('the chronicle steps back but never past the current month', async ({ page }) => {
   await freshApp(page, '/chronik');
 

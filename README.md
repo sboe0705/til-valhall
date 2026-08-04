@@ -426,6 +426,13 @@ the handoff itself prescribes.
    instead of a Google Fonts request, so the installed PWA works offline.
 8. The phone shell, status bar and wordmark around the frame are mock chrome and
    are not implemented, as the handoff states.
+9. **The checked set pill is stronger than the handoff's.** Its `#14231A` fill
+   with a 1px border read as a hairline against the card, so the fill is raised
+   to `#1A2F21` (`#2F2114` for the overflow variant, a gentler lift because
+   `--vh-overflow` is a mid-tone and a brighter fill would cost contrast) and the
+   border becomes a 2px ring via an inset shadow. The `✓` grows from 15px/500 to
+   18px/600, and the XP line below it loses the `.72` dim, which is what carries
+   it over 4.5:1 at 9px. Hover is scoped to the open pill.
 
 ## Extension points
 

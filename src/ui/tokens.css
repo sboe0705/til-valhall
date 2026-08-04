@@ -30,8 +30,8 @@
   --vh-danger-strong: #c8452b; /* destructive hover, error rune */
 
   /* Dark tints – only ever used as "done" fills */
-  --vh-fill-success: #14231a;
-  --vh-fill-overflow: #2a1d12;
+  --vh-fill-success: #1a2f21; /* raised from the handoff's #14231a – see README */
+  --vh-fill-overflow: #2f2114; /* raised from #2a1d12, gentler: --vh-overflow is a mid-tone */
   --vh-fill-rest: #12202a;
 
   /* Typography */

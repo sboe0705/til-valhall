@@ -125,6 +125,68 @@ export const TIER_SHORT: Record<Id, string> = {
   odinn: 'Odin',
 };
 
+/**
+ * One sentence of mythological background per tier, shown in the info dialog
+ * behind the current rank.
+ *
+ * German and therefore presentation, not model: `RankTier.gloss` stays the
+ * English one-liner the model documents itself with – it is not rendered
+ * anywhere. Keep these to a single sentence; the dialog is sized for ~30 words.
+ */
+export const TIER_LORE: Record<Id, string> = {
+  drengr:
+    'Der junge, tapfere Krieger – in den Sagas ein Lob für aufrechten Mut: Er muss sich erst beweisen, hat aber schon den richtigen Charakter.',
+  karl: 'Der freie Bauer: eigener Hof, eigenes Land, eigene Stimme auf dem Thing – das Rückgrat der Wikingergesellschaft.',
+  hersir:
+    'Lokaler Häuptling und Anführer eines Kriegertrupps; er stellt Schiff und Mannschaft und untersteht direkt dem Jarl.',
+  jarl: 'Hoher Adliger unter dem König, der ganze Landstriche verwaltet; laut Rígsþula stammt sein Geschlecht vom Gott Ríg selbst.',
+  konungr:
+    'Der König – aus den Jarlen gewählt oder erkämpft, Herr über Land, Flotte und Gefolgschaft: die höchste weltliche Stufe.',
+
+  niflheim:
+    'Die Urwelt aus Nebel und Eis; aus ihrem Frost und Muspelheims Feuer entstand über der Leere Ginnungagap alles Leben.',
+  helheim:
+    'Das Totenreich der Göttin Hel, tief unter den Wurzeln Yggdrasils; hierher kommt, wer nicht im Kampf gefallen ist.',
+  muspelheim:
+    'Die Feuerwelt im Süden, bewacht vom Riesen Surt, dessen flammendes Schwert bei Ragnarök die Welt verbrennt.',
+  jotunheim:
+    'Das raue Land der Riesen jenseits von Midgard – Heimat von Thors Gegnern und zugleich vieler Göttergemahlinnen.',
+  svartalfaheim:
+    'Die unterirdische Welt der Schwarzalben und Zwerge; hier schmiedeten Meisterhandwerker Thors Hammer und Odins Speer.',
+  midgard:
+    'Die Welt der Menschen, aus dem Leib des Urriesen Ymir geformt und von der Midgardschlange umschlungen.',
+  alfheim:
+    'Die lichte Welt der Elben, von den Göttern dem Fruchtbarkeitsgott Freyr als Zahngeschenk überlassen.',
+  vanaheim:
+    'Heimat der Vanen, der älteren Göttersippe um Njörd, Freyr und Freya – Götter der Fruchtbarkeit, des Meeres und der Magie.',
+  asgard:
+    'Die Burg der Asen, über Bifröst mit Midgard verbunden; hier liegt Walhall, Odins Halle der gefallenen Krieger.',
+
+  bragi:
+    'Gott der Dicht- und Skaldenkunst, langbärtig und wortgewandt; er begrüßt die gefallenen Krieger in Walhall.',
+  forseti:
+    'Gott des Rechts, Sohn Baldrs; in seiner goldenen Halle Glitnir schlichtet er jeden Streit, der vor ihn kommt.',
+  ullr: 'Meisterschütze und Skiläufer, Gott des Winters und des Zweikampfs – auf seinen Ring wurden Eide geschworen.',
+  vidar:
+    'Der schweigsame Gott von unbändiger Kraft; bei Ragnarök rächt er Odin, indem er den Wolf Fenrir tötet.',
+  vali: 'An einem einzigen Tag herangewachsen, um Baldrs Tod zu rächen; er überlebt Ragnarök und sieht die neue Welt.',
+  njord:
+    'Gott des Meeres, des Windes und des Reichtums; Schutzherr der Seefahrer und Vater von Freyr und Freya.',
+  freyr:
+    'Gott der Fruchtbarkeit, des Friedens und guter Ernten; ihm gehören das Schiff Skidbladnir und der Eber Gullinborsti.',
+  heimdallr:
+    'Der wachsame Wächter der Regenbogenbrücke Bifröst; er hört das Gras wachsen und bläst bei Ragnarök ins Gjallarhorn.',
+  baldr:
+    'Der strahlende, von allen geliebte Gott; sein durch Lokis List verschuldeter Tod leitet den Untergang der Götter ein.',
+  tyr: 'Gott des Kampfes und der Rechtsordnung; er opferte seine Hand, damit die Götter den Wolf Fenrir fesseln konnten.',
+  thorr:
+    'Der Donnergott mit dem Hammer Mjölnir, stärkster der Asen und Schutzherr Midgards gegen die Riesen.',
+  odinn:
+    'Allvater, Herr über Walhall, Krieg und Weisheit; er gab ein Auge für den Trunk aus Mimirs Brunnen.',
+};
+
+export const tierLore = (key: Id): string => TIER_LORE[key] ?? '';
+
 export interface ScopeCopy {
   label: string;
   system: string;

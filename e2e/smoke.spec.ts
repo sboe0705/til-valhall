@@ -33,6 +33,21 @@ test('all four tabs render', async ({ page }) => {
   await expect(page.locator('.ladder__name').first()).toHaveText('Drengr');
 });
 
+test('the info button opens the lore of the current rank', async ({ page }) => {
+  await freshApp(page);
+
+  await tab(page, 'Ränge').click();
+  await page.getByRole('button', { name: 'Was ist Drengr?' }).click();
+
+  const dialog = page.getByRole('dialog');
+  await expect(dialog.locator('.info__name')).toHaveText('Drengr');
+  await expect(dialog.locator('.info__lore')).toContainText('tapfere Krieger');
+  await expect(dialog.locator('.info__threshold')).toHaveText('Startrang');
+
+  await dialog.getByRole('button', { name: 'Schließen' }).click();
+  await expect(dialog).toBeHidden();
+});
+
 test('checking every set books the day and advances the cursor', async ({ page }) => {
   await freshApp(page);
 

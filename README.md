@@ -461,11 +461,24 @@ the handoff itself prescribes.
     needs one. `AppFooter.vue` closes the Heute content with
     `v<commit> · <date> · Impressum` in `--vh-mono` / `--vh-400`; it scrolls with
     the screen rather than becoming a fifth band above the tab bar. The link opens
-    `/impressum`, a plain `.vh-screen` of `SectionRule` + `.vh-card` blocks — not a
-    dialog, because the app has no modal pattern anywhere — and deliberately not a
+    `/impressum`, a plain `.vh-screen` of `SectionRule` + `.vh-card` blocks — a
+    legal page is a page, not a popup, even though point 11 has since added a
+    modal pattern — and deliberately not a
     fifth tab, since the tab bar is a `repeat(4, 1fr)` grid. The version itself
     comes from `git log -1` at config load, injected as `__APP_COMMIT__` /
     `__APP_COMMIT_DATE__`, falling back to `dev` without a `.git` directory.
+11. **The rank lore dialog is net-new.** An 18px `i` button sits behind the current
+    rank on each `LadderCard` and opens `TierInfoDialog.vue` with one sentence of
+    mythological background — the ladders name 26 tiers the handoff never explains.
+    The texts live in `TIER_LORE` in `src/ui/tiers.ts`, next to the runes and rail
+    abbreviations, because they are German presentation copy; `RankTier.gloss`
+    stays the model's English one-liner and is still rendered nowhere. The dialog
+    is a native `<dialog>` with `showModal()`, which puts it in the top layer and
+    therefore outside the `.shell` frame (`100dvh`, `overflow: hidden`) without a
+    teleport, and brings Esc and focus containment for free. It closes on Esc, on
+    the backdrop and on "Schließen"; the button's circle stays 18px while an
+    `::after` inset of `-7px` gives it a 32px hit area, so the tier name does not
+    shift for it.
 
 ## Extension points
 

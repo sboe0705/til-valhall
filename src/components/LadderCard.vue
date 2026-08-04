@@ -1,10 +1,11 @@
 <script setup lang="ts">
-import { computed } from 'vue';
+import { computed, ref } from 'vue';
 
 import type { RankScope, ResolvedTier, TierProgress } from '@/model/ranks';
 import * as de from '@/app/format-de';
 import { SCOPE_COPY, tierColor } from '@/ui/tiers';
 import ProgressRing from './ProgressRing.vue';
+import TierInfoDialog from './TierInfoDialog.vue';
 import TierRail from './TierRail.vue';
 
 const props = defineProps<{
@@ -26,6 +27,8 @@ const figures = computed(
   () =>
     `${de.thousands(props.progress.xp)} / ${de.thousands(props.progress.max)} XP · ${copy.value.reset}`,
 );
+
+const infoOpen = ref(false);
 </script>
 
 <template>
@@ -38,6 +41,14 @@ const figures = computed(
         <div class="ladder__tier">
           <span class="ladder__dot" :style="{ background: color }" />
           <span class="ladder__name">{{ progress.tier.name }}</span>
+          <button
+            type="button"
+            class="ladder__lore"
+            :aria-label="`Was ist ${progress.tier.name}?`"
+            @click="infoOpen = true"
+          >
+            i
+          </button>
         </div>
         <span class="ladder__remaining">{{ remaining }}</span>
         <span class="ladder__figures">{{ figures }}</span>
@@ -45,6 +56,13 @@ const figures = computed(
     </div>
 
     <TierRail :tiers="tiers" :current-key="progress.tier.key" />
+
+    <TierInfoDialog
+      :open="infoOpen"
+      :scope="scope"
+      :tier="progress.tier"
+      @close="infoOpen = false"
+    />
   </article>
 </template>
 
@@ -86,6 +104,34 @@ const figures = computed(
 .ladder__name {
   font: 600 22px/1.05 var(--vh-display);
   color: var(--vh-050);
+}
+
+/** 18px circle, but a 32px hit area – the tier name must not shift for it. */
+.ladder__lore {
+  position: relative;
+  flex: none;
+  width: 18px;
+  height: 18px;
+  padding: 0;
+  border: 1px solid var(--vh-600);
+  border-radius: 50%;
+  background: var(--vh-800);
+  color: var(--vh-400);
+  font: 500 10px/1 var(--vh-mono);
+  transition:
+    color var(--vh-t-color),
+    border-color var(--vh-t-color);
+}
+
+.ladder__lore::after {
+  content: '';
+  position: absolute;
+  inset: -7px;
+}
+
+.ladder__lore:hover {
+  color: var(--vh-050);
+  border-color: var(--vh-400);
 }
 
 .ladder__remaining {

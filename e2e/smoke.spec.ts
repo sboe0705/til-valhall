@@ -143,6 +143,57 @@ test('the footer stamps the build and opens the Impressum', async ({ page }) => 
   await expect(page.locator('.head__title')).toContainText('Tag 1');
 });
 
+test('a backup survives a wiped localStorage', async ({ page }) => {
+  await freshApp(page);
+
+  // Earn something worth restoring.
+  const cards = page.locator('.block');
+  for (let i = 0; i < (await cards.count()); i++) {
+    const pills = cards.nth(i).locator('.pill');
+    await pills.nth((await pills.count()) - 1).click();
+  }
+  await expect(page.locator('.loot__xp')).toHaveText('140');
+
+  await page.goto('/impressum');
+  const downloading = page.waitForEvent('download');
+  await page.getByRole('button', { name: 'Exportieren' }).click();
+  const download = await downloading;
+  expect(download.suggestedFilename()).toMatch(/^til-valhall-\d{4}-\d{2}-\d{2}\.json$/);
+
+  const file = (await download.path())!;
+  await expect(page.locator('.legal__note')).toContainText('heruntergeladen');
+
+  // Wipe everything – back to the seed.
+  await page.evaluate(() => localStorage.clear());
+  await page.goto('/heute');
+  await expect(page.locator('.loot__xp')).toHaveText('0');
+
+  // A file that is not a backup is refused, and changes nothing.
+  await page.goto('/impressum');
+  await page.locator('.legal__file').setInputFiles({
+    name: 'notes.json',
+    mimeType: 'application/json',
+    buffer: Buffer.from('{"hello":true}'),
+  });
+  await expect(page.locator('.legal__note--error')).toContainText(
+    'kein Til-Valhall-Backup',
+  );
+  await expect(page.locator('.legal__confirm')).toHaveCount(0);
+
+  // The real one asks first, and `Abbrechen` leaves the data alone.
+  await page.locator('.legal__file').setInputFiles(file);
+  await expect(page.locator('.legal__confirm')).toContainText('überschreibt alle Daten');
+  await page.getByRole('button', { name: 'Abbrechen' }).click();
+  await expect(page.locator('.legal__confirm')).toHaveCount(0);
+
+  await page.locator('.legal__file').setInputFiles(file);
+  await page.getByRole('button', { name: 'Überschreiben' }).click();
+
+  await page.goto('/heute');
+  await expect(page.locator('.loot__xp')).toHaveText('140');
+  await expect(page.locator('.finish')).toContainText('Tagesbonus gebucht');
+});
+
 test('the chronicle steps back but never past the current month', async ({ page }) => {
   await freshApp(page, '/chronik');
 

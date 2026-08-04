@@ -48,6 +48,7 @@ src/
 ├── app/                  pure glue on top of the model — still no framework imports
 │   ├── session-xp.ts     live XP, set-pill semantics, planned/extra set accounting
 │   ├── history.ts        per-day status, month entries and stats for the chronicle
+│   ├── backup.ts         storage keys + localStorage export/import (Impressum)
 │   └── format-de.ts      the German presentation layer
 ├── stores/               Pinia — training + ranks, one storage key each
 ├── composables/useNow.ts the app clock (midnight tick, visibilitychange)
@@ -90,7 +91,10 @@ RankState                              // src/model/ranks.ts — a SEPARATE slic
 `RankState` is **not** part of `TrainingState` and has no seed value — the rank store
 constructs it with `createRankState(plan, now, cfg, cursorDayId)` on first use. The two
 slices persist under **two separate keys**: `til-valhall.training` and
-`til-valhall.ranks`. Clearing only one leaves the app inconsistent.
+`til-valhall.ranks` — defined once as `TRAINING_KEY` / `RANKS_KEY` in
+`src/app/backup.ts` and imported by the stores as their `persist.key`. Clearing
+only one leaves the app inconsistent, which is why `applyBackup()` replaces the
+whole `til-valhall.` prefix instead of merging into it.
 
 The training store adds two app-level maps to `TrainingState` (persisted alongside it,
 not part of the model):
@@ -215,6 +219,12 @@ Two discriminated unions drive nearly all branching; always handle both arms:
   `vite.config.ts` (declared in `env.d.ts`, shown by `AppFooter.vue`). They are resolved
   once while the config loads, so `npm run dev` keeps the hash it started with until the
   server restarts, and a checkout without `.git` builds as `dev` — neither is a bug.
+- **The backup import writes to `localStorage` and reloads the page** — it never
+  pushes state into the stores. Hydration is the only path that brings both slices
+  up in the right order with the training store's `afterHydrate` check in place.
+  That check is also why `parseBackup()` insists on `schemaVersion === 1`: an
+  unvalidated foreign file would trip `resetAll()` and *wipe* the data instead of
+  being refused.
 - `/impressum` has no tab, so **no tab shows `router-link-active` while it is open**.
   That is intended; the tab bar's grid is `repeat(4, 1fr)` and the handoff fixes the four
   runes, so do not add a fifth tab.

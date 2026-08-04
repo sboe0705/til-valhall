@@ -400,6 +400,46 @@ session is closed.
 `rollOver()` runs on app start and on every date change, driven by
 `composables/useNow.ts` (a midnight timer plus `visibilitychange`).
 
+### Backup: export and import
+
+Nothing leaves the device, which also means nothing survives a cleared browser
+profile. `src/app/backup.ts` closes that gap; the two links sit in the Impressum,
+right under the paragraph that names the storage keys.
+
+The file is an envelope with both slices unwrapped into real JSON, indented so it
+stays readable and diffable:
+
+```json
+{
+  "app": "til-valhall",
+  "format": 1,
+  "exportedAt": "2026-08-04T09:12:03.418Z",
+  "data": {
+    "til-valhall.training": { "state": { "schemaVersion": 1, … }, "bookedXp": { … } },
+    "til-valhall.ranks": { "state": { … } }
+  }
+}
+```
+
+Four decisions worth keeping:
+
+- **The prefix is scanned, not a key list.** `collectBackup()` walks every
+  `til-valhall.*` key, so a third slice would be backed up without a code change.
+  `TRAINING_KEY` / `RANKS_KEY` now live in `backup.ts` and the stores import them
+  as their `persist.key` — one source of truth.
+- **`parseBackup()` validates before anything is written**, down to
+  `state.schemaVersion === 1`. This is not belt-and-braces: the training store's
+  `afterHydrate` silently calls `resetAll()` on an unknown `schemaVersion`, so an
+  unchecked import of a foreign file would *delete* the data instead of failing.
+- **`applyBackup()` replaces the prefix, it does not merge into it.** A leftover
+  key the file does not know about would pair a restored training state with
+  stale ranks — the same inconsistency as clearing only one of the two keys.
+- **The import writes to `localStorage` and reloads.** Hydration through the
+  persistence plugin is the only path that brings both slices up in the right
+  order with the `afterHydrate` check in place; filling the stores by hand would
+  bypass it. Hence also the inline confirmation before the overwrite — the action
+  is destructive and immediate.
+
 ## Deviations from the design handoff
 
 All deliberate; where the handoff and the model disagree, the model wins — as

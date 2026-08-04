@@ -11,6 +11,7 @@ import {
   rollOver,
   tierProgress,
 } from '@/model/ranks';
+import { RANKS_KEY } from '@/app/backup';
 
 /**
  * The three ladders – a separate slice with its own storage key, exactly as the
@@ -91,7 +92,7 @@ export const useRankStore = defineStore(
   },
   {
     persist: {
-      key: 'til-valhall.ranks',
+      key: RANKS_KEY,
       pick: ['state'],
     },
   },

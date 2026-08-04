@@ -27,6 +27,7 @@ import {
   setDoneCount,
   statusFor,
 } from '@/app/session-xp';
+import { TRAINING_KEY } from '@/app/backup';
 import { useNow } from '@/composables/useNow';
 import { useRankStore } from './ranks';
 
@@ -334,7 +335,7 @@ export const useTrainingStore = defineStore(
   },
   {
     persist: {
-      key: 'til-valhall.training',
+      key: TRAINING_KEY,
       pick: ['state', 'bookedXp', 'advancedBy'],
       afterHydrate: (ctx) => {
         // No migration path exists yet – anything from another schema is dropped

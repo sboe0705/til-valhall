@@ -23,6 +23,8 @@ const records = computed(() =>
   SCOPES.map((scope) => {
     const key = ranks.records[scope];
     const tier = key ? TIERS[scope].find((t) => t.key === key) : undefined;
+    // Only a repeated record earns the counter – "×1" would be noise on all three.
+    const count = tier ? ranks.recordCount(scope) : 0;
     return {
       scope,
       label: SCOPE_COPY[scope].record,
@@ -30,6 +32,7 @@ const records = computed(() =>
       rune: tier ? (TIER_RUNES[tier.key] ?? 'ᛞ') : 'ᛞ',
       color: tier ? tierGlyphColor(tier.key) : 'var(--vh-600)',
       empty: !tier,
+      count: count > 1 ? count : null,
     };
   }),
 );
@@ -71,6 +74,13 @@ const chronicle = computed(() =>
 
     <div class="records">
       <div v-for="record in records" :key="record.scope" class="records__card vh-card">
+        <span
+          v-if="record.count"
+          class="records__count"
+          :aria-label="`${record.count}-mal erreicht`"
+        >
+          ×{{ record.count }}
+        </span>
         <span class="vh-rune records__rune" :style="{ color: record.color }">
           {{ record.rune }}
         </span>
@@ -114,12 +124,26 @@ const chronicle = computed(() =>
 }
 
 .records__card {
+  position: relative;
   border-radius: var(--vh-r-panel);
   padding: 13px 11px;
   display: flex;
   flex-direction: column;
   gap: 7px;
   align-items: flex-start;
+}
+
+/*
+ * How often the record was reached, top right. Out of the flow on purpose: the
+ * three cards sit in one grid row and must keep their common baseline whether
+ * or not a counter is there.
+ */
+.records__count {
+  position: absolute;
+  top: 9px;
+  right: 10px;
+  font: 400 10px/1 var(--vh-mono);
+  color: var(--vh-200);
 }
 
 .records__rune {

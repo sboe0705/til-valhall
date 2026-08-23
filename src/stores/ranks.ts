@@ -8,6 +8,7 @@ import {
   resolveTiers,
   rollOver,
   tierProgress,
+  tierReachCount,
 } from '@/model/ranks';
 import { RANKS_KEY } from '@/app/backup';
 
@@ -76,7 +77,28 @@ export const useRankStore = defineStore(
       () => state.value?.records ?? { week: null, month: null, year: null },
     );
 
-    return { state, progress, history, records, ensure, refresh, award, reset, tiersFor };
+    /**
+     * How often the record of a scope has been reached – 0 without a record.
+     * Weekly records repeat often enough that the bare title would hide it.
+     */
+    const recordCount = (scope: RankScope): number => {
+      const s = state.value;
+      const key = s?.records[scope];
+      return s && key ? tierReachCount(s, scope, key) : 0;
+    };
+
+    return {
+      state,
+      progress,
+      history,
+      records,
+      ensure,
+      refresh,
+      award,
+      reset,
+      tiersFor,
+      recordCount,
+    };
   },
   {
     persist: {

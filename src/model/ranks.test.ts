@@ -13,6 +13,7 @@ import {
   YEARLY_TIERS,
   applySession,
   assertLadder,
+  awardXp,
   blockXp,
   createRankState,
   dayXp,
@@ -24,6 +25,7 @@ import {
   splitEqually,
   tierFor,
   tierProgress,
+  tierReachCount,
   weekKey,
   weeklyPotential,
   withExtraSet,
@@ -229,6 +231,45 @@ describe('periods', () => {
     expect(rolled.history).toHaveLength(1);
     expect(rolled.records.week).toBe('drengr'); // survives the reset – 120 < 210
     expect(rollOver(rolled, new Date(2026, 7, 10))).toEqual(rolled);
+  });
+});
+
+describe('how often a tier was reached', () => {
+  /** 2026-08-03 is a Monday; every following week starts seven days later. */
+  const monday = (n: number) => new Date(2026, 7, 3 + 7 * n);
+
+  it('counts the running period, so a fresh record is worth one', () => {
+    let ranks = awardXp(createRankState(monday(0)), SCOPE_MAX.week, monday(0));
+    expect(ranks.records.week).toBe('konungr');
+    expect(tierReachCount(ranks, 'week', 'konungr')).toBe(1);
+
+    // Archiving the week must not turn that one into two.
+    ranks = rollOver(ranks, monday(1));
+    expect(tierReachCount(ranks, 'week', 'konungr')).toBe(1);
+  });
+
+  it('adds up across periods and reads as "at least this tier"', () => {
+    let ranks = createRankState(monday(0));
+    // Two perfect weeks around one that stops exactly on Jarl (0.75 × 840).
+    for (const [n, xp] of [
+      [0, SCOPE_MAX.week],
+      [1, 630],
+      [2, SCOPE_MAX.week],
+    ] as const) {
+      ranks = awardXp(ranks, xp, monday(n));
+    }
+    ranks = rollOver(ranks, monday(3));
+
+    expect(tierReachCount(ranks, 'week', 'konungr')).toBe(2);
+    expect(tierReachCount(ranks, 'week', 'jarl')).toBe(3);
+    // The empty running week sits at the lowest tier and counts there.
+    expect(tierReachCount(ranks, 'week', 'drengr')).toBe(4);
+    // Other ladders keep their own tally – August never rolled over.
+    expect(tierReachCount(ranks, 'month', 'niflheim')).toBe(1);
+  });
+
+  it('is zero for a key that is not on the ladder', () => {
+    expect(tierReachCount(createRankState(monday(0)), 'week', 'asgard')).toBe(0);
   });
 });
 

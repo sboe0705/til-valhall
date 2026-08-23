@@ -556,6 +556,34 @@ export function applySession(
   return awardXp(state, sessionXp(session), now);
 }
 
+/**
+ * How often a tier has been reached in one scope – the count behind a record.
+ *
+ * Counts the closed periods from `history` plus the running one, because that
+ * one already counts towards `records`: a week that hits Konungr on Sunday sets
+ * the record immediately, so it has to be worth 1 straight away and must not
+ * jump to 2 when Monday archives it.
+ *
+ * "Reached" is *at least* this tier, not exactly it – a Konungr week has also
+ * reached Jarl. For a record tier the two readings coincide (nothing above it
+ * exists in `history` by definition), but the weaker one keeps the function
+ * meaningful for any tier and robust against a `records` entry that lags behind
+ * an imported `history`.
+ */
+export function tierReachCount(state: RankState, scope: RankScope, tier: Id): number {
+  const tiers = TIERS[scope];
+  const index = tiers.findIndex((t) => t.key === tier);
+  if (index < 0) return 0;
+
+  const rank = (key: Id) => tiers.findIndex((t) => t.key === key);
+  const closed = state.history.filter(
+    (h) => h.scope === scope && rank(h.tier) >= index,
+  ).length;
+  const running = tierFor(scope, state[scope].xp, state[scope].max);
+
+  return closed + (rank(running.key) >= index ? 1 : 0);
+}
+
 function bestTier(scope: RankScope, previous: Id | null, p: ScopeProgress): Id {
   const tiers = TIERS[scope];
   const reached = tierFor(scope, p.xp, p.max);

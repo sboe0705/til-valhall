@@ -185,6 +185,9 @@ Two discriminated unions drive nearly all branching; always handle both arms:
   "Heute" shows. A session with progress in it is left alone.
 - Day numbers, weekday assignment, tier thresholds and `ScopeProgress.max` are
   **derived, never stored** — see `dayNumbers()` and `resolveTiers()`.
+- **How often a record was reached is derived too.** `tierReachCount()` counts the
+  matching `history` entries *plus the running period*, because that one already
+  counts towards `records` — the Bestmarken card shows the number only from 2 up.
 
 ## Traps
 

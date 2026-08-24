@@ -2,10 +2,10 @@
 import { computed, ref } from 'vue';
 
 import type { Id, PlanSchedule } from '@/model/training';
-import { blocksInOrder } from '@/model/plan-cycle';
-import { REST_XP, potentialXp } from '@/model/ranks';
+import { REST_XP } from '@/model/ranks';
 import { isWeekly, WEEKDAYS } from '@/model/schedule';
 import type { DayDraft } from '@/model/plan-edit';
+import { dayCard } from '@/app/day-card';
 import * as de from '@/app/format-de';
 import DayDraftPanel from '@/components/DayDraftPanel.vue';
 import DayListItem from '@/components/DayListItem.vue';
@@ -44,21 +44,14 @@ const weekdayOf = computed(() => {
   return map;
 });
 
+/** The read-only box plus the editing chrome the Plan screen adds around it. */
 const items = computed(() =>
   training.days.map((day, index) => {
-    const number = training.numbers.get(day.id) ?? null;
-    const blocks = blocksInOrder(day);
-    const sets = blocks.reduce((sum, b) => sum + b.sets, 0);
     const weekday = weekdayOf.value.get(day.id);
 
     return {
       day,
-      title: de.dayTitle(day, number),
-      meta: day.restDay
-        ? 'kein Block · rotiert mit'
-        : `${blocks.length} Übungen · ${sets} Sätze`,
-      xpText: `${potentialXp(day)} XP`,
-      rest: day.restDay === true,
+      ...dayCard(day, training.numbers.get(day.id) ?? null, training.exercises),
       badge: cyclic.value
         ? day.id === training.cursorDayId
           ? { label: 'jetzt', variant: 'now' as const }
@@ -68,14 +61,6 @@ const items = computed(() =>
           : null,
       canUp: index > 0,
       canDown: index < training.days.length - 1,
-      rows: blocks.map((block) => {
-        const exercise = training.exercises[block.exerciseId];
-        return {
-          name: exercise?.name ?? block.exerciseId,
-          target: de.blockDe(block, exercise),
-          setsText: `${block.sets} Sätze`,
-        };
-      }),
     };
   }),
 );

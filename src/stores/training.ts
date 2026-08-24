@@ -5,11 +5,12 @@ import { initialState } from '@/data/default-plan';
 import type {
   Id,
   PlanSchedule,
+  TrainingDay,
   TrainingPlan,
   TrainingState,
   WorkoutSession,
 } from '@/model/training';
-import { advanceCursor, createSession, orderedDays } from '@/model/plan-cycle';
+import { advanceCursor, createSession, nextDay, orderedDays } from '@/model/plan-cycle';
 import {
   convertSchedule,
   dayForDate,
@@ -112,6 +113,36 @@ export const useTrainingStore = defineStore(
       const session = todaySession.value;
       if (session) return plan.days.find((d) => d.id === session.dayId) ?? null;
       return dayForDate(plan, now.value, cursorDayId.value);
+    });
+
+    /**
+     * The day that comes after today – what the Heute screen previews once the
+     * day is complete.
+     *
+     * Cyclic plans rotate off *today's* day, not off the cursor: the cursor has
+     * already moved on by the time the preview is shown. A cycle day is not tied
+     * to a calendar date either, so `date` stays `null` for them – the rotation
+     * advances on completion, not at midnight.
+     *
+     * Weekly plans skip their empty weekdays: a finished Friday looks ahead to
+     * Monday instead of reporting that nothing is planned.
+     */
+    const nextUp = computed<{ day: TrainingDay; date: Date | null } | null>(() => {
+      const plan = activePlan.value;
+      if (!plan || plan.days.length === 0) return null;
+
+      if (!isWeekly(plan.schedule)) {
+        const today = todayDay.value;
+        return today ? { day: nextDay(plan, today.id), date: null } : null;
+      }
+
+      for (let offset = 1; offset <= 7; offset++) {
+        const date = new Date(now.value);
+        date.setDate(date.getDate() + offset);
+        const day = dayForDate(plan, date);
+        if (day) return { day, date };
+      }
+      return null;
     });
 
     /* ---------------- session flow ---------------- */
@@ -323,6 +354,7 @@ export const useTrainingStore = defineStore(
       perfectWeekMax,
       todaySession,
       todayDay,
+      nextUp,
       sessionOn,
       startToday,
       toggleSet,

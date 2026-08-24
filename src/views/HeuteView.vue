@@ -3,6 +3,7 @@ import { computed, onMounted } from 'vue';
 
 import { blocksInOrder } from '@/model/plan-cycle';
 import { DAY_XP, REST_XP, potentialXp } from '@/model/ranks';
+import { dayCard } from '@/app/day-card';
 import {
   blockBasesOf,
   doneSetsOf,
@@ -12,6 +13,7 @@ import {
 } from '@/app/session-xp';
 import * as de from '@/app/format-de';
 import AppFooter from '@/components/AppFooter.vue';
+import DayListItem from '@/components/DayListItem.vue';
 import ExerciseBlockCard from '@/components/ExerciseBlockCard.vue';
 import LootCard from '@/components/LootCard.vue';
 import RankStrip from '@/components/RankStrip.vue';
@@ -77,6 +79,24 @@ const finishHint = computed(() =>
     ? `Tag vollständig · ${DAY_XP} XP gebucht · Zeiger rückt weiter`
     : `Jeder Tag ist ${DAY_XP} XP wert – zu holen sind sie erst, wenn alle Pflichtsätze stehen.`,
 );
+
+/**
+ * What comes after today, as the Plan screen's day box – shown read-only under
+ * the finish hint once every planned set stands. `date` is only set for weekly
+ * plans: a cycle day rotates on completion, not at midnight, so dating it would
+ * promise something the plan does not.
+ */
+const nextCard = computed(() => {
+  if (!complete.value) return null;
+  const up = training.nextUp;
+  if (!up) return null;
+
+  const numbers = plan.value ? dayNumbers(plan.value) : new Map();
+  return {
+    ...dayCard(up.day, numbers.get(up.day.id) ?? null, training.exercises),
+    caption: up.date ? de.dateShort(up.date) : undefined,
+  };
+});
 
 /**
  * Display data per block – the result is the session's, the copy the plan's,
@@ -155,6 +175,22 @@ const rows = computed(() => {
       />
 
       <span class="finish">{{ finishHint }}</span>
+
+      <template v-if="nextCard">
+        <SectionRule label="Als Nächstes" :caption="nextCard.caption" />
+
+        <DayListItem
+          readonly
+          :title="nextCard.title"
+          :meta="nextCard.meta"
+          :xp-text="nextCard.xpText"
+          :rest="nextCard.rest"
+          :badge="null"
+          :open="true"
+          :rows="nextCard.rows"
+          :rest-xp="REST_XP"
+        />
+      </template>
     </template>
 
     <AppFooter />

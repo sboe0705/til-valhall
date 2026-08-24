@@ -480,6 +480,18 @@ the handoff itself prescribes.
     the backdrop and on "Schließen"; the button's circle stays 18px while an
     `::after` inset of `-7px` gives it a 32px hit area, so the tier name does not
     shift for it.
+12. **The next day's preview on "Heute" is net-new.** The handoff ends the screen
+    at the finish hint; once every planned set stands, the Plan screen's day box
+    now follows it read-only, so the reward for finishing is immediately followed
+    by what it unlocked. Both screens build the box from `dayCard()` in
+    `src/app/day-card.ts` and render it through `DayListItem`, whose `readonly`
+    mode drops the reorder column, the caret and the delete button — the preview
+    has nothing to edit. Which day it is comes from `training.nextUp`: a cyclic
+    plan rotates off *today's* day rather than the cursor, which has already moved
+    on by then, and gets no date, because the rotation advances on completion and
+    not at midnight; a weekly plan scans the next seven days and skips the free
+    weekdays, so a finished Friday looks ahead to Monday and shows that date as
+    the section caption.
 
 ## Extension points
 

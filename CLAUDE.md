@@ -47,6 +47,7 @@ src/
 │   └── default-plan.ts   seed: 4-day cyclic plan + weekly variant + initialState
 ├── app/                  pure glue on top of the model — still no framework imports
 │   ├── session-xp.ts     live XP, set-pill semantics, planned/extra set accounting
+│   ├── day-card.ts       the read-only "day box" Plan and Heute both render
 │   ├── history.ts        per-day status, month entries and stats for the chronicle
 │   ├── backup.ts         storage keys + localStorage export/import (Impressum)
 │   └── format-de.ts      the German presentation layer
@@ -171,6 +172,14 @@ Two discriminated unions drive nearly all branching; always handle both arms:
   the completion curve, so it appears the moment the last planned set is checked and
   disappears when one is unchecked. The cursor advance follows `isComplete()` and is
   undone from `advancedBy`.
+- **What follows today is previewed under "Tag vollständig"** — the Plan screen's day
+  box, read-only, from `dayCard()` and `DayListItem`'s `readonly` mode. It appears and
+  disappears with `isComplete()`, like the finish hint above it. `training.nextUp`
+  resolves it: a **cyclic** plan rotates off *today's* day (`nextDay`), never off the
+  cursor — that has already advanced by the time the preview shows — and reports
+  `date: null`, because a cycle day comes up on completion, not at midnight. A
+  **weekly** plan scans the next seven calendar days and skips the empty weekdays, so
+  a finished Friday looks ahead to Monday and carries that date as the caption.
 - **A block's base is not derivable from the block.** It depends on how many blocks
   share the day — `blockBasesOf(session)` computes the split, `HeuteView` hands each
   `ExerciseBlockCard` its `base`.

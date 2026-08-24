@@ -1,9 +1,5 @@
 <script setup lang="ts">
-export interface DayRow {
-  name: string;
-  target: string;
-  setsText: string;
-}
+import type { DayCardRow } from '@/app/day-card';
 
 defineProps<{
   title: string;
@@ -13,11 +9,17 @@ defineProps<{
   rest: boolean;
   badge: { label: string; variant: 'now' | 'weekday' } | null;
   open: boolean;
-  canUp: boolean;
-  canDown: boolean;
-  canDelete: boolean;
-  rows: DayRow[];
+  rows: DayCardRow[];
   restXp: number;
+  /**
+   * Preview mode: the box only reads. No reorder column, no collapsing and no
+   * delete – the Heute screen shows the next day this way, where none of those
+   * belong.
+   */
+  readonly?: boolean;
+  canUp?: boolean;
+  canDown?: boolean;
+  canDelete?: boolean;
 }>();
 
 defineEmits<{ toggle: []; up: []; down: []; remove: [] }>();
@@ -25,8 +27,8 @@ defineEmits<{ toggle: []; up: []; down: []; remove: [] }>();
 
 <template>
   <article class="day" :class="{ 'day--open': open }">
-    <div class="day__head">
-      <div class="day__reorder">
+    <div class="day__head" :class="{ 'day__head--static': readonly }">
+      <div v-if="!readonly" class="day__reorder">
         <button
           type="button"
           class="day__arrow"
@@ -49,11 +51,12 @@ defineEmits<{ toggle: []; up: []; down: []; remove: [] }>();
         </button>
       </div>
 
-      <button
-        type="button"
+      <component
+        :is="readonly ? 'div' : 'button'"
+        :type="readonly ? undefined : 'button'"
         class="day__title"
-        :aria-expanded="open"
-        @click="$emit('toggle')"
+        :aria-expanded="readonly ? undefined : open"
+        @click="!readonly && $emit('toggle')"
       >
         <span class="day__titles">
           <span class="day__name-row">
@@ -66,9 +69,9 @@ defineEmits<{ toggle: []; up: []; down: []; remove: [] }>();
         </span>
         <span class="day__right">
           <span class="day__xp" :class="{ 'day__xp--rest': rest }">{{ xpText }}</span>
-          <span class="day__caret">{{ open ? '▴' : '▾' }}</span>
+          <span v-if="!readonly" class="day__caret">{{ open ? '▴' : '▾' }}</span>
         </span>
-      </button>
+      </component>
     </div>
 
     <div v-if="open" class="day__body">
@@ -88,7 +91,7 @@ defineEmits<{ toggle: []; up: []; down: []; remove: [] }>();
         </span>
       </div>
 
-      <div class="day__foot">
+      <div v-if="!readonly" class="day__foot">
         <span class="day__hint">
           Übungen und Sätze werden beim Anlegen eines Tages festgelegt.
         </span>
@@ -128,6 +131,11 @@ defineEmits<{ toggle: []; up: []; down: []; remove: [] }>();
 
 .day__head:hover {
   background: var(--vh-700);
+}
+
+/* A preview has nothing to click, so it must not look clickable either. */
+.day__head--static:hover {
+  background: none;
 }
 
 .day__reorder {

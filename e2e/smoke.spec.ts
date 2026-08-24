@@ -66,6 +66,15 @@ test('checking every set books the day and advances the cursor', async ({ page }
   // 120 of the 840 XP a perfect week is worth.
   await expect(page.locator('.strip__pct').first()).toHaveText('14 %');
 
+  // And underneath it, the next day as the Plan screen shows it – read-only,
+  // so without the reorder column, the caret and the delete button.
+  const preview = page.locator('.day');
+  await expect(preview.locator('.day__name')).toHaveText('Tag 2 · Druck & Zug');
+  await expect(preview.locator('.day__row')).toHaveCount(2);
+  await expect(preview.locator('.day__reorder')).toHaveCount(0);
+  await expect(preview.locator('.day__caret')).toHaveCount(0);
+  await expect(preview.locator('.day__delete')).toHaveCount(0);
+
   // One extra set is offered, and only two of them ever.
   await cards.first().locator('.block__extra').click();
   await expect(page.locator('.loot__xp')).toHaveText('124');

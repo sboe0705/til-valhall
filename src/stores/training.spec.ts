@@ -3,6 +3,7 @@ import { beforeEach, describe, expect, it } from 'vitest';
 
 import { initialState } from '@/data/default-plan';
 import { DAY_XP, REST_XP, SCOPE_MAX } from '@/model/ranks';
+import { toIsoDate } from '@/model/schedule';
 import { __setNow } from '@/composables/useNow';
 import { useRankStore } from './ranks';
 import { useTrainingStore } from './training';
@@ -120,6 +121,43 @@ describe('period roll-over', () => {
     const snapshot = JSON.stringify(ranks.state);
     training.refresh();
     expect(JSON.stringify(ranks.state)).toBe(snapshot);
+  });
+});
+
+describe('the next day up', () => {
+  it('rotates off today, not off the cursor', () => {
+    const { training } = setup();
+    expect(training.nextUp?.day.id).toBe('day-2');
+    // A cycle day is not tied to a calendar date – it comes up on completion.
+    expect(training.nextUp?.date).toBeNull();
+
+    // The cursor moves to day-2, yet the preview keeps pointing past today.
+    completeToday(training);
+    expect(training.cursorDayId).toBe('day-2');
+    expect(training.nextUp?.day.id).toBe('day-2');
+  });
+
+  it('wraps around the end of the cycle', () => {
+    const { training } = setup();
+    for (const id of ['day-1', 'day-2', 'day-3']) training.deleteDay(id);
+
+    expect(training.todayDay?.id).toBe('day-4');
+    expect(training.nextUp?.day.id).toBe('day-4');
+  });
+
+  it('dates the weekly plan and skips its empty weekdays', () => {
+    const { training } = setup();
+    training.setScheduleKind('weekly');
+
+    // Monday: the next day sits on Tuesday.
+    expect(training.nextUp?.day.id).toBe('day-2');
+    expect(training.nextUp?.date && toIsoDate(training.nextUp.date)).toBe('2026-08-04');
+
+    // Thursday is the last assigned weekday – Fri/Sat/Sun are free, so the
+    // preview looks ahead to the following Monday.
+    __setNow(new Date(2026, 7, 6));
+    expect(training.nextUp?.day.id).toBe('day-1');
+    expect(training.nextUp?.date && toIsoDate(training.nextUp.date)).toBe('2026-08-10');
   });
 });
 

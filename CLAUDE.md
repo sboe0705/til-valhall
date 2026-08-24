@@ -10,6 +10,15 @@ it are load-bearing and were tuned deliberately. The UI is a recreation of
 [design_handoff_til_valhall/](design_handoff_til_valhall/) — read its README before
 changing anything visual; every hex value and size in it is a production value.
 
+## Git workflow
+
+- **Work on `main` and commit there.** Unless the request names a branch, no feature
+  branch and no worktree — the change belongs on `main`.
+- **Push only on confirmation.** Committing is yours to do, publishing is not: stop
+  after the commit, say what it contains and wait for an explicit go-ahead before
+  `git push`. A request that already asks for one ("commit and push", "push it to
+  main") *is* that go-ahead — do not ask twice.
+
 ## Repository state
 
 Vite 8 · Vue 3.5 · TypeScript 5.9 · Pinia 4 (+ `pinia-plugin-persistedstate`) ·

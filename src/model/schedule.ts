@@ -64,6 +64,20 @@ export function toIsoDate(date: Date): string {
   return `${date.getFullYear()}-${m}-${d}`;
 }
 
+/**
+ * Whole calendar days from `from` to `to`, both `YYYY-MM-DD`; negative when
+ * `to` lies before `from`.
+ *
+ * Both ends are read as UTC midnight, so the difference stays exact – a DST
+ * switch between them would otherwise leave an hour behind and round away a day.
+ */
+export function daysBetween(from: string, to: string): number {
+  const day = 86_400_000;
+  return Math.round(
+    (Date.parse(`${to}T00:00:00Z`) - Date.parse(`${from}T00:00:00Z`)) / day,
+  );
+}
+
 function addDays(date: Date, days: number): Date {
   const d = new Date(date);
   d.setDate(d.getDate() + days);

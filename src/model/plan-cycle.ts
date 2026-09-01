@@ -59,13 +59,22 @@ export function upcoming(
   return Array.from({ length: count }, (_, k) => dayAtOffset(plan, fromDayId, k));
 }
 
-/** Advance the cursor after a completed workout (immutable). */
-export function advanceCursor(state: TrainingState, planId: Id): TrainingState {
+/**
+ * Advance the cursor by `steps` days of the cycle (immutable).
+ *
+ * One step is the ordinary "day done". Several close out the calendar days that
+ * went by without one: a cycle day ends with its date, finished or not.
+ */
+export function advanceCursor(
+  state: TrainingState,
+  planId: Id,
+  steps = 1,
+): TrainingState {
   const plan = state.plans[planId];
   const current = state.cursors[planId] ?? orderedDays(plan)[0].id;
   return {
     ...state,
-    cursors: { ...state.cursors, [planId]: nextDay(plan, current).id },
+    cursors: { ...state.cursors, [planId]: dayAtOffset(plan, current, steps).id },
   };
 }
 

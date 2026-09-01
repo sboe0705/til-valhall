@@ -14,6 +14,7 @@ import { advanceCursor, createSession, nextDay, orderedDays } from '@/model/plan
 import {
   convertSchedule,
   dayForDate,
+  daysBetween,
   isWeekly,
   toIsoDate,
   validatePlan,
@@ -33,12 +34,15 @@ import { useNow } from '@/composables/useNow';
 import { useRankStore } from './ranks';
 
 /**
- * `TrainingState` plus two app-level bookkeeping maps.
+ * `TrainingState` plus three app-level bookkeeping maps.
  *
  * The model's XP API only ever *adds* (`awardXp`), while the design re-books on
  * every tap – including unchecking. `bookedXp` records what a session has
  * already contributed so the store can hand over the delta, and `advancedBy`
  * remembers the cursor from before a completion so the advance can be undone.
+ *
+ * `cursorDue` dates the cursor of a cyclic plan: the calendar day its day is up
+ * on. It is what lets `rollCursor()` close out a day that was never finished.
  */
 export const useTrainingStore = defineStore(
   'training',
@@ -50,6 +54,7 @@ export const useTrainingStore = defineStore(
     const state = ref<TrainingState>(structuredClone(initialState));
     const bookedXp = ref<Record<Id, number>>({});
     const advancedBy = ref<Record<Id, Id>>({});
+    const cursorDue = ref<Record<Id, string>>({});
 
     /* ---------------- derived ---------------- */
 
@@ -120,25 +125,24 @@ export const useTrainingStore = defineStore(
      * day is complete.
      *
      * Cyclic plans rotate off *today's* day, not off the cursor: the cursor has
-     * already moved on by the time the preview is shown. A cycle day is not tied
-     * to a calendar date either, so `date` stays `null` for them – the rotation
-     * advances on completion, not at midnight.
+     * already moved on by the time the preview is shown. Since a cycle day ends
+     * with its calendar day, that next day is up tomorrow – dated like the
+     * weekly preview.
      *
      * Weekly plans skip their empty weekdays: a finished Friday looks ahead to
      * Monday instead of reporting that nothing is planned.
      */
-    const nextUp = computed<{ day: TrainingDay; date: Date | null } | null>(() => {
+    const nextUp = computed<{ day: TrainingDay; date: Date } | null>(() => {
       const plan = activePlan.value;
       if (!plan || plan.days.length === 0) return null;
 
       if (!isWeekly(plan.schedule)) {
         const today = todayDay.value;
-        return today ? { day: nextDay(plan, today.id), date: null } : null;
+        return today ? { day: nextDay(plan, today.id), date: dateAt(1) } : null;
       }
 
       for (let offset = 1; offset <= 7; offset++) {
-        const date = new Date(now.value);
-        date.setDate(date.getDate() + offset);
+        const date = dateAt(offset);
         const day = dayForDate(plan, date);
         if (day) return { day, date };
       }
@@ -146,6 +150,43 @@ export const useTrainingStore = defineStore(
     });
 
     /* ---------------- session flow ---------------- */
+
+    /** `now` shifted by whole days – the calendar, not the clock. */
+    function dateAt(offset: number): Date {
+      const date = new Date(now.value);
+      date.setDate(date.getDate() + offset);
+      return date;
+    }
+
+    /**
+     * Close out the cycle days whose calendar day is over.
+     *
+     * A cyclic day ends with its date, finished or not – an unfinished day is
+     * missed, not carried over to the next morning. `cursorDue` dates the
+     * cursor, so every day that has passed since moves the cycle on by one,
+     * which is exactly the rotation `agenda()` projects.
+     *
+     * Idempotent, and a no-op for weekly plans, whose day follows from the
+     * weekday. An undated cursor – a fresh state, or one persisted before this
+     * bookkeeping existed – is simply stamped with today.
+     */
+    function rollCursor(): void {
+      const plan = activePlan.value;
+      if (!plan || isWeekly(plan.schedule) || plan.days.length === 0) return;
+
+      const today = todayIso.value;
+      const due = cursorDue.value[plan.id];
+      if (due === undefined) {
+        cursorDue.value[plan.id] = today;
+        return;
+      }
+
+      const missed = daysBetween(due, today);
+      if (missed <= 0) return;
+
+      state.value = advanceCursor(state.value, plan.id, missed);
+      cursorDue.value[plan.id] = today;
+    }
 
     function book(session: WorkoutSession): void {
       const plan = activePlan.value;
@@ -170,11 +211,15 @@ export const useTrainingStore = defineStore(
         advancedBy.value[session.id] =
           state.value.cursors[plan.id] ?? orderedDays(plan)[0].id;
         state.value = advanceCursor(state.value, plan.id);
+        // Today's day is finished; the one that follows is up tomorrow, so
+        // `rollCursor()` must not count today as missed on top of it.
+        cursorDue.value[plan.id] = toIsoDate(dateAt(1));
       } else if (!complete && previous !== undefined) {
         state.value = {
           ...state.value,
           cursors: { ...state.value.cursors, [plan.id]: previous },
         };
+        cursorDue.value[plan.id] = todayIso.value;
         delete advancedBy.value[session.id];
       }
     }
@@ -209,6 +254,8 @@ export const useTrainingStore = defineStore(
       const plan = activePlan.value;
       if (!plan) return null;
 
+      rollCursor();
+
       const existing = todaySession.value;
       if (existing) return existing;
 
@@ -233,6 +280,7 @@ export const useTrainingStore = defineStore(
           ...state.value,
           cursors: { ...state.value.cursors, [plan.id]: previous },
         };
+        cursorDue.value[plan.id] = todayIso.value;
       }
       delete advancedBy.value[session.id];
 
@@ -279,7 +327,14 @@ export const useTrainingStore = defineStore(
     /* ---------------- plan editing ---------------- */
 
     function ensureCursor(plan: TrainingPlan): void {
-      if (isWeekly(plan.schedule) || plan.days.length === 0) return;
+      if (isWeekly(plan.schedule)) {
+        // The cursor is meaningless while the plan runs on weekdays – and its
+        // date would be stale by the time the plan is switched back.
+        delete cursorDue.value[plan.id];
+        return;
+      }
+      if (plan.days.length === 0) return;
+
       const current = state.value.cursors[plan.id];
       if (!current || !plan.days.some((d) => d.id === current)) {
         state.value.cursors[plan.id] = orderedDays(plan)[0].id;
@@ -336,6 +391,7 @@ export const useTrainingStore = defineStore(
       state.value = structuredClone(initialState);
       bookedXp.value = {};
       advancedBy.value = {};
+      cursorDue.value = {};
       useRankStore().reset();
     }
 
@@ -343,6 +399,7 @@ export const useTrainingStore = defineStore(
       state,
       bookedXp,
       advancedBy,
+      cursorDue,
       activePlan,
       plans,
       exercises,
@@ -371,7 +428,7 @@ export const useTrainingStore = defineStore(
   {
     persist: {
       key: TRAINING_KEY,
-      pick: ['state', 'bookedXp', 'advancedBy'],
+      pick: ['state', 'bookedXp', 'advancedBy', 'cursorDue'],
       afterHydrate: (ctx) => {
         // No migration path exists yet – anything from another schema is dropped
         // rather than silently misread.

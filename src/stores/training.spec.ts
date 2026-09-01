@@ -124,12 +124,62 @@ describe('period roll-over', () => {
   });
 });
 
+describe('an unfinished day', () => {
+  it('is closed out with its calendar day instead of coming up again', () => {
+    const { training } = setup();
+    training.toggleSet('b-1-1', 2); // started, never finished
+
+    __setNow(new Date(2026, 7, 4));
+    training.refresh();
+
+    expect(training.cursorDayId).toBe('day-2');
+    expect(training.todayDay?.id).toBe('day-2');
+    // Tuesday's session is its own; Monday keeps what it earned.
+    expect(training.sessionOn('2026-08-03')?.status).toBe('inProgress');
+    expect(training.sessionOn('2026-08-04')?.status).toBe('planned');
+  });
+
+  it('moves the cycle on once per day away, like the agenda projects it', () => {
+    const { training } = setup();
+    expect(training.todayDay?.id).toBe('day-1');
+
+    // Five calendar days later – day 1 to day 5 of the cycle, which wraps to 2.
+    __setNow(new Date(2026, 7, 8));
+    training.refresh();
+
+    expect(training.cursorDayId).toBe('day-2');
+  });
+
+  it('does not count the day it was finished on twice', () => {
+    const { training } = setup();
+    completeToday(training);
+    expect(training.cursorDayId).toBe('day-2');
+
+    __setNow(new Date(2026, 7, 4));
+    training.refresh();
+
+    expect(training.todayDay?.id).toBe('day-2');
+  });
+
+  it('leaves weekly plans to their weekdays', () => {
+    const { training } = setup();
+    training.setScheduleKind('weekly');
+    const cursor = training.cursorDayId;
+
+    __setNow(new Date(2026, 7, 6)); // Thursday – the fourth day of the week
+    training.refresh();
+
+    expect(training.cursorDayId).toBe(cursor);
+    expect(training.todayDay?.id).toBe('day-4');
+  });
+});
+
 describe('the next day up', () => {
   it('rotates off today, not off the cursor', () => {
     const { training } = setup();
     expect(training.nextUp?.day.id).toBe('day-2');
-    // A cycle day is not tied to a calendar date – it comes up on completion.
-    expect(training.nextUp?.date).toBeNull();
+    // The cycle rotates with the calendar, so the next day is tomorrow's.
+    expect(training.nextUp?.date && toIsoDate(training.nextUp.date)).toBe('2026-08-04');
 
     // The cursor moves to day-2, yet the preview keeps pointing past today.
     completeToday(training);

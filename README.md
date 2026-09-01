@@ -68,7 +68,7 @@ RankState                               separate slice, fed from completed sessi
 | `perSide` on the `Exercise`, not on the block | It is a property of the exercise itself (a bow pull is always one-sided). |
 | `schedule` as a discriminated union instead of a flag | The weekday mapping only exists for `kind: 'weekly'` – no dead fields, and the compiler forces both cases in the UI. |
 | `days` independent of `schedule` | The same day content works in both modes; `convertSchedule()` switches over without losing training content. |
-| Cycle via `cursors`, not via calendar dates | A cyclic plan is periodic, not tied to weekdays – after a break you pick up where you left off. For a weekly plan the day follows directly from the date, which is why the cursor is ignored there. |
+| Cycle via `cursors`, not via calendar dates | A cyclic plan is periodic, not tied to weekdays: the cursor says which day is up, and nothing in the model derives it from the date. The app dates that cursor and moves it on once per calendar day (see "An unfinished day" below), but a different rule – carry the day over, skip only workdays – would be a change to the store alone. For a weekly plan the day follows directly from the date, which is why the cursor is ignored there. |
 | Two kinds of "off": `null` assignment and `restDay` | `null` = nothing is scheduled on that weekday at all (Sat/Sun). `restDay` = a deliberately planned rest day that exists as a day, rotates with the cycle and shows up in the history. |
 | `sessions` separate from the plan | Plan = target, session = actual. Plan changes do not distort the history (`dayName` is a snapshot). |
 | `Record<Id, …>` instead of arrays for master data | O(1) lookup and simple immutable updates in the store. |
@@ -143,10 +143,11 @@ const asWeekly = convertSchedule(defaultPlan, 'weekly');
 ```
 
 `agenda()` works for both plan types and is therefore the only function a
-calendar view needs. For cyclic plans the rotation advances per calendar day –
-so the preview shows the course of events under the assumption "training every
-day". The real cursor only advances when a session is completed
-(`advanceCursor`), so after a break the preview shifts accordingly.
+calendar view needs. For cyclic plans the rotation advances per calendar day,
+which is what the app does with the real cursor too – on completion, otherwise
+the next time it is opened – so the preview is the schedule rather than a guess.
+`advanceCursor(state, planId, steps)` takes those steps in one go: one for the
+day that was finished, several for the days that simply went by.
 `nextWorkoutDay()` skips rest days when you only want the next real workout.
 `validatePlan()` returns error messages for a plan editor (unknown day ids,
 completely empty week).
@@ -371,7 +372,17 @@ A negative delta is what gives the XP back when a set is unchecked;
 completion curve, so it appears the moment the last planned set is checked and
 disappears when one is unchecked. The cursor advance follows `isComplete()` and
 is undone from `advancedBy[sessionId]`, which stores the cursor value from
-before the completion. `liveSessionXp()` exists because `sessionXp()` returns 0
+before the completion.
+
+**An unfinished day is missed, not postponed.** A cycle day used to sit on
+"Heute" until every planned set stood, so a Monday left half-done came up again
+on Tuesday. It now ends with its calendar day: `cursorDue[planId]` dates the
+cursor – tomorrow once the day is completed, today otherwise – and `rollCursor()`
+advances the cycle by one for every day that has passed since, on app start and
+on every date change. The session that was left behind keeps the XP it earned
+and stays in the chronicle as `partial`; the new day starts from zero. Weekly
+plans never had the problem: their day follows from the weekday, so
+`ensureCursor()` drops the date there instead of letting it go stale. `liveSessionXp()` exists because `sessionXp()` returns 0
 unless the status is `done`/`rest`; both agree once the session is closed.
 
 A block's base depends on how many blocks share the day, so it is not derivable
@@ -488,8 +499,8 @@ the handoff itself prescribes.
     mode drops the reorder column, the caret and the delete button — the preview
     has nothing to edit. Which day it is comes from `training.nextUp`: a cyclic
     plan rotates off *today's* day rather than the cursor, which has already moved
-    on by then, and gets no date, because the rotation advances on completion and
-    not at midnight; a weekly plan scans the next seven days and skips the free
+    on by then, and is dated tomorrow, because the cycle turns with the calendar
+    day; a weekly plan scans the next seven days and skips the free
     weekdays, so a finished Friday looks ahead to Monday and shows that date as
     the section caption.
 
@@ -510,9 +521,6 @@ the handoff itself prescribes.
 - `estimateDuration()` also doubles the rest time for `perSide` exercises. Day 1
   therefore comes out at 37 min – more of an upper bound. If you want to count
   the rest only once per set, pull `restSeconds` out of the `perSide` factor.
-- `agenda()` assumes one cycle day per calendar day for cyclic plans; the real
-  cursor only advances on completion. The preview is therefore an
-  "if everything goes to plan" scenario, not a promise.
 - `weekKey()` follows ISO-8601, `monthKey()`/`yearKey()` follow the calendar. At
   the turn of the year a session can therefore fall into week `2026-W53` and
   month `2027-01` at the same time – that is intended.

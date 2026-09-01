@@ -82,9 +82,8 @@ const finishHint = computed(() =>
 
 /**
  * What comes after today, as the Plan screen's day box – shown read-only under
- * the finish hint once every planned set stands. `date` is only set for weekly
- * plans: a cycle day rotates on completion, not at midnight, so dating it would
- * promise something the plan does not.
+ * the finish hint once every planned set stands. `date` carries the day it is
+ * up on: tomorrow for a cycle, the next assigned weekday for a weekly plan.
  */
 const nextCard = computed(() => {
   if (!complete.value) return null;
@@ -94,7 +93,7 @@ const nextCard = computed(() => {
   const numbers = plan.value ? dayNumbers(plan.value) : new Map();
   return {
     ...dayCard(up.day, numbers.get(up.day.id) ?? null, training.exercises),
-    caption: up.date ? de.dateShort(up.date) : undefined,
+    caption: de.dateShort(up.date),
   };
 });
 

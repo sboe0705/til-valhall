@@ -107,11 +107,13 @@ slices persist under **two separate keys**: `til-valhall.training` and
 only one leaves the app inconsistent, which is why `applyBackup()` replaces the
 whole `til-valhall.` prefix instead of merging into it.
 
-The training store adds two app-level maps to `TrainingState` (persisted alongside it,
+The training store adds three app-level maps to `TrainingState` (persisted alongside it,
 not part of the model):
 
 - `bookedXp: Record<SessionId, number>` — what a session has already contributed
 - `advancedBy: Record<SessionId, DayId>` — the cursor from *before* a completion
+- `cursorDue: Record<PlanId, IsoDate>` — the calendar day the cursor's day is up on,
+  cyclic plans only; `rollCursor()` reads it to close out the days that went by
 
 Two discriminated unions drive nearly all branching; always handle both arms:
 
@@ -181,12 +183,22 @@ Two discriminated unions drive nearly all branching; always handle both arms:
   the completion curve, so it appears the moment the last planned set is checked and
   disappears when one is unchecked. The cursor advance follows `isComplete()` and is
   undone from `advancedBy`.
+- **A cycle day ends with its calendar day, finished or not.** Completing it advances
+  the cursor there and then; every other day is closed out by `rollCursor()` on the next
+  visit, which moves the cycle on by one for each day between `cursorDue[planId]` and
+  today. An unfinished day is therefore *missed*, not carried over to the next morning,
+  and the cycle rotates exactly once per calendar day — the rotation `agenda()` projects.
+  `cursorDue` is stamped with tomorrow on a completion (today is spent) and back to today
+  on a rollback; an undated cursor — a fresh state, or one persisted before the map
+  existed — is stamped with today, so nothing is ever caught up retroactively. Weekly
+  plans are untouched: their day follows from the weekday, and `ensureCursor()` drops the
+  date instead of letting it go stale.
 - **What follows today is previewed under "Tag vollständig"** — the Plan screen's day
   box, read-only, from `dayCard()` and `DayListItem`'s `readonly` mode. It appears and
   disappears with `isComplete()`, like the finish hint above it. `training.nextUp`
   resolves it: a **cyclic** plan rotates off *today's* day (`nextDay`), never off the
-  cursor — that has already advanced by the time the preview shows — and reports
-  `date: null`, because a cycle day comes up on completion, not at midnight. A
+  cursor — that has already advanced by the time the preview shows — and dates it
+  *tomorrow*, since the cycle turns with the calendar day. A
   **weekly** plan scans the next seven calendar days and skips the empty weekdays, so
   a finished Friday looks ahead to Monday and carries that date as the caption.
 - **A block's base is not derivable from the block.** It depends on how many blocks
@@ -229,8 +241,10 @@ Two discriminated unions drive nearly all branching; always handle both arms:
   scheduled that weekday (Sat/Sun); `day.restDay === true` is a deliberate rest day
   that exists as a day, rotates with the cycle, appears in history and earns
   `REST_XP`.
-- `agenda()` advances the cyclic rotation once per calendar day, but the real cursor
-  only moves on completion — the preview is an "if all goes to plan" projection.
+- `agenda()` advances the cyclic rotation once per calendar day, and so does the real
+  cursor now (on completion, otherwise on the next `rollCursor()`) — the projection is
+  the schedule unless the plan is edited in between. Nothing in the app calls it; it is
+  there for a calendar view.
 - `weekKey()` is ISO-8601 while `monthKey()`/`yearKey()` are calendar-based, so a date
   can be in `2026-W53` and `2027-01` at once. Intended.
 - `createSession()` calls `crypto.randomUUID()` (browser / Node ≥ 19) unless an id is
@@ -238,7 +252,7 @@ Two discriminated unions drive nearly all branching; always handle both arms:
 - `estimateDuration()` doubles rest time for `perSide` exercises, making it an upper
   bound. Known simplification, so the "geschätzt N Min" line is an upper bound too.
 - `validatePlan()` has an `as any` cast at
-  [schedule.ts:200](src/model/schedule.ts#L200) — narrow it properly if you refactor.
+  [schedule.ts:214](src/model/schedule.ts#L214) — narrow it properly if you refactor.
   It is the only ESLint warning in the repo.
 - **`syncWeekdays()` lays the day list out from Monday across all seven weekdays**,
   while `convertSchedule()` fills Mon–Fri only. They agree for up to five days; beyond

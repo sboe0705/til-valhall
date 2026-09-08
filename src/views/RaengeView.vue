@@ -70,6 +70,23 @@ const chronicle = computed(() =>
       />
     </template>
 
+    <SectionRule label="Abgeschlossene Perioden" />
+
+    <div v-for="item in chronicle" :key="item.key" class="period vh-card">
+      <span class="period__left">
+        <span class="period__dot" :style="{ background: item.color }" />
+        <span class="period__texts">
+          <span class="period__name">{{ item.name }}</span>
+          <span class="period__label">{{ item.period }}</span>
+        </span>
+      </span>
+      <span class="period__xp">{{ item.xp }}</span>
+    </div>
+
+    <span v-if="chronicle.length === 0" class="empty">
+      Noch keine Periode abgeschlossen – die erste schließt am Montag.
+    </span>
+
     <SectionRule label="Bestmarken" caption="überlebt jeden Reset" />
 
     <div class="records">
@@ -90,23 +107,6 @@ const chronicle = computed(() =>
         <span class="records__label">{{ record.label }}</span>
       </div>
     </div>
-
-    <SectionRule label="Abgeschlossene Perioden" />
-
-    <div v-for="item in chronicle" :key="item.key" class="period vh-card">
-      <span class="period__left">
-        <span class="period__dot" :style="{ background: item.color }" />
-        <span class="period__texts">
-          <span class="period__name">{{ item.name }}</span>
-          <span class="period__label">{{ item.period }}</span>
-        </span>
-      </span>
-      <span class="period__xp">{{ item.xp }}</span>
-    </div>
-
-    <span v-if="chronicle.length === 0" class="empty">
-      Noch keine Periode abgeschlossen – die erste schließt am Montag.
-    </span>
   </div>
 </template>
 
@@ -115,6 +115,51 @@ const chronicle = computed(() =>
   display: flex;
   flex-direction: column;
   gap: 5px;
+}
+
+.period {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 11px 14px;
+  border-radius: var(--vh-r-chip);
+}
+
+.period__left {
+  display: flex;
+  align-items: center;
+  gap: 11px;
+  min-width: 0;
+}
+
+.period__dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  flex: none;
+}
+
+.period__texts {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.period__name {
+  font: 500 13px/1.2 var(--vh-sans);
+  color: var(--vh-050);
+}
+
+.period__label {
+  font: 400 10px/1.2 var(--vh-mono);
+  color: var(--vh-400);
+}
+
+.period__xp {
+  font: 400 11px/1 var(--vh-mono);
+  color: var(--vh-200);
+  white-space: nowrap;
 }
 
 .records {
@@ -165,51 +210,6 @@ const chronicle = computed(() =>
   letter-spacing: 0.08em;
   text-transform: uppercase;
   color: var(--vh-400);
-}
-
-.period {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 12px;
-  padding: 11px 14px;
-  border-radius: var(--vh-r-chip);
-}
-
-.period__left {
-  display: flex;
-  align-items: center;
-  gap: 11px;
-  min-width: 0;
-}
-
-.period__dot {
-  width: 8px;
-  height: 8px;
-  border-radius: 50%;
-  flex: none;
-}
-
-.period__texts {
-  display: flex;
-  flex-direction: column;
-  gap: 2px;
-}
-
-.period__name {
-  font: 500 13px/1.2 var(--vh-sans);
-  color: var(--vh-050);
-}
-
-.period__label {
-  font: 400 10px/1.2 var(--vh-mono);
-  color: var(--vh-400);
-}
-
-.period__xp {
-  font: 400 11px/1 var(--vh-mono);
-  color: var(--vh-200);
-  white-space: nowrap;
 }
 
 .empty {

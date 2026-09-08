@@ -503,6 +503,11 @@ the handoff itself prescribes.
     day; a weekly plan scans the next seven days and skips the free
     weekdays, so a finished Friday looks ahead to Monday and shows that date as
     the section caption.
+13. **"Abgeschlossene Perioden" sits above "Bestmarken".** The handoff puts the
+    three record cards first, but they only ever move a step at a time and read
+    the same for weeks on end, while the closed-period list is what actually
+    changes — so the list takes the position right under the ladders and the
+    records close the screen. Nothing else about either block changes.
 
 ## Extension points
 

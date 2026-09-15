@@ -75,10 +75,10 @@ defineEmits<{ toggle: []; up: []; down: []; remove: [] }>();
     </div>
 
     <div v-if="open" class="day__body">
-      <div v-for="row in rows" :key="row.name + row.target" class="day__row">
+      <div v-for="row in rows" :key="row.name" class="day__row">
         <span class="day__row-left">
           <span class="day__row-name">{{ row.name }}</span>
-          <span class="day__row-target">{{ row.target }}</span>
+          <span v-if="row.target" class="day__row-target">{{ row.target }}</span>
         </span>
         <span class="day__row-sets">{{ row.setsText }}</span>
       </div>

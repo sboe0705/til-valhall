@@ -127,35 +127,41 @@ export function secondsDe(total: number): string {
 }
 
 /**
- * `Wdh. frei`, `Wdh. frei · 5 s halten`, `1:00 Min`
+ * The per-set spec of a target: `1:00 Min`, `5 s pro Wdh. halten`, or nothing
+ * at all for plain repetitions.
  *
  * Rep counts are deliberately not printed: how many repetitions a set is worth
  * is the trainee's call, not the plan's – XP never depended on them either
  * (only on the *share* of the planned sets that is done). `Target.reps` stays
  * in the model because `estimateDuration()` grades the "geschätzt N Min" line
- * against it; a hold is a real prescription and is still shown.
+ * against it. A hold is a real prescription and survives, phrased per rep.
  */
 export function targetDe(target: Target): string {
   if (isRepTarget(target)) {
-    const hold = target.holdSeconds ? ` · ${target.holdSeconds} s halten` : '';
-    return `Wdh. frei${hold}`;
+    return target.holdSeconds ? `${target.holdSeconds} s pro Wdh. halten` : '';
   }
   return secondsDe(target.seconds);
 }
 
 /**
- * The per-set spec of a block – `Wdh. frei pro Seite`, `1:00 Min`.
+ * The spec line of a block – `1:00 Min pro Seite`, `5 s pro Wdh. halten`,
+ * `pro Seite`, or the empty string when there is nothing left to prescribe.
  *
  * Without the set count: every screen that shows this line prints the number of
- * sets right next to it (the day box's `3 Sätze`, Heute's set pills, the
- * draft panel's stepper), so a leading `3 ×` would only say it twice.
+ * sets right next to it (the day box's `3 Sätze`, Heute's set pills, the draft
+ * panel's stepper), so a leading `3 ×` would only say it twice. Callers must
+ * therefore expect an empty line and skip it.
  */
 export function blockDe(
   block: Pick<ExerciseBlock, 'target'>,
   exercise?: Exercise,
 ): string {
-  const side = exercise?.perSide ? ' pro Seite' : '';
-  return `${targetDe(block.target)}${side}`;
+  const side = exercise?.perSide ? 'pro Seite' : '';
+  const spec = targetDe(block.target);
+  // A duration reads as one phrase (`1:00 Min pro Seite`); a bare hold does not,
+  // so there the side comes first and the two are separated.
+  if (!isRepTarget(block.target)) return side ? `${spec} ${side}` : spec;
+  return [side, spec].filter(Boolean).join(' · ');
 }
 
 /** `Rücken · Arme` */

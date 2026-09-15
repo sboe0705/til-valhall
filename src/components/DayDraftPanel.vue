@@ -120,7 +120,7 @@ function submit(): void {
       <div v-for="row in rows" :key="row.index" class="draft__row">
         <span class="draft__row-left">
           <span class="draft__row-name">{{ row.name }}</span>
-          <span class="draft__row-target">{{ row.target }}</span>
+          <span v-if="row.target" class="draft__row-target">{{ row.target }}</span>
         </span>
         <span class="draft__stepper">
           <button

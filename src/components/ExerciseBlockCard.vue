@@ -77,7 +77,7 @@ const note = computed(() => {
     <header class="block__head">
       <div class="block__titles">
         <h2 class="block__name">{{ name }}</h2>
-        <span class="block__target">{{ target }}</span>
+        <span v-if="target" class="block__target">{{ target }}</span>
         <span v-if="muscles" class="block__muscles">{{ muscles }}</span>
       </div>
       <span class="block__xp" :class="`block__xp--${state}`">{{ xpText }}</span>

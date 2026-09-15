@@ -119,16 +119,22 @@ export function percent(ratio: number): string {
 /* Plan content                                                        */
 /* ------------------------------------------------------------------ */
 
-/** `1:00 Min`, `45 s` */
+/**
+ * `60 s`, `45 s` – one unit for every duration the plan prescribes.
+ *
+ * Holds and duration targets sit on the same line and in the same column, so
+ * they are read against each other; a `1:00 Min` next to a `5 s` made the two
+ * look like different kinds of number. Seconds win because that is the scale a
+ * set is held or timed in – minutes stay for the *day* estimate
+ * (`estimateMinutes`), which is a different order of magnitude.
+ */
 export function secondsDe(total: number): string {
-  const m = Math.floor(total / 60);
-  const s = total % 60;
-  return m > 0 ? `${m}:${String(s).padStart(2, '0')} Min` : `${s} s`;
+  return `${total} s`;
 }
 
 /**
- * The per-set spec of a target: `1:00 Min`, `5 s pro Wdh. halten`, or nothing
- * at all for plain repetitions.
+ * The per-set spec of a target: `60 s`, `5 s pro Wdh. halten`, or nothing at
+ * all for plain repetitions.
  *
  * Rep counts are deliberately not printed: how many repetitions a set is worth
  * is the trainee's call, not the plan's – XP never depended on them either
@@ -144,24 +150,27 @@ export function targetDe(target: Target): string {
 }
 
 /**
- * The spec line of a block – `1:00 Min pro Seite`, `5 s pro Wdh. halten`,
- * `pro Seite`, or the empty string when there is nothing left to prescribe.
+ * The spec line of a block – `60 s pro Seite`, `beide Seiten`,
+ * `beide Seiten · 5 s pro Wdh. halten`, or the empty string when there is
+ * nothing left to prescribe.
  *
  * Without the set count: every screen that shows this line prints the number of
  * sets right next to it (the day box's `3 Sätze`, Heute's set pills, the draft
  * panel's stepper), so a leading `3 ×` would only say it twice. Callers must
  * therefore expect an empty line and skip it.
+ *
+ * A duration is per side and reads as one phrase (`60 s pro Seite`). A rep
+ * block no longer carries a number the side could attach to, so there it says
+ * `beide Seiten` – an instruction rather than a unit.
  */
 export function blockDe(
   block: Pick<ExerciseBlock, 'target'>,
   exercise?: Exercise,
 ): string {
-  const side = exercise?.perSide ? 'pro Seite' : '';
   const spec = targetDe(block.target);
-  // A duration reads as one phrase (`1:00 Min pro Seite`); a bare hold does not,
-  // so there the side comes first and the two are separated.
-  if (!isRepTarget(block.target)) return side ? `${spec} ${side}` : spec;
-  return [side, spec].filter(Boolean).join(' · ');
+  if (!exercise?.perSide) return spec;
+  if (!isRepTarget(block.target)) return `${spec} pro Seite`;
+  return ['beide Seiten', spec].filter(Boolean).join(' · ');
 }
 
 /** `Rücken · Arme` */

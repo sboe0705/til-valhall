@@ -17,9 +17,9 @@ describe('dayCard', () => {
     expect(card.xpText).toBe('120 XP');
     expect(card.rest).toBe(false);
     expect(card.rows).toEqual([
-      { name: 'Seitstütz', target: '1:00 Min pro Seite', setsText: '3 Sätze' },
+      { name: 'Seitstütz', target: '60 s pro Seite', setsText: '3 Sätze' },
       { name: 'Dead Bug', target: '5 s pro Wdh. halten', setsText: '3 Sätze' },
-      { name: 'Trizepsdrücken', target: 'pro Seite', setsText: '3 Sätze' },
+      { name: 'Trizepsdrücken', target: 'beide Seiten', setsText: '3 Sätze' },
     ]);
   });
 

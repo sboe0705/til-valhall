@@ -29,7 +29,7 @@ const rows = computed(() =>
   draft.value.blocks.map((block, index) => ({
     index,
     name: props.exercises[block.exerciseId]?.name ?? block.exerciseId,
-    target: `${block.sets} × ${de.targetDe(block.target)}`,
+    target: de.blockDe(block, props.exercises[block.exerciseId]),
     sets: block.sets,
   })),
 );

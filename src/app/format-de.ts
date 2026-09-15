@@ -126,19 +126,36 @@ export function secondsDe(total: number): string {
   return m > 0 ? `${m}:${String(s).padStart(2, '0')} Min` : `${s} s`;
 }
 
-/** `20 Wdh.`, `20 Wdh. (5 s halten)`, `1:00 Min` */
+/**
+ * `Wdh. frei`, `Wdh. frei · 5 s halten`, `1:00 Min`
+ *
+ * Rep counts are deliberately not printed: how many repetitions a set is worth
+ * is the trainee's call, not the plan's – XP never depended on them either
+ * (only on the *share* of the planned sets that is done). `Target.reps` stays
+ * in the model because `estimateDuration()` grades the "geschätzt N Min" line
+ * against it; a hold is a real prescription and is still shown.
+ */
 export function targetDe(target: Target): string {
   if (isRepTarget(target)) {
-    const hold = target.holdSeconds ? ` (${target.holdSeconds} s halten)` : '';
-    return `${target.reps} Wdh.${hold}`;
+    const hold = target.holdSeconds ? ` · ${target.holdSeconds} s halten` : '';
+    return `Wdh. frei${hold}`;
   }
   return secondsDe(target.seconds);
 }
 
-/** `3 × 20 Wdh. pro Seite`, `3 × 1:00 Min` */
-export function blockDe(block: ExerciseBlock, exercise?: Exercise): string {
+/**
+ * The per-set spec of a block – `Wdh. frei pro Seite`, `1:00 Min`.
+ *
+ * Without the set count: every screen that shows this line prints the number of
+ * sets right next to it (the day box's `3 Sätze`, Heute's set pills, the
+ * draft panel's stepper), so a leading `3 ×` would only say it twice.
+ */
+export function blockDe(
+  block: Pick<ExerciseBlock, 'target'>,
+  exercise?: Exercise,
+): string {
   const side = exercise?.perSide ? ' pro Seite' : '';
-  return `${block.sets} × ${targetDe(block.target)}${side}`;
+  return `${targetDe(block.target)}${side}`;
 }
 
 /** `Rücken · Arme` */

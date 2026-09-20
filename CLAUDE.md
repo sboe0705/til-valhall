@@ -273,6 +273,19 @@ Two discriminated unions drive nearly all branching; always handle both arms:
   That check is also why `parseBackup()` insists on `schemaVersion === 1`: an
   unvalidated foreign file would trip `resetAll()` and *wipe* the data instead of
   being refused.
+- **The palette is the LEGO Viking shields, not the handoff's greys** — see
+  deviations 14/15 in the README. Six source tokens (`--vh-shield-gold` /
+  `-yellow` / `-blue` / `-red` / `-green` / `-bone`) in `tokens.css`; every
+  semantic (`--vh-accent`, `--vh-success`, `--vh-rest`, `--vh-overflow`,
+  `--vh-danger`) resolves to one of them and nothing below that block invents a
+  hue. The handoff's hard rules still hold: no gradients, no glows, `--vh-600`
+  is border-only, `--vh-400` is the dimmest legal text colour.
+- **`--vh-quadrant` is chrome, never semantics.** `App.vue` puts the route name
+  on `.shell` as `data-screen` and `tokens.css` picks the screen's shield
+  quarter from it (Heute gold · Plan blue · Chronik red · Ränge green). Only the
+  screen eyebrow (`.vh-eyebrow--quadrant`), the `SectionRule` lead and the tab
+  bar read it — XP stays gold on every screen, a rest day stays blue, and an
+  eyebrow inside a card stays `--vh-400`.
 - **German tier copy lives in `src/ui/tiers.ts`, not in the model.** `TIER_LORE`
   (the sentence behind the `i` button on each ladder) sits next to `TIER_RUNES` /
   `TIER_SHORT`; `RankTier.gloss` is the model's English one-liner and is rendered

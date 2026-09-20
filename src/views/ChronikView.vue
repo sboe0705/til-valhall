@@ -132,7 +132,7 @@ const rows = computed(() =>
 <template>
   <div class="vh-screen">
     <header class="head">
-      <span class="vh-eyebrow">Chronik</span>
+      <span class="vh-eyebrow vh-eyebrow--quadrant">Chronik</span>
       <div class="head__row">
         <h1 class="vh-h1">{{ de.monthLabel(month) }}</h1>
         <div class="head__nav">

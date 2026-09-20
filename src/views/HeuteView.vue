@@ -210,11 +210,13 @@ const rows = computed(() => {
   gap: 12px;
 }
 
+/* The date is this screen's eyebrow, so it carries the shield quarter; the
+   plan name beside it stays quiet. */
 .head__date {
   font: 500 10px/1 var(--vh-mono);
   letter-spacing: 0.18em;
   text-transform: uppercase;
-  color: var(--vh-400);
+  color: var(--vh-quadrant);
 }
 
 .head__plan {

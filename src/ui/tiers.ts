@@ -15,12 +15,15 @@ import type { Id } from '@/model/training';
 import type { RankScope } from '@/model/ranks';
 
 export const TIER_COLORS: Record<Id, string> = {
-  // Week – Ständeleiter der Rígsþula
-  drengr: '#B9AC94',
-  karl: '#C08A2E',
-  hersir: '#A63A2C',
-  jarl: '#2F5D8C',
-  konungr: '#E0B23C',
+  /*
+   * Week – Ständeleiter der Rígsþula. The five steps are the shield itself:
+   * silver rim, bronze, red quarter, blue quarter, gold boss.
+   */
+  drengr: '#C6CED6',
+  karl: '#C97A32',
+  hersir: '#D65A40',
+  jarl: '#4E93DB',
+  konungr: '#E6CB4F',
 
   // Month – Die Neun Welten
   niflheim: '#86A0AE',
@@ -33,18 +36,22 @@ export const TIER_COLORS: Record<Id, string> = {
   vanaheim: '#2E8B84',
   asgard: '#E8B93C',
 
-  // Year – Zwölf Asen nach Rang
-  bragi: '#5E6B7A',
-  forseti: '#5A7480',
-  ullr: '#567D80',
-  vidar: '#567F72',
-  vali: '#628060',
-  njord: '#7C8557',
-  freyr: '#948652',
-  heimdallr: '#AC8850',
-  baldr: '#C08E4E',
-  tyr: '#CE9645',
-  thorr: '#DFA93A',
+  /*
+   * Year – Zwölf Asen nach Rang. One long ramp from the shield's cold quarter
+   * to its boss: blue → teal → green → gold. The handoff ramps grey → gold,
+   * which lost its lower half against the blue-slate surfaces.
+   */
+  bragi: '#5E88C4',
+  forseti: '#5793C9',
+  ullr: '#4E9BB4',
+  vidar: '#4CA09A',
+  vali: '#52A87F',
+  njord: '#6FAA66',
+  freyr: '#93AC56',
+  heimdallr: '#B8A94B',
+  baldr: '#C99F45',
+  tyr: '#D2A73F',
+  thorr: '#DFB63A',
   odinn: '#F2C64B',
 };
 

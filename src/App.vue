@@ -28,7 +28,13 @@ watch(
 </script>
 
 <template>
-  <div class="shell">
+  <!--
+    The route name doubles as the shield quarter of the screen: `tokens.css`
+    keys `--vh-quadrant` off `data-screen`, so every piece of chrome reading
+    that token changes colour with the tab. `/impressum` has no tab and keeps
+    the default gold, the same way it shows no active tab.
+  -->
+  <div class="shell" :data-screen="String(route.name ?? '')">
     <main ref="scroller" class="shell__scroll">
       <RouterView />
     </main>

@@ -1,10 +1,18 @@
 <script setup lang="ts">
-/** 74px tab bar – runic glyph, label, 16×2 underline pill. */
+/**
+ * 74px tab bar – runic glyph, label, 16×2 underline pill.
+ *
+ * The four tabs are the four quarters of the shield and each carries its own
+ * colour, so the bar reads as one coloured band instead of four grey slots.
+ * `accent` is the same token `--vh-quadrant` resolves to on that route – it is
+ * repeated here because an inactive tab has to show its colour too, and that
+ * one is never the current quarter.
+ */
 const tabs = [
-  { name: 'heute', label: 'Heute', rune: 'ᛞ' },
-  { name: 'plan', label: 'Plan', rune: 'ᛃ' },
-  { name: 'chronik', label: 'Chronik', rune: 'ᚱ' },
-  { name: 'raenge', label: 'Ränge', rune: 'ᛊ' },
+  { name: 'heute', label: 'Heute', rune: 'ᛞ', accent: 'var(--vh-shield-gold)' },
+  { name: 'plan', label: 'Plan', rune: 'ᛃ', accent: 'var(--vh-shield-blue)' },
+  { name: 'chronik', label: 'Chronik', rune: 'ᚱ', accent: 'var(--vh-shield-red)' },
+  { name: 'raenge', label: 'Ränge', rune: 'ᛊ', accent: 'var(--vh-shield-green)' },
 ] as const;
 </script>
 
@@ -16,6 +24,7 @@ const tabs = [
       class="tab"
       :to="{ name: tab.name }"
       :aria-label="tab.label"
+      :style="{ '--tab-accent': tab.accent }"
     >
       <span class="tab__rune vh-rune">{{ tab.rune }}</span>
       <span class="tab__label">{{ tab.label }}</span>
@@ -48,9 +57,17 @@ const tabs = [
   transition: color var(--vh-t-color);
 }
 
+/*
+ * The rune keeps its quarter's colour at all times, dimmed while the tab is
+ * inactive; only the label and the underline switch to full strength. Dimming
+ * with `opacity` rather than a second token keeps one colour per tab.
+ */
 .tab__rune {
   font-size: 19px;
   line-height: 1;
+  color: var(--tab-accent);
+  opacity: 0.45;
+  transition: opacity var(--vh-t-color);
 }
 
 .tab__label {
@@ -66,10 +83,14 @@ const tabs = [
 }
 
 .tab.router-link-active {
-  color: var(--vh-accent);
+  color: var(--tab-accent);
+}
+
+.tab.router-link-active .tab__rune {
+  opacity: 1;
 }
 
 .tab.router-link-active .tab__underline {
-  background: var(--vh-accent);
+  background: var(--tab-accent);
 }
 </style>

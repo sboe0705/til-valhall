@@ -463,7 +463,7 @@ the handoff itself prescribes.
    are not implemented, as the handoff states.
 9. **The checked set pill is stronger than the handoff's.** Its `#14231A` fill
    with a 1px border read as a hairline against the card, so the fill is raised
-   to `#1A2F21` (`#2F2114` for the overflow variant, a gentler lift because
+   to `#17302A` (`#33220F` for the overflow variant, a gentler lift because
    `--vh-overflow` is a mid-tone and a brighter fill would cost contrast) and the
    border becomes a 2px ring via an inset shadow. The `✓` grows from 15px/500 to
    18px/600, and the XP line below it loses the `.72` dim, which is what carries
@@ -508,6 +508,32 @@ the handoff itself prescribes.
     the same for weeks on end, while the closed-period list is what actually
     changes — so the list takes the position right under the ladders and the
     records close the screen. Nothing else about either block changes.
+14. **The palette is re-coloured after the LEGO Viking shields.** The handoff's
+    neutrals are a near-neutral grey ramp on `#0F1416`, which read as one black
+    slab once the screens were full. The ramp keeps its luminance steps but
+    gains a blue-slate hue and is lifted a step (`#0E141D` / `#1A2331` /
+    `#26313F` / `#313D4F`, text `#8593A6` / `#B6C1CD` / `#E9EEF2`), and every
+    semantic colour now resolves to one of six shield tokens — gold `#D4A537`
+    (the boss, and the handoff's own accent, unchanged), yellow `#E6CB4F`, blue
+    `#4E93DB`, red `#D65A40`, green `#4DA882`, bone `#C6CED6`. The *roles* are
+    the handoff's: accent is still XP, success still the checked set, and
+    `--vh-rest` / `--vh-overflow` / `--vh-danger` keep their jobs, only brighter
+    — the handoff's `--vh-danger` sat at 2.6:1 and now clears 3.6:1. The two
+    ladders that had no mythological colour logic follow the shields as well:
+    the week is the shield itself (silver → bronze → red → blue → gold boss) and
+    the year ramps blue → teal → green → gold instead of grey → gold, whose
+    lower half disappeared against the new surfaces. The Nine Worlds are
+    unchanged; their colours come from the myth, not from the palette.
+15. **`--vh-quadrant` is net-new: one shield quarter per screen.** `App.vue`
+    stamps the route name onto `.shell` as `data-screen`, `tokens.css` keys the
+    token off it (Heute gold, Plan blue, Chronik red, Ränge green) and three
+    pieces of chrome read it: the eyebrow above the `h1`, the 18×2 lead segment
+    that now opens every `SectionRule` hairline, and the tab bar, where each tab
+    carries its own quarter — dimmed to `.45` while inactive, full strength with
+    the underline pill when it is the current route. Chrome only: nothing
+    semantic changes colour with the route, so XP stays gold everywhere.
+    `/impressum` has no tab and keeps the default gold, the same way it shows no
+    active tab.
 
 ## Extension points
 

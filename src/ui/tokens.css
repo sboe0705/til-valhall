@@ -1,38 +1,66 @@
 /*
- * Design tokens – every value is the intended production value from
- * design_handoff_til_valhall/README.md. Dark mode only; light mode is out of
- * scope for this handoff.
+ * Design tokens – the handoff's structure, re-coloured after the LEGO Viking
+ * shields the app is named for: a steel rim over a blue-slate night, quartered
+ * in gold, blue, red and green, with a gold boss in the middle.
  *
- * Hard rules of the palette:
+ * What the shields changed and what they did not:
+ *   - the neutral ramp keeps its luminance steps but gains a blue-slate hue,
+ *     and every step is lifted a little – the handoff's near-black read as one
+ *     flat slab once the screens were full
+ *   - every semantic colour now resolves to a shield token; the roles
+ *     (accent = XP, success = checked, rest, overflow, danger) are unchanged
+ *   - `--vh-quadrant` is new: the shield quarter a screen is cut from, set per
+ *     route on `.shell` and used for chrome only (tab, eyebrow, section rule)
+ *
+ * Hard rules of the palette, unchanged from the handoff:
  *   - no gradients, no glows anywhere
- *   - --vh-600 is a BORDER token, never a text colour (~1.2:1 on --vh-800)
- *   - --vh-400 is the dimmest legal text colour
+ *   - --vh-600 is a BORDER token, never a text colour (~1.4:1 on --vh-800)
+ *   - --vh-400 is the dimmest legal text colour (4.5:1 on --vh-800)
  */
 
 :root {
   color-scheme: dark;
 
-  /* Neutrals */
-  --vh-900: #0f1416; /* app background */
-  --vh-800: #161d21; /* card */
-  --vh-700: #1f282d; /* raised surface, hover */
-  --vh-600: #2c383e; /* border */
-  --vh-400: #6b7b84; /* text secondary */
-  --vh-200: #afbcc2; /* text tertiary */
-  --vh-050: #e8edef; /* text primary – bone, not white */
+  /* Neutrals – the shields' steel rim over a blue-slate night */
+  --vh-900: #0e141d; /* app background */
+  --vh-800: #1a2331; /* card */
+  --vh-700: #26313f; /* raised surface, hover */
+  --vh-600: #313d4f; /* border */
+  --vh-400: #8593a6; /* text secondary */
+  --vh-200: #b6c1cd; /* text tertiary */
+  --vh-050: #e9eef2; /* text primary – bone, not white */
 
-  /* Semantics */
-  --vh-accent: #d4a537; /* XP, progress, primary action */
-  --vh-success: #4fa86a; /* set checked */
-  --vh-rest: #5b8ca8; /* rest day */
-  --vh-overflow: #b5763a; /* extra set */
-  --vh-danger: #a63a2c; /* destructive */
-  --vh-danger-strong: #c8452b; /* destructive hover, error rune */
+  /*
+   * The shield palette. These are the source colours; nothing below this block
+   * invents a hue of its own, and each one clears 4.5:1 on --vh-800 so it may
+   * carry text as well as a rail or a ring.
+   */
+  --vh-shield-gold: #d4a537; /* the boss, and shield 3's runic field */
+  --vh-shield-yellow: #e6cb4f; /* shield 1's bright quarters */
+  --vh-shield-blue: #4e93db; /* shield 2 and 4 */
+  --vh-shield-red: #d65a40; /* shield 4's red quarters */
+  --vh-shield-green: #4da882; /* shield 1's dark green, lifted to text weight */
+  --vh-shield-bone: #c6ced6; /* shield 2's silver quarters */
+
+  /* Semantics – roles from the handoff, colours from the shields */
+  --vh-accent: var(--vh-shield-gold); /* XP, progress, primary action */
+  --vh-success: var(--vh-shield-green); /* set checked */
+  --vh-rest: var(--vh-shield-blue); /* rest day */
+  --vh-overflow: #c97a32; /* extra set – gold on its way to red */
+  --vh-danger: #cf5138; /* destructive */
+  --vh-danger-strong: var(--vh-shield-red); /* destructive hover, error rune */
+
+  /*
+   * The shield quarter of the current screen, set from the route in App.vue.
+   * Chrome only – it never stands in for a semantic colour, so XP stays gold
+   * on every screen. The default is the Heute quarter.
+   */
+  --vh-quadrant: var(--vh-shield-gold);
 
   /* Dark tints – only ever used as "done" fills */
-  --vh-fill-success: #1a2f21; /* raised from the handoff's #14231a – see README */
-  --vh-fill-overflow: #2f2114; /* raised from #2a1d12, gentler: --vh-overflow is a mid-tone */
-  --vh-fill-rest: #12202a;
+  --vh-fill-success: #17302a; /* raised from the handoff's #14231a – see README */
+  --vh-fill-overflow: #33220f; /* gentler lift: --vh-overflow is a mid-tone */
+  --vh-fill-rest: #142c4a;
 
   /* Typography */
   --vh-display: 'Grenze Gotisch', serif;
@@ -56,4 +84,24 @@
   /* Layout */
   --vh-screen-max: 430px;
   --vh-tabbar-h: 74px;
+}
+
+/*
+ * One quarter per tab, in the tab bar's order. `/impressum` has no tab and
+ * inherits the default gold, the same way it shows no active tab.
+ */
+[data-screen='heute'] {
+  --vh-quadrant: var(--vh-shield-gold);
+}
+
+[data-screen='plan'] {
+  --vh-quadrant: var(--vh-shield-blue);
+}
+
+[data-screen='chronik'] {
+  --vh-quadrant: var(--vh-shield-red);
+}
+
+[data-screen='raenge'] {
+  --vh-quadrant: var(--vh-shield-green);
 }

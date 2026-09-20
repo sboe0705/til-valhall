@@ -114,6 +114,15 @@ input {
   letter-spacing: 0.16em;
 }
 
+/**
+ * The screen's own eyebrow – the one above the h1 – in the shield quarter of
+ * the route. Eyebrows inside cards stay --vh-400; a coloured one per card
+ * would turn the accent into noise.
+ */
+.vh-eyebrow--quadrant {
+  color: var(--vh-quadrant);
+}
+
 .vh-card {
   background: var(--vh-800);
   border: 1px solid var(--vh-600);

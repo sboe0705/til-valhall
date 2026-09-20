@@ -112,8 +112,9 @@ function remove(dayId: Id): void {
     />
 
     <DayListItem
-      v-for="item in items"
+      v-for="(item, i) in items"
       :key="item.day.id"
+      :style="{ '--vh-card': `var(--vh-quarter-${i % 2 ? 'b' : 'a'})` }"
       :title="item.title"
       :meta="item.meta"
       :xp-text="item.xpText"

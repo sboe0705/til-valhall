@@ -557,25 +557,39 @@ the handoff itself prescribes.
     `GLYPH_OVERRIDES` is gone — it existed because `helheim` was a legal rail
     but an illegal rune, and now every tier clears 4.5:1, so a rail, a dot and
     a rune share one value and `tierGlyphColor()` has no reason to exist.
-17. **A card is coloured by what it holds.** `.vh-card` reads
-    `var(--vh-card, var(--vh-800))`, and a component sets `--vh-card` to one of
-    four new surfaces — `--vh-tint-gold` `#4E3B17`, `--vh-tint-blue` `#1D4063`,
-    `--vh-tint-red` `#692B1F`, `--vh-tint-green` `#144634` — to take its
-    quarter of the shield: gold for XP, blue for the training itself, red for
-    the chronicle, green for the ranks. Each tint is its quarter's hue at 55%
-    saturation, darkened until it sits at the *luminance of `--vh-800`*, which
-    is what makes the choice free: nothing about the surface changes but its
-    hue, so every contrast on it is the figure it was on the grey — bone
-    9.1:1, `--vh-200` 6.0:1, `--vh-400` 4.6:1, gold 4.7:1, red 3.6:1.
-    55% and not less: below roughly 40% a dark red is a brown and a dark gold
-    is an olive, and the screens read muddy rather than colourful.
-    The tint follows the content, not the route, so a screen shows several
-    quarters at once — on Chronik the calendar is red, the day behind it blue
-    and the three stat tiles blue/gold/green. Cards with nothing to say stay
-    grey on purpose: the schedule switch, the day draft, the history rows and
-    the Impressum. The sunken steps *inside* a card (`--vh-900`) and the border
-    (`--vh-600`) stay neutral — the tinted plate in a steel rim is the shield,
-    and a tinted border would fight the accent it frames.
+17. **Each screen is one of the four shields, and its cards are the two
+    quarters.** The hues are sampled from the LEGO shields themselves rather
+    than invented: Heute is the blue-and-silver shield
+    (`--vh-quarter-heute-a` `#1E3F66`, `-b` `#393E44`), Plan the blue-and-red
+    one (`#1E3F66` / `#6D2720`), Chronik the red-and-gold one
+    (`#692A28` / `#4A3D0D`) and Ränge the black-and-gold one
+    (`#142617` / `#463E0C`). `tokens.css` points `--vh-quarter-a` / `-b` at the
+    pair for the current `data-screen`; `.vh-card` resolves
+    `var(--vh-card, var(--vh-quarter-a))`, a card asks for `-b` with one line,
+    and the three lists — the exercise blocks, the day list, the ladders —
+    alternate the two from their `v-for`, which is how a shield is quartered
+    in the first place. The tab bar and the forms stay `--vh-800`: they are the
+    steel rim, which every one of the four shields has.
+    Every quarter is its sampled hue darkened to the luminance of `--vh-800`,
+    which is what keeps the scheme free: nothing about a card surface changes
+    but its hue, so every contrast on all eight is the figure it was on the
+    grey — bone 9.2:1, `--vh-200` 6.1:1, `--vh-400` 4.6:1, gold 4.7:1,
+    red 3.6:1. Saturation is 55% for a coloured quarter (below ~40% a dark red
+    is a brown), 70% for the two golds, which is what separates gold from
+    olive this far down, and 8% for Heute's silver, which becomes steel —
+    a card cannot be light without costing every contrast on it.
+    The one exception is Ränge's black quarter at luminance 0.014 against the
+    common 0.048. Downwards is free — every contrast on it only improves, bone
+    reaching 13.6:1 — and the shield is black-and-gold, not green-and-gold: at
+    the common luminance it read as a forest green. It stays legible as a card
+    because `--vh-600` outlines it at 2.3:1, not because it is lighter than the
+    page, which it barely is.
+18. **`--vh-page` is a neutral graphite (`#0D0E10`), not a blue-black.** With
+    four different shields on four screens, any hue in the page would pull one
+    of them and push another; the shields' own rims are neutral steel, so the
+    field they sit on is neutral too. It stays near-black because that is what
+    lets the quarters keep their saturation — the same reason deviation 16
+    gives.
 
 ## Extension points
 

@@ -286,18 +286,22 @@ Two discriminated unions drive nearly all branching; always handle both arms:
   screen eyebrow (`.vh-eyebrow--quadrant`), the `SectionRule` lead and the tab
   bar read it — XP stays gold on every screen, a rest day stays blue, and an
   eyebrow inside a card stays `--vh-400`.
-- **A card's colour comes from what it holds, via `--vh-card`.** `.vh-card`
-  resolves `var(--vh-card, var(--vh-800))`; a component sets `--vh-card` to one
-  of `--vh-tint-gold` / `-blue` / `-red` / `-green` to take its quarter — gold
-  XP, blue training, red chronicle, green ranks — and stays grey when it has
-  nothing to say. The four tints are iso-luminant with `--vh-800`, which is the
-  whole point: swapping one in moves no contrast, so never "fix" a tint by
-  lightening it, and keep a new one on the same luminance. The sunken steps
-  inside a card (`--vh-900`) and the border (`--vh-600`) stay neutral.
-- **`--vh-page` is black, `--vh-800` is the mid grey, `--vh-900` is a fill
-  inside a card.** The page (`html`, `body`, `.shell`) is the only thing that is
-  black; cards and the tab bar are the grey, and they carry every colour in the
-  app — see deviation 16 in the README. The grey card is what the whole ramp is
+- **Each screen is one of the four LEGO shields; its cards are the quarters.**
+  `tokens.css` points `--vh-quarter-a` / `-b` at that screen's pair (Heute
+  blue/silver · Plan blue/red · Chronik red/gold · Ränge black/gold) off
+  `data-screen`, `.vh-card` resolves `var(--vh-card, var(--vh-quarter-a))`, and
+  a card takes the other quarter with `--vh-card: var(--vh-quarter-b)`. The
+  exercise blocks, the day list and the ladders alternate the two from their
+  `v-for`. `--vh-800` is left for the steel rim: tab bar, schedule switch, day
+  draft, dialog, Impressum. Seven of the eight quarters are iso-luminant with
+  `--vh-800` — that is what makes the choice free of contrast consequences, so
+  never "fix" one by lightening it. Ränge's black quarter is deliberately
+  *darker*; downwards is free, upwards is not. See deviation 17 in the README.
+- **`--vh-page` is a neutral near-black, `--vh-800` the steel grey,
+  `--vh-900` a fill inside a card.** The page (`html`, `body`, `.shell`) is the
+  only near-black thing, and neutral on purpose: any hue in it would pull one
+  of the four shields and push another. Cards and the tab bar carry every
+  colour in the app — see deviations 16–18 in the README. The grey card is what the whole ramp is
   tuned against, so two habits from the handoff are now wrong: `--vh-700` and
   `--vh-600` are *lighter* than the card they sit on, not darker, and
   `--vh-900` is never a page background — it is the sunken step inside a card

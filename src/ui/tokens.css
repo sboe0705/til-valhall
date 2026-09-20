@@ -9,8 +9,9 @@
  *     cards barely lighter than it – see "Black page, grey cards" below
  *   - every semantic colour now resolves to a shield token; the roles
  *     (accent = XP, success = checked, rest, overflow, danger) are unchanged
- *   - `--vh-quadrant` is new: the shield quarter a screen is cut from, set per
- *     route on `.shell` and used for chrome only (tab, eyebrow, section rule)
+ *   - each screen is one of the four shields: `--vh-quarter-a` / `-b` are its
+ *     two quarters and colour the cards, `--vh-quadrant` its brightest colour
+ *     and does the chrome (eyebrow, section rule lead, tab)
  *
  * Hard rules of the palette, unchanged from the handoff:
  *   - no gradients, no glows anywhere
@@ -41,7 +42,7 @@
   color-scheme: dark;
 
   /* Neutrals – grey shield plates on a black field */
-  --vh-page: #090c11; /* the page behind everything – black */
+  --vh-page: #0d0e10; /* the page behind everything – neutral graphite */
   --vh-900: #1b222c; /* sunken fill inside a card – never the page */
   --vh-800: #363f4b; /* card – the shields' mid steel grey */
   --vh-700: #434d5b; /* raised surface, hover */
@@ -63,20 +64,45 @@
   --vh-shield-bone: #c6ced6; /* shield 2's silver quarters */
 
   /*
-   * The same four quarters as card surfaces: each one its quarter's hue at
-   * 55% saturation, darkened until it sits at the luminance of --vh-800.
-   * That is the whole trick – a card can take any of these without a single
-   * contrast on it moving, because nothing about the surface changes but its
-   * hue. On all four: bone 9.1:1, --vh-200 6.0:1, --vh-400 4.6:1, gold 4.7:1,
-   * blue 4.5:1, green 4.5:1, red 3.6:1 – the same figures as on the grey.
+   * Card surfaces: two per screen, one for each quarter of that screen's
+   * shield. The hues are sampled from the four LEGO shields themselves – the
+   * blue-and-silver one for Heute, blue-and-red for Plan, red-and-gold for
+   * Chronik, black-and-gold for Ränge – and each is then darkened until it
+   * sits at the luminance of --vh-800.
    *
-   * 55% and not less: below roughly 40% a dark red is a brown and a dark gold
-   * is an olive, and the screens went muddy rather than colourful.
+   * That last step is what makes the scheme free: nothing about a card
+   * surface changes but its hue, so every contrast on all eight is the figure
+   * it was on the grey – bone 9.2:1, --vh-200 6.1:1, --vh-400 4.6:1,
+   * gold 4.7:1, red 3.6:1.
+   *
+   * Saturation is 55% for a coloured quarter – below roughly 40% a dark red
+   * is a brown and a dark gold an olive, and the screens read muddy. The two
+   * golds go to 70%, which is what separates gold from olive once the
+   * luminance is this low, and silver becomes steel at 8%, since a card
+   * cannot be light without costing every contrast on it.
+   *
+   * Ränge's black quarter is the one surface below the common luminance, at
+   * 0.014 against 0.048. Downwards is free – every contrast on it only
+   * improves, bone reaching 13.6:1 – and the shield is black-and-gold, not
+   * green-and-gold: at the common luminance it read as a forest green. It
+   * stays a card because `--vh-600` outlines it at 2.3:1, not because it is
+   * lighter than the page, which it barely is.
    */
-  --vh-tint-gold: #4e3b17;
-  --vh-tint-blue: #1d4063;
-  --vh-tint-red: #692b1f;
-  --vh-tint-green: #144634;
+  --vh-quarter-heute-a: #1e3f66; /* shield 2 – blue */
+  --vh-quarter-heute-b: #393e44; /* shield 2 – silver, as steel */
+  --vh-quarter-plan-a: #1e3f66; /* shield 4 – blue */
+  --vh-quarter-plan-b: #6d2720; /* shield 4 – red */
+  --vh-quarter-chronik-a: #692a28; /* shield 3 – deep red */
+  --vh-quarter-chronik-b: #4a3d0d; /* shield 3 – gold */
+  --vh-quarter-raenge-a: #142617; /* shield 1 – the near-black quarter */
+  --vh-quarter-raenge-b: #463e0c; /* shield 1 – gold */
+
+  /*
+   * The pair in play, set per route below. A card takes `a` unless it asks
+   * for `b`; a list alternates them, which is how the shields are quartered.
+   */
+  --vh-quarter-a: var(--vh-quarter-heute-a);
+  --vh-quarter-b: var(--vh-quarter-heute-b);
 
   /* Semantics – roles from the handoff, colours from the shields */
   --vh-accent: var(--vh-shield-gold); /* XP, progress, primary action */
@@ -131,17 +157,25 @@
  * inherits the default gold, the same way it shows no active tab.
  */
 [data-screen='heute'] {
-  --vh-quadrant: var(--vh-shield-gold);
+  --vh-quadrant: var(--vh-shield-blue);
+  --vh-quarter-a: var(--vh-quarter-heute-a);
+  --vh-quarter-b: var(--vh-quarter-heute-b);
 }
 
 [data-screen='plan'] {
-  --vh-quadrant: var(--vh-shield-blue);
+  --vh-quadrant: var(--vh-shield-red);
+  --vh-quarter-a: var(--vh-quarter-plan-a);
+  --vh-quarter-b: var(--vh-quarter-plan-b);
 }
 
 [data-screen='chronik'] {
-  --vh-quadrant: var(--vh-shield-red);
+  --vh-quadrant: var(--vh-shield-gold);
+  --vh-quarter-a: var(--vh-quarter-chronik-a);
+  --vh-quarter-b: var(--vh-quarter-chronik-b);
 }
 
 [data-screen='raenge'] {
-  --vh-quadrant: var(--vh-shield-green);
+  --vh-quadrant: var(--vh-shield-yellow);
+  --vh-quarter-a: var(--vh-quarter-raenge-a);
+  --vh-quarter-b: var(--vh-quarter-raenge-b);
 }

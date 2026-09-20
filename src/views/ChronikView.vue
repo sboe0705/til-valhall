@@ -277,18 +277,9 @@ const rows = computed(() =>
   gap: 5px;
 }
 
-/* The three figures are three different things, so they take three quarters:
-   the days trained are training, the XP are XP, the share is a rank. */
-.stats__card--days {
-  --vh-card: var(--vh-tint-blue);
-}
-
+/* Quartered like the shield: the middle figure takes the other quarter. */
 .stats__card--xp {
-  --vh-card: var(--vh-tint-gold);
-}
-
-.stats__card--share {
-  --vh-card: var(--vh-tint-green);
+  --vh-card: var(--vh-quarter-b);
 }
 
 .stats__value {

@@ -39,7 +39,7 @@ const columns = computed(() =>
 
 <style scoped>
 .strip {
-  --vh-card: var(--vh-tint-green);
+  --vh-card: var(--vh-quarter-b);
   display: grid;
   grid-template-columns: 1fr 1fr 1fr;
   gap: 10px;

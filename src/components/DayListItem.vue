@@ -111,7 +111,7 @@ defineEmits<{ toggle: []; up: []; down: []; remove: [] }>();
 
 <style scoped>
 .day {
-  background: var(--vh-tint-blue);
+  background: var(--vh-card, var(--vh-quarter-a));
   border: 1px solid var(--vh-600);
   border-radius: var(--vh-r-card);
   overflow: hidden;

@@ -2,17 +2,18 @@
 /**
  * 74px tab bar – runic glyph, label, 16×2 underline pill.
  *
- * The four tabs are the four quarters of the shield and each carries its own
- * colour, so the bar reads as one coloured band instead of four grey slots.
+ * Each tab carries the brightest colour of its screen's shield – the same one
+ * `--vh-quadrant` resolves to on that route – so the bar reads as one coloured
+ * band instead of four grey slots, and names the shield you are about to open.
  * `accent` is the same token `--vh-quadrant` resolves to on that route – it is
  * repeated here because an inactive tab has to show its colour too, and that
  * one is never the current quarter.
  */
 const tabs = [
-  { name: 'heute', label: 'Heute', rune: 'ᛞ', accent: 'var(--vh-shield-gold)' },
-  { name: 'plan', label: 'Plan', rune: 'ᛃ', accent: 'var(--vh-shield-blue)' },
-  { name: 'chronik', label: 'Chronik', rune: 'ᚱ', accent: 'var(--vh-shield-red)' },
-  { name: 'raenge', label: 'Ränge', rune: 'ᛊ', accent: 'var(--vh-shield-green)' },
+  { name: 'heute', label: 'Heute', rune: 'ᛞ', accent: 'var(--vh-shield-blue)' },
+  { name: 'plan', label: 'Plan', rune: 'ᛃ', accent: 'var(--vh-shield-red)' },
+  { name: 'chronik', label: 'Chronik', rune: 'ᚱ', accent: 'var(--vh-shield-gold)' },
+  { name: 'raenge', label: 'Ränge', rune: 'ᛊ', accent: 'var(--vh-shield-yellow)' },
 ] as const;
 </script>
 

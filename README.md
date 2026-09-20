@@ -526,32 +526,37 @@ the handoff itself prescribes.
     unchanged; their colours come from the myth, not from the palette.
 15. **`--vh-quadrant` is net-new: one shield quarter per screen.** `App.vue`
     stamps the route name onto `.shell` as `data-screen`, `tokens.css` keys the
-    token off it (Heute gold, Plan blue, Chronik red, Ränge green) and two
-    pieces of chrome read it: the 18×2 lead segment that now opens every
-    `SectionRule` hairline, and the tab bar, where each tab carries its own
-    quarter — dimmed to `.45` while inactive, full strength with the underline
-    pill when it is the current route. Chrome only, and only ever as a shape:
-    nothing semantic changes colour with the route, so XP stays gold
-    everywhere, and no text on the page carries a quarter (deviation 16 says
-    why). `/impressum` has no tab and keeps the default gold, the same way it
-    shows no active tab.
-16. **The page behind the cards is a mid grey, and it is not a surface.**
-    `--vh-page` (`#3D4653`) is the background of `html`, `body` and `.shell`,
-    and nothing else. The cards stay dark, because that is what keeps the
-    shield colours saturated: on this grey a Viking red lands at 2.5:1 and only
-    reaches 4.5:1 once it has turned pink, so everything that carries colour
-    sits on `--vh-800`, and `--vh-900` goes back to being what it always
-    described — the *sunken fill inside a card* (open set pill, loot track,
-    calendar cell), never the page. Dark plates on a steel rim, which is the
-    shield. Out on the page the ramp shifts up one step, and that is the whole
-    rule: headings and copy in `--vh-050`, the dim step in `--vh-200` (at 5.2:1
-    where `--vh-400` would be 3.1:1, so `--vh-400` is now a card-only token),
-    lines and card edges in the net-new `--vh-line`, which `--vh-600` is too
-    dark for out here. The screen's quarter survives as the `SectionRule` lead
-    and in the tab bar — both shapes, which need 3:1 — and the three `-hi`
-    tints exist for exactly that; it does not survive as the coloured eyebrow
-    from deviation 15, because a 10px label cannot clear 4.5:1 on grey without
-    going pastel.
+    token off it (Heute gold, Plan blue, Chronik red, Ränge green) and three
+    pieces of chrome read it: the eyebrow above the `h1`, the 18×2 lead segment
+    that now opens every `SectionRule` hairline, and the tab bar, where each tab
+    carries its own quarter — dimmed to `.45` while inactive, full strength with
+    the underline pill when it is the current route. Chrome only: nothing
+    semantic changes colour with the route, so XP stays gold everywhere.
+    `/impressum` has no tab and keeps the default gold, the same way it shows no
+    active tab.
+16. **The surfaces are inverted: the page is black, the cards are the mid
+    grey.** `--vh-page` (`#090C11`) is the background of `html`, `body` and
+    `.shell` and nothing else; everything that holds content — cards, the tab
+    bar — is `--vh-800`, now `#363F4B`. The handoff has it the other way round,
+    a near-black page under cards barely lighter than it, which is what made
+    the screens read as one slab.
+    The grey card is the constraint the rest of the palette is cut to, because
+    a grey surface eats contrast from both ends. Each shield colour is now the
+    lightest of its family that still reads as that colour (blue `#78ADE4`,
+    green `#65B996`, overflow `#D99C65`; gold and yellow were already there),
+    the neutrals are spaced from the card rather than from black (`--vh-700`
+    and `--vh-600` are *lighter* than the card, `--vh-900` is the sunken fill
+    *inside* it — open set pill, loot track, calendar cell — and `--vh-400` is
+    tuned to 4.5:1 on the card, which makes it 8.3:1 on the page), and all 26
+    tier colours are lifted the same way. Red is the one colour that cannot
+    reach 4.5:1 on grey without turning pink, so it is held at 3.5:1 —
+    still better than the 2.9:1 the handoff's own `--vh-danger` had on the
+    handoff's own card.
+    Two consequences worth naming: the ladders keep their hue journeys but lose
+    their dark end, since a grey card leaves no room below it; and
+    `GLYPH_OVERRIDES` is gone — it existed because `helheim` was a legal rail
+    but an illegal rune, and now every tier clears 4.5:1, so a rail, a dot and
+    a rune share one value and `tierGlyphColor()` has no reason to exist.
 
 ## Extension points
 

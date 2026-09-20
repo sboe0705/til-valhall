@@ -87,7 +87,7 @@ function confirmImport(): void {
     <RouterLink class="back" to="/heute">‹ zurück</RouterLink>
 
     <header class="head">
-      <span class="vh-eyebrow vh-eyebrow--page">Rechtliches</span>
+      <span class="vh-eyebrow vh-eyebrow--quadrant">Rechtliches</span>
       <h1 class="vh-h1">Impressum</h1>
       <span class="vh-sub">Privates, nicht-kommerzielles Hobbyprojekt.</span>
     </header>
@@ -198,7 +198,7 @@ function confirmImport(): void {
 <style scoped>
 .back {
   font: 400 11px/1 var(--vh-mono);
-  color: var(--vh-200);
+  color: var(--vh-400);
   text-decoration: none;
   align-self: flex-start;
   transition: color var(--vh-t-color);
@@ -300,7 +300,7 @@ function confirmImport(): void {
   flex-direction: column;
   gap: 9px;
   padding: 11px 12px;
-  border: 1px solid var(--vh-line);
+  border: 1px solid var(--vh-600);
   border-radius: var(--vh-r-panel);
   background: var(--vh-900);
 }

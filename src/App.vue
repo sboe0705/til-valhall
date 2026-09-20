@@ -65,8 +65,8 @@ watch(
    fence it off with the border the design uses for cards. */
 @media (min-width: 520px) {
   .shell {
-    border-left: 1px solid var(--vh-line);
-    border-right: 1px solid var(--vh-line);
+    border-left: 1px solid var(--vh-600);
+    border-right: 1px solid var(--vh-600);
   }
 }
 </style>

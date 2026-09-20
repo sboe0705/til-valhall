@@ -210,19 +210,19 @@ const rows = computed(() => {
   gap: 12px;
 }
 
-/* This screen's eyebrow. It stands on the page, so it takes the page's dim
-   step – see `.vh-eyebrow--page`; gold would be 4.2:1 out here. */
+/* The date is this screen's eyebrow, so it carries the shield quarter; the
+   plan name beside it stays quiet. */
 .head__date {
   font: 500 10px/1 var(--vh-mono);
   letter-spacing: 0.18em;
   text-transform: uppercase;
-  color: var(--vh-200);
+  color: var(--vh-quadrant);
 }
 
 .head__plan {
   font: 500 10px/1 var(--vh-mono);
   letter-spacing: 0.12em;
-  color: var(--vh-200);
+  color: var(--vh-400);
   white-space: nowrap;
 }
 
@@ -257,7 +257,7 @@ const rows = computed(() => {
 
 .finish {
   font: 400 11px/1.4 var(--vh-sans);
-  color: var(--vh-200);
+  color: var(--vh-400);
   text-align: center;
   margin-top: 2px;
 }

@@ -26,11 +26,11 @@ const commitDate = __APP_COMMIT_DATE__;
 
 .foot__build {
   font: 400 10px/1 var(--vh-mono);
-  color: var(--vh-200);
+  color: var(--vh-400);
 }
 
 .foot__sep {
-  color: var(--vh-line);
+  color: var(--vh-600);
 }
 
 .foot__link {

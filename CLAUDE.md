@@ -280,19 +280,20 @@ Two discriminated unions drive nearly all branching; always handle both arms:
   `--vh-danger`) resolves to one of them and nothing below that block invents a
   hue. The handoff's hard rules still hold: no gradients, no glows, `--vh-600`
   is border-only, `--vh-400` is the dimmest legal text colour.
-- **`--vh-quadrant` is chrome, never semantics, and only ever a shape.**
-  `App.vue` puts the route name on `.shell` as `data-screen` and `tokens.css`
-  picks the screen's shield quarter from it (Heute gold · Plan blue · Chronik
-  red · Ränge green). Only the `SectionRule` lead and the tab bar read it — XP
-  stays gold on every screen and a rest day stays blue. No *text* carries a
-  quarter: on `--vh-page` a 10px label in a shield colour cannot clear 4.5:1.
-- **`--vh-page` is the page, `--vh-900` is a fill inside a card.** The page
-  (`html`, `body`, `.shell`) is a mid grey; everything else stays dark, which is
-  what keeps the shield colours saturated — see deviation 16 in the README. Two
-  rules follow and are easy to break by habit: out on the page the dim step is
-  `--vh-200`, not `--vh-400` (3.1:1 there), and a line is `--vh-line`, not
-  `--vh-600` (which vanishes against the grey). Inside a card both are
-  unchanged.
+- **`--vh-quadrant` is chrome, never semantics.** `App.vue` puts the route name
+  on `.shell` as `data-screen` and `tokens.css` picks the screen's shield
+  quarter from it (Heute gold · Plan blue · Chronik red · Ränge green). Only the
+  screen eyebrow (`.vh-eyebrow--quadrant`), the `SectionRule` lead and the tab
+  bar read it — XP stays gold on every screen, a rest day stays blue, and an
+  eyebrow inside a card stays `--vh-400`.
+- **`--vh-page` is black, `--vh-800` is the mid grey, `--vh-900` is a fill
+  inside a card.** The page (`html`, `body`, `.shell`) is the only thing that is
+  black; cards and the tab bar are the grey, and they carry every colour in the
+  app — see deviation 16 in the README. The grey card is what the whole ramp is
+  tuned against, so two habits from the handoff are now wrong: `--vh-700` and
+  `--vh-600` are *lighter* than the card they sit on, not darker, and
+  `--vh-900` is never a page background — it is the sunken step inside a card
+  (open set pill, loot track, calendar cell).
 - **German tier copy lives in `src/ui/tiers.ts`, not in the model.** `TIER_LORE`
   (the sentence behind the `i` button on each ladder) sits next to `TIER_RUNES` /
   `TIER_SHORT`; `RankTier.gloss` is the model's English one-liner and is rendered

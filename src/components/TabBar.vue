@@ -6,14 +6,13 @@
  * colour, so the bar reads as one coloured band instead of four grey slots.
  * `accent` is the same token `--vh-quadrant` resolves to on that route – it is
  * repeated here because an inactive tab has to show its colour too, and that
- * one is never the current quarter. The bar is a dark surface, so these are
- * the `-hi` tints only to stay identical to the lead on the page above.
+ * one is never the current quarter.
  */
 const tabs = [
   { name: 'heute', label: 'Heute', rune: 'ᛞ', accent: 'var(--vh-shield-gold)' },
-  { name: 'plan', label: 'Plan', rune: 'ᛃ', accent: 'var(--vh-shield-blue-hi)' },
-  { name: 'chronik', label: 'Chronik', rune: 'ᚱ', accent: 'var(--vh-shield-red-hi)' },
-  { name: 'raenge', label: 'Ränge', rune: 'ᛊ', accent: 'var(--vh-shield-green-hi)' },
+  { name: 'plan', label: 'Plan', rune: 'ᛃ', accent: 'var(--vh-shield-blue)' },
+  { name: 'chronik', label: 'Chronik', rune: 'ᚱ', accent: 'var(--vh-shield-red)' },
+  { name: 'raenge', label: 'Ränge', rune: 'ᛊ', accent: 'var(--vh-shield-green)' },
 ] as const;
 </script>
 
@@ -39,7 +38,7 @@ const tabs = [
   flex: none;
   height: var(--vh-tabbar-h);
   background: var(--vh-800);
-  border-top: 1px solid var(--vh-line);
+  border-top: 1px solid var(--vh-600);
   display: grid;
   grid-template-columns: repeat(4, 1fr);
   align-items: center;

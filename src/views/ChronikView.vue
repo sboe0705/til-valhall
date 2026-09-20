@@ -132,7 +132,7 @@ const rows = computed(() =>
 <template>
   <div class="vh-screen">
     <header class="head">
-      <span class="vh-eyebrow vh-eyebrow--page">Chronik</span>
+      <span class="vh-eyebrow vh-eyebrow--quadrant">Chronik</span>
       <div class="head__row">
         <h1 class="vh-h1">{{ de.monthLabel(month) }}</h1>
         <div class="head__nav">
@@ -243,7 +243,7 @@ const rows = computed(() =>
   height: 34px;
   border-radius: var(--vh-r-tile);
   background: var(--vh-800);
-  border: 1px solid var(--vh-line);
+  border: 1px solid var(--vh-600);
   color: var(--vh-200);
   font: 500 13px/1 var(--vh-mono);
   padding: 0;
@@ -251,16 +251,16 @@ const rows = computed(() =>
 }
 
 .head__btn:hover {
-  border-color: var(--vh-200);
+  border-color: var(--vh-400);
 }
 
 .head__btn--off {
-  color: var(--vh-line);
+  color: var(--vh-600);
   cursor: default;
 }
 
 .head__btn--off:hover {
-  border-color: var(--vh-line);
+  border-color: var(--vh-600);
 }
 
 .stats {
@@ -297,7 +297,7 @@ const rows = computed(() =>
 
 .empty {
   font: 400 11px/1.4 var(--vh-sans);
-  color: var(--vh-200);
+  color: var(--vh-400);
   text-align: center;
 }
 </style>

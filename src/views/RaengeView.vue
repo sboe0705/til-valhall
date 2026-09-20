@@ -5,7 +5,7 @@ import { TIERS } from '@/model/ranks';
 import * as de from '@/app/format-de';
 import LadderCard from '@/components/LadderCard.vue';
 import SectionRule from '@/components/SectionRule.vue';
-import { SCOPES, SCOPE_COPY, TIER_RUNES, tierGlyphColor } from '@/ui/tiers';
+import { SCOPES, SCOPE_COPY, TIER_RUNES, tierColor } from '@/ui/tiers';
 import { useRankStore } from '@/stores/ranks';
 
 const ranks = useRankStore();
@@ -30,7 +30,7 @@ const records = computed(() =>
       label: SCOPE_COPY[scope].record,
       name: tier?.name ?? '—',
       rune: tier ? (TIER_RUNES[tier.key] ?? 'ᛞ') : 'ᛞ',
-      color: tier ? tierGlyphColor(tier.key) : 'var(--vh-600)',
+      color: tier ? tierColor(tier.key) : 'var(--vh-600)',
       empty: !tier,
       count: count > 1 ? count : null,
     };
@@ -45,7 +45,7 @@ const chronicle = computed(() =>
       name: tier?.name ?? item.tier,
       period: de.periodLabel(item.scope, item.period),
       xp: de.xp(item.xp),
-      color: tierGlyphColor(item.tier),
+      color: tierColor(item.tier),
     };
   }),
 );
@@ -54,7 +54,7 @@ const chronicle = computed(() =>
 <template>
   <div class="vh-screen">
     <header class="head">
-      <span class="vh-eyebrow vh-eyebrow--page">Drei Leitern, eine Quelle</span>
+      <span class="vh-eyebrow vh-eyebrow--quadrant">Drei Leitern, eine Quelle</span>
       <h1 class="vh-h1">Ränge</h1>
       <span class="vh-sub">
         Jeder abgehakte Satz zählt einmal und füllt Woche, Monat und Jahr gleichzeitig.
@@ -214,7 +214,7 @@ const chronicle = computed(() =>
 
 .empty {
   font: 400 11px/1.4 var(--vh-sans);
-  color: var(--vh-200);
+  color: var(--vh-400);
   text-align: center;
 }
 </style>

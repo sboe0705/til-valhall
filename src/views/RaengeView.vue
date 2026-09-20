@@ -54,7 +54,7 @@ const chronicle = computed(() =>
 <template>
   <div class="vh-screen">
     <header class="head">
-      <span class="vh-eyebrow vh-eyebrow--quadrant">Drei Leitern, eine Quelle</span>
+      <span class="vh-eyebrow vh-eyebrow--page">Drei Leitern, eine Quelle</span>
       <h1 class="vh-h1">Ränge</h1>
       <span class="vh-sub">
         Jeder abgehakte Satz zählt einmal und füllt Woche, Monat und Jahr gleichzeitig.
@@ -214,7 +214,7 @@ const chronicle = computed(() =>
 
 .empty {
   font: 400 11px/1.4 var(--vh-sans);
-  color: var(--vh-400);
+  color: var(--vh-200);
   text-align: center;
 }
 </style>

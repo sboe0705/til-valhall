@@ -526,14 +526,32 @@ the handoff itself prescribes.
     unchanged; their colours come from the myth, not from the palette.
 15. **`--vh-quadrant` is net-new: one shield quarter per screen.** `App.vue`
     stamps the route name onto `.shell` as `data-screen`, `tokens.css` keys the
-    token off it (Heute gold, Plan blue, Chronik red, Ränge green) and three
-    pieces of chrome read it: the eyebrow above the `h1`, the 18×2 lead segment
-    that now opens every `SectionRule` hairline, and the tab bar, where each tab
-    carries its own quarter — dimmed to `.45` while inactive, full strength with
-    the underline pill when it is the current route. Chrome only: nothing
-    semantic changes colour with the route, so XP stays gold everywhere.
-    `/impressum` has no tab and keeps the default gold, the same way it shows no
-    active tab.
+    token off it (Heute gold, Plan blue, Chronik red, Ränge green) and two
+    pieces of chrome read it: the 18×2 lead segment that now opens every
+    `SectionRule` hairline, and the tab bar, where each tab carries its own
+    quarter — dimmed to `.45` while inactive, full strength with the underline
+    pill when it is the current route. Chrome only, and only ever as a shape:
+    nothing semantic changes colour with the route, so XP stays gold
+    everywhere, and no text on the page carries a quarter (deviation 16 says
+    why). `/impressum` has no tab and keeps the default gold, the same way it
+    shows no active tab.
+16. **The page behind the cards is a mid grey, and it is not a surface.**
+    `--vh-page` (`#3D4653`) is the background of `html`, `body` and `.shell`,
+    and nothing else. The cards stay dark, because that is what keeps the
+    shield colours saturated: on this grey a Viking red lands at 2.5:1 and only
+    reaches 4.5:1 once it has turned pink, so everything that carries colour
+    sits on `--vh-800`, and `--vh-900` goes back to being what it always
+    described — the *sunken fill inside a card* (open set pill, loot track,
+    calendar cell), never the page. Dark plates on a steel rim, which is the
+    shield. Out on the page the ramp shifts up one step, and that is the whole
+    rule: headings and copy in `--vh-050`, the dim step in `--vh-200` (at 5.2:1
+    where `--vh-400` would be 3.1:1, so `--vh-400` is now a card-only token),
+    lines and card edges in the net-new `--vh-line`, which `--vh-600` is too
+    dark for out here. The screen's quarter survives as the `SectionRule` lead
+    and in the tab bar — both shapes, which need 3:1 — and the three `-hi`
+    tints exist for exactly that; it does not survive as the coloured eyebrow
+    from deviation 15, because a 10px label cannot clear 4.5:1 on grey without
+    going pastel.
 
 ## Extension points
 

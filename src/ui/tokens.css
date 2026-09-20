@@ -10,23 +10,48 @@
  *   - every semantic colour now resolves to a shield token; the roles
  *     (accent = XP, success = checked, rest, overflow, danger) are unchanged
  *   - `--vh-quadrant` is new: the shield quarter a screen is cut from, set per
- *     route on `.shell` and used for chrome only (tab, eyebrow, section rule)
+ *     route on `.shell` and used for chrome only (tab bar, section rule lead)
+ *   - the page behind the cards is its own token, `--vh-page`, and is a mid
+ *     slate grey – see "The page is not a surface" below
  *
  * Hard rules of the palette, unchanged from the handoff:
  *   - no gradients, no glows anywhere
  *   - --vh-600 is a BORDER token, never a text colour (~1.4:1 on --vh-800)
- *   - --vh-400 is the dimmest legal text colour (4.5:1 on --vh-800)
+ *   - --vh-400 is the dimmest legal text colour – but only on a card
+ *
+ * The page is not a surface:
+ *
+ * `--vh-page` is the only light value in the app and it is the background of
+ * `html`, `body` and `.shell` – nothing else. The cards stay dark, which is
+ * what lets the shield colours keep their saturation: on a mid grey, a
+ * saturated red lands at 2.5:1 and only reaches 4.5:1 once it has turned pink.
+ * So everything that carries colour sits on `--vh-800`, and `--vh-900` stays
+ * what it always was – the sunken fill *inside* a card (open set pill, loot
+ * track, calendar cell). Dark plates on a steel rim, which is the shield.
+ *
+ * Out on the page the ramp therefore shifts up by one step, and that is the
+ * whole rule for anything standing on it:
+ *   - body copy and headings  → --vh-050 (8.2:1)
+ *   - the dim step            → --vh-200 (5.2:1); --vh-400 is 3.1:1 out here
+ *     and is never used on the page
+ *   - lines and card edges    → --vh-line; --vh-600 vanishes against the page
+ *   - the screen's quarter    → the `-hi` tints, and only ever as a shape:
+ *     a 10px label in a shield colour cannot clear 4.5:1 on grey, so the
+ *     quadrant shows as the `SectionRule` lead and in the tab bar, never as
+ *     coloured text on the page
  */
 
 :root {
   color-scheme: dark;
 
   /* Neutrals – the shields' steel rim over a blue-slate night */
-  --vh-900: #0e141d; /* app background */
+  --vh-page: #3d4653; /* the page behind the cards – the rim's mid grey */
+  --vh-line: #505b6a; /* card edge – reads on the page and on a card alike */
+  --vh-900: #0e141d; /* sunken fill inside a card – never the page */
   --vh-800: #1a2331; /* card */
   --vh-700: #26313f; /* raised surface, hover */
   --vh-600: #313d4f; /* border */
-  --vh-400: #8593a6; /* text secondary */
+  --vh-400: #8593a6; /* text secondary ON A CARD – too dim for the page */
   --vh-200: #b6c1cd; /* text tertiary */
   --vh-050: #e9eef2; /* text primary – bone, not white */
 
@@ -42,6 +67,17 @@
   --vh-shield-green: #4da882; /* shield 1's dark green, lifted to text weight */
   --vh-shield-bone: #c6ced6; /* shield 2's silver quarters */
 
+  /*
+   * The same three quarters again, tinted up for the one surface that is not
+   * dark: chrome standing directly on --vh-page. Gold needs no variant, it
+   * clears 5.1:1 out there on its own. These are for the quadrant and nothing
+   * else – a semantic colour never reaches for them, because a semantic colour
+   * never leaves the cards.
+   */
+  --vh-shield-blue-hi: #6ca5e1;
+  --vh-shield-red-hi: #e28b79;
+  --vh-shield-green-hi: #57b28c;
+
   /* Semantics – roles from the handoff, colours from the shields */
   --vh-accent: var(--vh-shield-gold); /* XP, progress, primary action */
   --vh-success: var(--vh-shield-green); /* set checked */
@@ -52,8 +88,8 @@
 
   /*
    * The shield quarter of the current screen, set from the route in App.vue.
-   * Chrome only – it never stands in for a semantic colour, so XP stays gold
-   * on every screen. The default is the Heute quarter.
+   * Chrome only, and only ever as a shape – it never stands in for a semantic
+   * colour, so XP stays gold on every screen. The default is the Heute quarter.
    */
   --vh-quadrant: var(--vh-shield-gold);
 
@@ -95,13 +131,13 @@
 }
 
 [data-screen='plan'] {
-  --vh-quadrant: var(--vh-shield-blue);
+  --vh-quadrant: var(--vh-shield-blue-hi);
 }
 
 [data-screen='chronik'] {
-  --vh-quadrant: var(--vh-shield-red);
+  --vh-quadrant: var(--vh-shield-red-hi);
 }
 
 [data-screen='raenge'] {
-  --vh-quadrant: var(--vh-shield-green);
+  --vh-quadrant: var(--vh-shield-green-hi);
 }

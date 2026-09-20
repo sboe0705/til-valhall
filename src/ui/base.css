@@ -38,7 +38,7 @@ html,
 body {
   margin: 0;
   padding: 0;
-  background: var(--vh-900);
+  background: var(--vh-page);
 }
 
 body {
@@ -115,17 +115,20 @@ input {
 }
 
 /**
- * The screen's own eyebrow – the one above the h1 – in the shield quarter of
- * the route. Eyebrows inside cards stay --vh-400; a coloured one per card
- * would turn the accent into noise.
+ * An eyebrow standing on the page instead of on a card: --vh-400 is 3.1:1 out
+ * there, so the dim step moves up to --vh-200. The screen's quarter is carried
+ * by the `SectionRule` lead and the tab bar instead – a 10px label in a shield
+ * colour cannot clear 4.5:1 on grey without turning pastel.
  */
-.vh-eyebrow--quadrant {
-  color: var(--vh-quadrant);
+.vh-eyebrow--page {
+  color: var(--vh-200);
 }
 
+/* The card outline separates the card from the page, so it is --vh-line;
+   --vh-600 is the border *inside* a card and disappears out here. */
 .vh-card {
   background: var(--vh-800);
-  border: 1px solid var(--vh-600);
+  border: 1px solid var(--vh-line);
   border-radius: var(--vh-r-card);
 }
 
@@ -138,7 +141,7 @@ input {
 .vh-hairline {
   flex: 1;
   height: 1px;
-  background: var(--vh-600);
+  background: var(--vh-line);
 }
 
 .vh-sub {

@@ -55,6 +55,7 @@ const cells = computed(() =>
 
 <style scoped>
 .week {
+  --vh-card: var(--vh-tint-gold);
   padding: 15px;
   display: flex;
   flex-direction: column;

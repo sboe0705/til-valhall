@@ -107,6 +107,7 @@ const note = computed(() => {
 
 <style scoped>
 .block {
+  --vh-card: var(--vh-tint-blue);
   padding: 14px 15px 15px;
   display: flex;
   flex-direction: column;

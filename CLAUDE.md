@@ -286,6 +286,14 @@ Two discriminated unions drive nearly all branching; always handle both arms:
   screen eyebrow (`.vh-eyebrow--quadrant`), the `SectionRule` lead and the tab
   bar read it — XP stays gold on every screen, a rest day stays blue, and an
   eyebrow inside a card stays `--vh-400`.
+- **A card's colour comes from what it holds, via `--vh-card`.** `.vh-card`
+  resolves `var(--vh-card, var(--vh-800))`; a component sets `--vh-card` to one
+  of `--vh-tint-gold` / `-blue` / `-red` / `-green` to take its quarter — gold
+  XP, blue training, red chronicle, green ranks — and stays grey when it has
+  nothing to say. The four tints are iso-luminant with `--vh-800`, which is the
+  whole point: swapping one in moves no contrast, so never "fix" a tint by
+  lightening it, and keep a new one on the same luminance. The sunken steps
+  inside a card (`--vh-900`) and the border (`--vh-600`) stay neutral.
 - **`--vh-page` is black, `--vh-800` is the mid grey, `--vh-900` is a fill
   inside a card.** The page (`html`, `body`, `.shell`) is the only thing that is
   black; cards and the tab bar are the grey, and they carry every colour in the

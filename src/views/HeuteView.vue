@@ -136,6 +136,7 @@ const rows = computed(() => {
       :hint="lootHint"
       :rune="isRest ? 'ᛁ' : 'ᛞ'"
       :accent="isRest ? 'var(--vh-rest)' : 'var(--vh-accent)'"
+      :tint="isRest ? 'var(--vh-tint-blue)' : 'var(--vh-tint-gold)'"
     />
 
     <template v-if="isRest">
@@ -233,6 +234,7 @@ const rows = computed(() => {
 }
 
 .rest {
+  --vh-card: var(--vh-tint-blue);
   display: flex;
   align-items: flex-start;
   gap: 11px;

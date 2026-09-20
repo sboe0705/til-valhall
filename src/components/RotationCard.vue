@@ -50,6 +50,7 @@ const chips = computed(() =>
 
 <style scoped>
 .rotation {
+  --vh-card: var(--vh-tint-gold);
   padding: 15px;
   display: flex;
   flex-direction: column;

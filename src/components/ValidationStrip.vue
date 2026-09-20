@@ -25,6 +25,7 @@ const ok = computed(() => props.errors.length === 0);
 
 <style scoped>
 .valid {
+  --vh-card: var(--vh-tint-green);
   display: flex;
   align-items: flex-start;
   gap: 10px;
@@ -54,6 +55,10 @@ const ok = computed(() => props.errors.length === 0);
 .valid__body {
   font: 400 11px/1.4 var(--vh-sans);
   color: var(--vh-400);
+}
+
+.valid--error {
+  --vh-card: var(--vh-tint-red);
 }
 
 .valid--error .valid__rune,

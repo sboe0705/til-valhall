@@ -183,15 +183,15 @@ const rows = computed(() =>
     />
 
     <div class="stats">
-      <div class="stats__card vh-card">
+      <div class="stats__card stats__card--days vh-card">
         <span class="stats__value">{{ stats.trainedDays }}/{{ stats.totalDays }}</span>
         <span class="stats__label">Tage trainiert</span>
       </div>
-      <div class="stats__card vh-card">
+      <div class="stats__card stats__card--xp vh-card">
         <span class="stats__value stats__value--xp">{{ de.thousands(stats.xp) }}</span>
         <span class="stats__label">XP im Monat</span>
       </div>
-      <div class="stats__card vh-card">
+      <div class="stats__card stats__card--share vh-card">
         <span class="stats__value stats__value--share">
           {{ Math.round(stats.share * 100) }}%
         </span>
@@ -275,6 +275,20 @@ const rows = computed(() =>
   display: flex;
   flex-direction: column;
   gap: 5px;
+}
+
+/* The three figures are three different things, so they take three quarters:
+   the days trained are training, the XP are XP, the share is a rank. */
+.stats__card--days {
+  --vh-card: var(--vh-tint-blue);
+}
+
+.stats__card--xp {
+  --vh-card: var(--vh-tint-gold);
+}
+
+.stats__card--share {
+  --vh-card: var(--vh-tint-green);
 }
 
 .stats__value {

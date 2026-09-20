@@ -124,8 +124,15 @@ input {
   color: var(--vh-quadrant);
 }
 
+/**
+ * A card is grey unless it says otherwise. `--vh-card` is what says otherwise:
+ * a component sets it to one of the four `--vh-tint-*` surfaces to colour
+ * itself by what it holds – gold for XP, blue for the training itself, red for
+ * the chronicle, green for the ranks. The tints are iso-luminant with
+ * --vh-800, so the choice is free of contrast consequences.
+ */
 .vh-card {
-  background: var(--vh-800);
+  background: var(--vh-card, var(--vh-800));
   border: 1px solid var(--vh-600);
   border-radius: var(--vh-r-card);
 }

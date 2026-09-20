@@ -15,6 +15,13 @@ const props = defineProps<{
 }>();
 
 const copy = computed(() => SCOPE_COPY[props.scope]);
+
+/** One shield quarter per ladder, so the three cards never read as one block. */
+const TINTS: Record<RankScope, string> = {
+  week: 'var(--vh-tint-gold)',
+  month: 'var(--vh-tint-blue)',
+  year: 'var(--vh-tint-green)',
+};
 const color = computed(() => tierColor(props.progress.tier.key));
 
 const remaining = computed(() =>
@@ -32,7 +39,7 @@ const infoOpen = ref(false);
 </script>
 
 <template>
-  <article class="ladder vh-card">
+  <article class="ladder vh-card" :style="{ '--vh-card': TINTS[scope] }">
     <div class="ladder__top">
       <ProgressRing :completion="progress.completion" :color="color" />
 

@@ -169,6 +169,7 @@ const chronicle = computed(() =>
 }
 
 .records__card {
+  --vh-card: var(--vh-tint-gold);
   position: relative;
   border-radius: var(--vh-r-panel);
   padding: 13px 11px;

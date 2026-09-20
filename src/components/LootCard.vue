@@ -9,8 +9,10 @@ const props = withDefaults(
     hint: string;
     rune?: string;
     accent?: string;
+    /** Card surface – gold for a training day, blue for a rest day. */
+    tint?: string;
   }>(),
-  { rune: 'ᛞ', accent: 'var(--vh-accent)' },
+  { rune: 'ᛞ', accent: 'var(--vh-accent)', tint: 'var(--vh-tint-gold)' },
 );
 
 const pct = computed(() =>
@@ -19,7 +21,7 @@ const pct = computed(() =>
 </script>
 
 <template>
-  <section class="loot vh-card">
+  <section class="loot vh-card" :style="{ '--vh-card': tint }">
     <span class="loot__rune vh-rune">{{ rune }}</span>
 
     <div class="loot__top">

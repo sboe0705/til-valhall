@@ -557,6 +557,25 @@ the handoff itself prescribes.
     `GLYPH_OVERRIDES` is gone — it existed because `helheim` was a legal rail
     but an illegal rune, and now every tier clears 4.5:1, so a rail, a dot and
     a rune share one value and `tierGlyphColor()` has no reason to exist.
+17. **A card is coloured by what it holds.** `.vh-card` reads
+    `var(--vh-card, var(--vh-800))`, and a component sets `--vh-card` to one of
+    four new surfaces — `--vh-tint-gold` `#4E3B17`, `--vh-tint-blue` `#1D4063`,
+    `--vh-tint-red` `#692B1F`, `--vh-tint-green` `#144634` — to take its
+    quarter of the shield: gold for XP, blue for the training itself, red for
+    the chronicle, green for the ranks. Each tint is its quarter's hue at 55%
+    saturation, darkened until it sits at the *luminance of `--vh-800`*, which
+    is what makes the choice free: nothing about the surface changes but its
+    hue, so every contrast on it is the figure it was on the grey — bone
+    9.1:1, `--vh-200` 6.0:1, `--vh-400` 4.6:1, gold 4.7:1, red 3.6:1.
+    55% and not less: below roughly 40% a dark red is a brown and a dark gold
+    is an olive, and the screens read muddy rather than colourful.
+    The tint follows the content, not the route, so a screen shows several
+    quarters at once — on Chronik the calendar is red, the day behind it blue
+    and the three stat tiles blue/gold/green. Cards with nothing to say stay
+    grey on purpose: the schedule switch, the day draft, the history rows and
+    the Impressum. The sunken steps *inside* a card (`--vh-900`) and the border
+    (`--vh-600`) stay neutral — the tinted plate in a steel rim is the shield,
+    and a tinted border would fight the accent it frames.
 
 ## Extension points
 

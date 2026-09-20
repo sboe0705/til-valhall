@@ -62,6 +62,22 @@
   --vh-shield-green: #65b996; /* shield 1's green, at card weight */
   --vh-shield-bone: #c6ced6; /* shield 2's silver quarters */
 
+  /*
+   * The same four quarters as card surfaces: each one its quarter's hue at
+   * 55% saturation, darkened until it sits at the luminance of --vh-800.
+   * That is the whole trick – a card can take any of these without a single
+   * contrast on it moving, because nothing about the surface changes but its
+   * hue. On all four: bone 9.1:1, --vh-200 6.0:1, --vh-400 4.6:1, gold 4.7:1,
+   * blue 4.5:1, green 4.5:1, red 3.6:1 – the same figures as on the grey.
+   *
+   * 55% and not less: below roughly 40% a dark red is a brown and a dark gold
+   * is an olive, and the screens went muddy rather than colourful.
+   */
+  --vh-tint-gold: #4e3b17;
+  --vh-tint-blue: #1d4063;
+  --vh-tint-red: #692b1f;
+  --vh-tint-green: #144634;
+
   /* Semantics – roles from the handoff, colours from the shields */
   --vh-accent: var(--vh-shield-gold); /* XP, progress, primary action */
   --vh-success: var(--vh-shield-green); /* set checked */

@@ -68,6 +68,7 @@ const legend = [
 
 <style scoped>
 .cal {
+  --vh-card: var(--vh-tint-red);
   padding: 14px 13px 15px;
   display: flex;
   flex-direction: column;

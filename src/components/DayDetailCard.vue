@@ -48,6 +48,7 @@ defineProps<{
 
 <style scoped>
 .detail {
+  --vh-card: var(--vh-tint-blue);
   padding: 15px;
   display: flex;
   flex-direction: column;

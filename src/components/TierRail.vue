@@ -11,7 +11,7 @@ const props = defineProps<{ tiers: ResolvedTier[]; currentKey: string }>();
 const currentIndex = () => props.tiers.findIndex((t) => t.key === props.currentKey);
 
 const barColor = (i: number) =>
-  i <= currentIndex() ? tierColor(props.tiers[i].key) : 'var(--vh-600)';
+  i <= currentIndex() ? tierColor(props.tiers[i].key) : '#2C383E';
 </script>
 
 <template>

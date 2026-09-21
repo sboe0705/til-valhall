@@ -18,7 +18,7 @@ const label = computed(() => `${Math.round(pct.value * 100)} %`);
 <template>
   <div class="ring">
     <svg width="86" height="86" viewBox="0 0 86 86" aria-hidden="true">
-      <circle class="ring__track" cx="43" cy="43" r="37" fill="none" stroke-width="5" />
+      <circle cx="43" cy="43" r="37" fill="none" stroke="#2C383E" stroke-width="5" />
       <circle
         cx="43"
         cy="43"
@@ -50,12 +50,6 @@ const label = computed(() => `${Math.round(pct.value * 100)} %`);
 
 .ring svg {
   display: block;
-}
-
-/* The unfilled part of the ring is the border token – styled here rather than
-   as a presentation attribute so it stays a single source of truth. */
-.ring__track {
-  stroke: var(--vh-600);
 }
 
 .ring__value {

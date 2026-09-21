@@ -91,7 +91,7 @@ function remove(dayId: Id): void {
 <template>
   <div class="vh-screen">
     <header class="head">
-      <span class="vh-eyebrow vh-eyebrow--quadrant">Der Plan</span>
+      <span class="vh-eyebrow">Der Plan</span>
       <h1 class="vh-h1">{{ plan?.name ?? 'Kein Plan' }}</h1>
       <span class="vh-sub">{{ subline }}</span>
     </header>
@@ -112,9 +112,8 @@ function remove(dayId: Id): void {
     />
 
     <DayListItem
-      v-for="(item, i) in items"
+      v-for="item in items"
       :key="item.day.id"
-      :style="{ '--vh-card': `var(--vh-quarter-${i % 2 ? 'b' : 'a'})` }"
       :title="item.title"
       :meta="item.meta"
       :xp-text="item.xpText"

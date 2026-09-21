@@ -463,7 +463,7 @@ the handoff itself prescribes.
    are not implemented, as the handoff states.
 9. **The checked set pill is stronger than the handoff's.** Its `#14231A` fill
    with a 1px border read as a hairline against the card, so the fill is raised
-   to `#17302A` (`#33220F` for the overflow variant, a gentler lift because
+   to `#1A2F21` (`#2F2114` for the overflow variant, a gentler lift because
    `--vh-overflow` is a mid-tone and a brighter fill would cost contrast) and the
    border becomes a 2px ring via an inset shadow. The `✓` grows from 15px/500 to
    18px/600, and the XP line below it loses the `.72` dim, which is what carries
@@ -508,88 +508,6 @@ the handoff itself prescribes.
     the same for weeks on end, while the closed-period list is what actually
     changes — so the list takes the position right under the ladders and the
     records close the screen. Nothing else about either block changes.
-14. **The palette is re-coloured after the LEGO Viking shields.** The handoff's
-    neutrals are a near-neutral grey ramp on `#0F1416`, which read as one black
-    slab once the screens were full. The ramp keeps its luminance steps but
-    gains a blue-slate hue and is lifted a step (`#0E141D` / `#1A2331` /
-    `#26313F` / `#313D4F`, text `#8593A6` / `#B6C1CD` / `#E9EEF2`), and every
-    semantic colour now resolves to one of six shield tokens — gold `#D4A537`
-    (the boss, and the handoff's own accent, unchanged), yellow `#E6CB4F`, blue
-    `#4E93DB`, red `#D65A40`, green `#4DA882`, bone `#C6CED6`. The *roles* are
-    the handoff's: accent is still XP, success still the checked set, and
-    `--vh-rest` / `--vh-overflow` / `--vh-danger` keep their jobs, only brighter
-    — the handoff's `--vh-danger` sat at 2.6:1 and now clears 3.6:1. The two
-    ladders that had no mythological colour logic follow the shields as well:
-    the week is the shield itself (silver → bronze → red → blue → gold boss) and
-    the year ramps blue → teal → green → gold instead of grey → gold, whose
-    lower half disappeared against the new surfaces. The Nine Worlds are
-    unchanged; their colours come from the myth, not from the palette.
-15. **`--vh-quadrant` is net-new: one shield quarter per screen.** `App.vue`
-    stamps the route name onto `.shell` as `data-screen`, `tokens.css` keys the
-    token off it (Heute gold, Plan blue, Chronik red, Ränge green) and three
-    pieces of chrome read it: the eyebrow above the `h1`, the 18×2 lead segment
-    that now opens every `SectionRule` hairline, and the tab bar, where each tab
-    carries its own quarter — dimmed to `.45` while inactive, full strength with
-    the underline pill when it is the current route. Chrome only: nothing
-    semantic changes colour with the route, so XP stays gold everywhere.
-    `/impressum` has no tab and keeps the default gold, the same way it shows no
-    active tab.
-16. **The surfaces are inverted: the page is black, the cards are the mid
-    grey.** `--vh-page` (`#090C11`) is the background of `html`, `body` and
-    `.shell` and nothing else; everything that holds content — cards, the tab
-    bar — is `--vh-800`, now `#363F4B`. The handoff has it the other way round,
-    a near-black page under cards barely lighter than it, which is what made
-    the screens read as one slab.
-    The grey card is the constraint the rest of the palette is cut to, because
-    a grey surface eats contrast from both ends. Each shield colour is now the
-    lightest of its family that still reads as that colour (blue `#78ADE4`,
-    green `#65B996`, overflow `#D99C65`; gold and yellow were already there),
-    the neutrals are spaced from the card rather than from black (`--vh-700`
-    and `--vh-600` are *lighter* than the card, `--vh-900` is the sunken fill
-    *inside* it — open set pill, loot track, calendar cell — and `--vh-400` is
-    tuned to 4.5:1 on the card, which makes it 8.3:1 on the page), and all 26
-    tier colours are lifted the same way. Red is the one colour that cannot
-    reach 4.5:1 on grey without turning pink, so it is held at 3.5:1 —
-    still better than the 2.9:1 the handoff's own `--vh-danger` had on the
-    handoff's own card.
-    Two consequences worth naming: the ladders keep their hue journeys but lose
-    their dark end, since a grey card leaves no room below it; and
-    `GLYPH_OVERRIDES` is gone — it existed because `helheim` was a legal rail
-    but an illegal rune, and now every tier clears 4.5:1, so a rail, a dot and
-    a rune share one value and `tierGlyphColor()` has no reason to exist.
-17. **Each screen is one of the four shields, and its cards are the two
-    quarters.** The hues are sampled from the LEGO shields themselves rather
-    than invented: Heute is the blue-and-silver shield
-    (`--vh-quarter-heute-a` `#1E3F66`, `-b` `#393E44`), Plan the blue-and-red
-    one (`#1E3F66` / `#6D2720`), Chronik the red-and-gold one
-    (`#692A28` / `#4A3D0D`) and Ränge the black-and-gold one
-    (`#142617` / `#463E0C`). `tokens.css` points `--vh-quarter-a` / `-b` at the
-    pair for the current `data-screen`; `.vh-card` resolves
-    `var(--vh-card, var(--vh-quarter-a))`, a card asks for `-b` with one line,
-    and the three lists — the exercise blocks, the day list, the ladders —
-    alternate the two from their `v-for`, which is how a shield is quartered
-    in the first place. The tab bar and the forms stay `--vh-800`: they are the
-    steel rim, which every one of the four shields has.
-    Every quarter is its sampled hue darkened to the luminance of `--vh-800`,
-    which is what keeps the scheme free: nothing about a card surface changes
-    but its hue, so every contrast on all eight is the figure it was on the
-    grey — bone 9.2:1, `--vh-200` 6.1:1, `--vh-400` 4.6:1, gold 4.7:1,
-    red 3.6:1. Saturation is 55% for a coloured quarter (below ~40% a dark red
-    is a brown), 70% for the two golds, which is what separates gold from
-    olive this far down, and 8% for Heute's silver, which becomes steel —
-    a card cannot be light without costing every contrast on it.
-    The one exception is Ränge's black quarter at luminance 0.014 against the
-    common 0.048. Downwards is free — every contrast on it only improves, bone
-    reaching 13.6:1 — and the shield is black-and-gold, not green-and-gold: at
-    the common luminance it read as a forest green. It stays legible as a card
-    because `--vh-600` outlines it at 2.3:1, not because it is lighter than the
-    page, which it barely is.
-18. **`--vh-page` is a neutral graphite (`#0D0E10`), not a blue-black.** With
-    four different shields on four screens, any hue in the page would pull one
-    of them and push another; the shields' own rims are neutral steel, so the
-    field they sit on is neutral too. It stays near-black because that is what
-    lets the quarters keep their saturation — the same reason deviation 16
-    gives.
 
 ## Extension points
 

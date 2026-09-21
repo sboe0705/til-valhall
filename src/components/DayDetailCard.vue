@@ -48,7 +48,6 @@ defineProps<{
 
 <style scoped>
 .detail {
-  --vh-card: var(--vh-quarter-b);
   padding: 15px;
   display: flex;
   flex-direction: column;

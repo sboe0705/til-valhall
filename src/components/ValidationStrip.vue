@@ -56,10 +56,6 @@ const ok = computed(() => props.errors.length === 0);
   color: var(--vh-400);
 }
 
-.valid--error {
-  --vh-card: var(--vh-quarter-b);
-}
-
 .valid--error .valid__rune,
 .valid--error .valid__title {
   color: var(--vh-danger-strong);

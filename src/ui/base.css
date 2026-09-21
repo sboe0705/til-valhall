@@ -38,7 +38,7 @@ html,
 body {
   margin: 0;
   padding: 0;
-  background: var(--vh-page);
+  background: var(--vh-900);
 }
 
 body {
@@ -114,25 +114,8 @@ input {
   letter-spacing: 0.16em;
 }
 
-/**
- * The screen's own eyebrow – the one above the h1 – in the shield quarter of
- * the route. It stands on the black page, where every quarter clears 6:1.
- * Eyebrows inside cards stay --vh-400; a coloured one per card would turn the
- * accent into noise.
- */
-.vh-eyebrow--quadrant {
-  color: var(--vh-quadrant);
-}
-
-/**
- * A card takes the first quarter of its screen's shield unless it says
- * otherwise, and `--vh-card` is what says otherwise: `var(--vh-quarter-b)` for
- * the other quarter, or `var(--vh-800)` for the steel of the rim, which is
- * what the chrome and the forms use. Lists alternate the two quarters from
- * their `v-for`, which is how a shield is quartered in the first place.
- */
 .vh-card {
-  background: var(--vh-card, var(--vh-quarter-a));
+  background: var(--vh-800);
   border: 1px solid var(--vh-600);
   border-radius: var(--vh-r-card);
 }

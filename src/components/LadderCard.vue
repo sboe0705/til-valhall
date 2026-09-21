@@ -15,13 +15,6 @@ const props = defineProps<{
 }>();
 
 const copy = computed(() => SCOPE_COPY[props.scope]);
-
-/** The three ladders alternate the shield's two quarters, week first. */
-const QUARTERS: Record<RankScope, string> = {
-  week: 'var(--vh-quarter-a)',
-  month: 'var(--vh-quarter-b)',
-  year: 'var(--vh-quarter-a)',
-};
 const color = computed(() => tierColor(props.progress.tier.key));
 
 const remaining = computed(() =>
@@ -39,7 +32,7 @@ const infoOpen = ref(false);
 </script>
 
 <template>
-  <article class="ladder vh-card" :style="{ '--vh-card': QUARTERS[scope] }">
+  <article class="ladder vh-card">
     <div class="ladder__top">
       <ProgressRing :completion="progress.completion" :color="color" />
 

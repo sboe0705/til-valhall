@@ -87,7 +87,7 @@ function confirmImport(): void {
     <RouterLink class="back" to="/heute">‹ zurück</RouterLink>
 
     <header class="head">
-      <span class="vh-eyebrow vh-eyebrow--quadrant">Rechtliches</span>
+      <span class="vh-eyebrow">Rechtliches</span>
       <h1 class="vh-h1">Impressum</h1>
       <span class="vh-sub">Privates, nicht-kommerzielles Hobbyprojekt.</span>
     </header>

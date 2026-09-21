@@ -10,7 +10,7 @@ import { ref, watch } from 'vue';
 
 import type { RankScope, ResolvedTier } from '@/model/ranks';
 import * as de from '@/app/format-de';
-import { SCOPE_COPY, TIER_RUNES, tierColor, tierLore } from '@/ui/tiers';
+import { SCOPE_COPY, TIER_RUNES, tierGlyphColor, tierLore } from '@/ui/tiers';
 
 const props = defineProps<{
   open: boolean;
@@ -45,7 +45,7 @@ const onClick = (event: MouseEvent) => {
   <dialog ref="el" class="info" @close="onClose" @click="onClick">
     <article class="info__card vh-card">
       <header class="info__head">
-        <span class="vh-rune info__rune" :style="{ color: tierColor(tier.key) }">
+        <span class="vh-rune info__rune" :style="{ color: tierGlyphColor(tier.key) }">
           {{ TIER_RUNES[tier.key] ?? 'ᛞ' }}
         </span>
         <span class="info__texts">

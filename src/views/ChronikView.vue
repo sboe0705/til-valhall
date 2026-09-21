@@ -132,7 +132,7 @@ const rows = computed(() =>
 <template>
   <div class="vh-screen">
     <header class="head">
-      <span class="vh-eyebrow vh-eyebrow--quadrant">Chronik</span>
+      <span class="vh-eyebrow">Chronik</span>
       <div class="head__row">
         <h1 class="vh-h1">{{ de.monthLabel(month) }}</h1>
         <div class="head__nav">
@@ -183,15 +183,15 @@ const rows = computed(() =>
     />
 
     <div class="stats">
-      <div class="stats__card stats__card--days vh-card">
+      <div class="stats__card vh-card">
         <span class="stats__value">{{ stats.trainedDays }}/{{ stats.totalDays }}</span>
         <span class="stats__label">Tage trainiert</span>
       </div>
-      <div class="stats__card stats__card--xp vh-card">
+      <div class="stats__card vh-card">
         <span class="stats__value stats__value--xp">{{ de.thousands(stats.xp) }}</span>
         <span class="stats__label">XP im Monat</span>
       </div>
-      <div class="stats__card stats__card--share vh-card">
+      <div class="stats__card vh-card">
         <span class="stats__value stats__value--share">
           {{ Math.round(stats.share * 100) }}%
         </span>
@@ -275,11 +275,6 @@ const rows = computed(() =>
   display: flex;
   flex-direction: column;
   gap: 5px;
-}
-
-/* Quartered like the shield: the middle figure takes the other quarter. */
-.stats__card--xp {
-  --vh-card: var(--vh-quarter-b);
 }
 
 .stats__value {

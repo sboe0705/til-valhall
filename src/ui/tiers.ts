@@ -8,64 +8,58 @@
  * Palette rules that must hold:
  *   - a tier colour is an accent (icon, ring, dot, 3–4px rail), never a card
  *     background and never a surface behind text
- *   - text is always --vh-050 on the card with the tier colour beside it
- *   - every tier clears 4.5:1 on --vh-800, the mid grey the ladders are drawn
- *     on. That is what sets the *level* of this table: the ladders keep their
- *     hue journeys, but a grey card leaves no room below it, so the dark tiers
- *     are as deep as they can be rather than as deep as their myth wants
+ *   - text is always --vh-050 on a dark surface with the tier colour beside it
  */
 
 import type { Id } from '@/model/training';
 import type { RankScope } from '@/model/ranks';
 
 export const TIER_COLORS: Record<Id, string> = {
-  /*
-   * Week – Ständeleiter der Rígsþula. The five steps are the shield itself:
-   * silver rim, bronze, red quarter, blue quarter, gold boss.
-   */
-  drengr: '#C6CED6',
-  karl: '#D99C65',
-  hersir: '#E59685',
-  jarl: '#78ADE4',
-  konungr: '#E6CB4F',
+  // Week – Ständeleiter der Rígsþula
+  drengr: '#B9AC94',
+  karl: '#C08A2E',
+  hersir: '#A63A2C',
+  jarl: '#2F5D8C',
+  konungr: '#E0B23C',
 
   // Month – Die Neun Welten
-  niflheim: '#95ACB8',
-  helheim: '#9EADA9',
-  muspelheim: '#E59484',
-  jotunheim: '#B2A799',
-  svartalfaheim: '#B3A3C9',
-  midgard: '#87B483',
+  niflheim: '#86A0AE',
+  helheim: '#3F4A47',
+  muspelheim: '#C8452B',
+  jotunheim: '#7B6E5D',
+  svartalfaheim: '#4B3A63',
+  midgard: '#4E7A4A',
   alfheim: '#E6D9A8',
-  vanaheim: '#3EBBB1',
+  vanaheim: '#2E8B84',
   asgard: '#E8B93C',
 
-  /*
-   * Year – Zwölf Asen nach Rang. One long ramp from the shield's cold quarter
-   * to its boss: blue → teal → green → gold. The handoff ramps grey → gold,
-   * which lost its lower half against the blue-slate surfaces.
-   */
-  bragi: '#8FACD6',
-  forseti: '#80ADD6',
-  ullr: '#77B2C5',
-  vidar: '#66B6B1',
-  vali: '#6DB894',
-  njord: '#83B67B',
-  freyr: '#9BB262',
-  heimdallr: '#B9AA4D',
-  baldr: '#CBA34D',
-  tyr: '#D2A73F',
-  thorr: '#DFB63A',
+  // Year – Zwölf Asen nach Rang
+  bragi: '#5E6B7A',
+  forseti: '#5A7480',
+  ullr: '#567D80',
+  vidar: '#567F72',
+  vali: '#628060',
+  njord: '#7C8557',
+  freyr: '#948652',
+  heimdallr: '#AC8850',
+  baldr: '#C08E4E',
+  tyr: '#CE9645',
+  thorr: '#DFA93A',
   odinn: '#F2C64B',
 };
 
 /**
- * There is no glyph variant any more. The handoff needed one because `helheim`
- * sat at 3.1:1 – fine as a rail, too dark for a rune – but every tier in the
- * table above is tuned to 4.5:1 on the card it is drawn on, so a rail, a dot
- * and a rune can all share one value.
+ * Helheim sits at 3.1:1 against --vh-900 – fine as a 4px rail or an 8px dot,
+ * too dark for a glyph. Glyphs use a lightened variant instead; every other
+ * tier is already ≥ 4.5:1 and passes through unchanged.
  */
+const GLYPH_OVERRIDES: Record<Id, string> = {
+  helheim: '#7A8A85',
+};
+
 export const tierColor = (key: Id): string => TIER_COLORS[key] ?? 'var(--vh-400)';
+
+export const tierGlyphColor = (key: Id): string => GLYPH_OVERRIDES[key] ?? tierColor(key);
 
 /** Elder Futhark glyph per tier – rendered from Noto Sans Runic. */
 export const TIER_RUNES: Record<Id, string> = {

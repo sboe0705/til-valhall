@@ -273,39 +273,6 @@ Two discriminated unions drive nearly all branching; always handle both arms:
   That check is also why `parseBackup()` insists on `schemaVersion === 1`: an
   unvalidated foreign file would trip `resetAll()` and *wipe* the data instead of
   being refused.
-- **The palette is the LEGO Viking shields, not the handoff's greys** — see
-  deviations 14/15 in the README. Six source tokens (`--vh-shield-gold` /
-  `-yellow` / `-blue` / `-red` / `-green` / `-bone`) in `tokens.css`; every
-  semantic (`--vh-accent`, `--vh-success`, `--vh-rest`, `--vh-overflow`,
-  `--vh-danger`) resolves to one of them and nothing below that block invents a
-  hue. The handoff's hard rules still hold: no gradients, no glows, `--vh-600`
-  is border-only, `--vh-400` is the dimmest legal text colour.
-- **`--vh-quadrant` is chrome, never semantics.** `App.vue` puts the route name
-  on `.shell` as `data-screen` and `tokens.css` picks the screen's shield
-  quarter from it (Heute gold · Plan blue · Chronik red · Ränge green). Only the
-  screen eyebrow (`.vh-eyebrow--quadrant`), the `SectionRule` lead and the tab
-  bar read it — XP stays gold on every screen, a rest day stays blue, and an
-  eyebrow inside a card stays `--vh-400`.
-- **Each screen is one of the four LEGO shields; its cards are the quarters.**
-  `tokens.css` points `--vh-quarter-a` / `-b` at that screen's pair (Heute
-  blue/silver · Plan blue/red · Chronik red/gold · Ränge black/gold) off
-  `data-screen`, `.vh-card` resolves `var(--vh-card, var(--vh-quarter-a))`, and
-  a card takes the other quarter with `--vh-card: var(--vh-quarter-b)`. The
-  exercise blocks, the day list and the ladders alternate the two from their
-  `v-for`. `--vh-800` is left for the steel rim: tab bar, schedule switch, day
-  draft, dialog, Impressum. Seven of the eight quarters are iso-luminant with
-  `--vh-800` — that is what makes the choice free of contrast consequences, so
-  never "fix" one by lightening it. Ränge's black quarter is deliberately
-  *darker*; downwards is free, upwards is not. See deviation 17 in the README.
-- **`--vh-page` is a neutral near-black, `--vh-800` the steel grey,
-  `--vh-900` a fill inside a card.** The page (`html`, `body`, `.shell`) is the
-  only near-black thing, and neutral on purpose: any hue in it would pull one
-  of the four shields and push another. Cards and the tab bar carry every
-  colour in the app — see deviations 16–18 in the README. The grey card is what the whole ramp is
-  tuned against, so two habits from the handoff are now wrong: `--vh-700` and
-  `--vh-600` are *lighter* than the card they sit on, not darker, and
-  `--vh-900` is never a page background — it is the sunken step inside a card
-  (open set pill, loot track, calendar cell).
 - **German tier copy lives in `src/ui/tiers.ts`, not in the model.** `TIER_LORE`
   (the sentence behind the `i` button on each ladder) sits next to `TIER_RUNES` /
   `TIER_SHORT`; `RankTier.gloss` is the model's English one-liner and is rendered

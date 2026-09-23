@@ -38,9 +38,9 @@ const tabs = [
   bottom: 0;
   z-index: 10;
   height: var(--vh-tabbar-h);
-  background: rgb(0 0 0 / 0.35);
-  -webkit-backdrop-filter: blur(14px) saturate(1.3);
-  backdrop-filter: blur(14px) saturate(1.3);
+  background: rgb(0 0 0 / 0.2);
+  -webkit-backdrop-filter: blur(10px) saturate(1.3);
+  backdrop-filter: blur(10px) saturate(1.3);
   border-top: 1px solid rgb(255 255 255 / 0.08);
   display: grid;
   grid-template-columns: repeat(4, 1fr);

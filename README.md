@@ -523,7 +523,7 @@ the handoff itself prescribes.
     cards; behind the cards sits `--vh-black` (`#000`, also the PWA and
     `theme-color`). The tab bar floats over the bottom of `.shell__scroll`, which
     pads itself by `--vh-tabbar-h`, and blurs what passes underneath
-    (`backdrop-filter: blur(14px)` over black at `.35`, a hairline top border at
+    (`backdrop-filter: blur(10px)` over black at `.2`, a hairline top border at
     8% white). That keeps the silver labels readable on any card without a glow
     or a gradient; browsers without `backdrop-filter` fall back to the opaque
     `--vh-800`.

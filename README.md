@@ -514,7 +514,8 @@ the handoff itself prescribes.
     the yellow-and-red rune ring, Ränge the green-and-gold scrollwork. The prints
     are the icon, so they are not tinted with the accent: inactive tabs dim them
     to `.45` opacity and 60% saturation, the active tab shows them in full, and
-    label and underline keep the handoff's colours.
+    the label keeps the handoff's colours. The 16×2 underline pill is dropped —
+    the full-colour shield and the accent label already mark the active tab.
 
 ## Extension points
 

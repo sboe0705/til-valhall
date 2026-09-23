@@ -1,5 +1,5 @@
 <script setup lang="ts">
-/** 74px tab bar – shield icon, label, 16×2 underline pill. */
+/** 74px tab bar – shield icon and label. */
 import shieldRedBlue from '@/assets/shields/schild-rot-blau.svg';
 import shieldTriquetra from '@/assets/shields/schild-triquetra.svg';
 import shieldRunes from '@/assets/shields/schild-runen.svg';
@@ -24,7 +24,6 @@ const tabs = [
     >
       <img class="tab__shield" :src="tab.shield" alt="" width="26" height="26" />
       <span class="tab__label">{{ tab.label }}</span>
-      <span class="tab__underline" />
     </RouterLink>
   </nav>
 </template>
@@ -74,18 +73,7 @@ const tabs = [
   letter-spacing: 0.06em;
 }
 
-.tab__underline {
-  width: 16px;
-  height: 2px;
-  border-radius: 1px;
-  background: transparent;
-}
-
 .tab.router-link-active {
   color: var(--vh-accent);
-}
-
-.tab.router-link-active .tab__underline {
-  background: var(--vh-accent);
 }
 </style>

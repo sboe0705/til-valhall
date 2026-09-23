@@ -22,15 +22,16 @@ export const TIER_COLORS: Record<Id, string> = {
   jarl: '#2F5D8C',
   konungr: '#E0B23C',
 
-  // Month – Die Neun Welten
-  niflheim: '#86A0AE',
-  helheim: '#3F4A47',
-  muspelheim: '#C8452B',
-  jotunheim: '#7B6E5D',
-  svartalfaheim: '#4B3A63',
-  midgard: '#4E7A4A',
-  alfheim: '#E6D9A8',
-  vanaheim: '#2E8B84',
+  // Month – Die Neun Welten: the eight worlds below Asgard climb Bifröst,
+  // the rainbow bridge, red to violet; Asgard itself keeps its gold.
+  niflheim: '#E5484D',
+  helheim: '#EE7B30',
+  muspelheim: '#E8D84A',
+  jotunheim: '#5DBB5A',
+  svartalfaheim: '#3FB8C4',
+  midgard: '#4A8FE0',
+  alfheim: '#7C72E8',
+  vanaheim: '#B06FE0',
   asgard: '#E8B93C',
 
   // Year – Zwölf Asen nach Rang
@@ -49,13 +50,10 @@ export const TIER_COLORS: Record<Id, string> = {
 };
 
 /**
- * Helheim sits at 3.1:1 against --vh-900 – fine as a 4px rail or an 8px dot,
- * too dark for a glyph. Glyphs use a lightened variant instead; every other
- * tier is already ≥ 4.5:1 and passes through unchanged.
+ * Glyph colour per tier where the rail colour is too dark for a glyph
+ * (< 4.5:1 against --vh-900). Every tier currently passes, so it is empty.
  */
-const GLYPH_OVERRIDES: Record<Id, string> = {
-  helheim: '#7A8A85',
-};
+const GLYPH_OVERRIDES: Record<Id, string> = {};
 
 export const tierColor = (key: Id): string => TIER_COLORS[key] ?? 'var(--vh-400)';
 

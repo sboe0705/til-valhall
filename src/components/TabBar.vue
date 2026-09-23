@@ -1,10 +1,15 @@
 <script setup lang="ts">
-/** 74px tab bar – runic glyph, label, 16×2 underline pill. */
+/** 74px tab bar – shield icon, label, 16×2 underline pill. */
+import shieldRedBlue from '@/assets/shields/schild-rot-blau.svg';
+import shieldTriquetra from '@/assets/shields/schild-triquetra.svg';
+import shieldRunes from '@/assets/shields/schild-runen.svg';
+import shieldGreenGold from '@/assets/shields/schild-gruen-gold.svg';
+
 const tabs = [
-  { name: 'heute', label: 'Heute', rune: 'ᛞ' },
-  { name: 'plan', label: 'Plan', rune: 'ᛃ' },
-  { name: 'chronik', label: 'Chronik', rune: 'ᚱ' },
-  { name: 'raenge', label: 'Ränge', rune: 'ᛊ' },
+  { name: 'heute', label: 'Heute', shield: shieldRedBlue },
+  { name: 'plan', label: 'Plan', shield: shieldTriquetra },
+  { name: 'chronik', label: 'Chronik', shield: shieldRunes },
+  { name: 'raenge', label: 'Ränge', shield: shieldGreenGold },
 ] as const;
 </script>
 
@@ -17,7 +22,7 @@ const tabs = [
       :to="{ name: tab.name }"
       :aria-label="tab.label"
     >
-      <span class="tab__rune vh-rune">{{ tab.rune }}</span>
+      <img class="tab__shield" :src="tab.shield" alt="" width="26" height="26" />
       <span class="tab__label">{{ tab.label }}</span>
       <span class="tab__underline" />
     </RouterLink>
@@ -48,9 +53,20 @@ const tabs = [
   transition: color var(--vh-t-color);
 }
 
-.tab__rune {
-  font-size: 19px;
-  line-height: 1;
+/* Inactive shields are dimmed rather than recoloured — the print is the icon. */
+.tab__shield {
+  width: 26px;
+  height: 26px;
+  opacity: 0.45;
+  filter: saturate(0.6);
+  transition:
+    opacity var(--vh-t-color),
+    filter var(--vh-t-color);
+}
+
+.tab.router-link-active .tab__shield {
+  opacity: 1;
+  filter: none;
 }
 
 .tab__label {

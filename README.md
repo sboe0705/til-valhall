@@ -508,6 +508,13 @@ the handoff itself prescribes.
     the same for weeks on end, while the closed-period list is what actually
     changes — so the list takes the position right under the ladders and the
     records close the screen. Nothing else about either block changes.
+14. **The tab bar shows shields, not runes.** Each tab carries one of the four
+    LEGO Viking shield prints as a 26px SVG (`src/assets/shields/`): Heute the
+    red-and-blue chain shield, Plan the blue-and-stone triquetra shield, Chronik
+    the yellow-and-red rune ring, Ränge the green-and-gold scrollwork. The prints
+    are the icon, so they are not tinted with the accent: inactive tabs dim them
+    to `.45` opacity and 60% saturation, the active tab shows them in full, and
+    label and underline keep the handoff's colours.
 
 ## Extension points
 

@@ -38,7 +38,7 @@ const tabs = [
   bottom: 0;
   z-index: 10;
   height: var(--vh-tabbar-h);
-  background: rgb(0 0 0 / 0.55);
+  background: rgb(0 0 0 / 0.35);
   -webkit-backdrop-filter: blur(14px) saturate(1.3);
   backdrop-filter: blur(14px) saturate(1.3);
   border-top: 1px solid rgb(255 255 255 / 0.08);

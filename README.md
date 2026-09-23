@@ -513,9 +513,11 @@ the handoff itself prescribes.
     red-and-blue chain shield, Plan the blue-and-stone triquetra shield, Chronik
     the yellow-and-red rune ring, Ränge the green-and-gold scrollwork. The prints
     are the icon, so they are not tinted with the accent: inactive tabs dim them
-    to `.45` opacity and 60% saturation, the active tab shows them in full, and
-    the label keeps the handoff's colours. The 16×2 underline pill is dropped —
-    the full-colour shield and the accent label already mark the active tab.
+    to `.45` opacity and 60% saturation, the active tab shows them in full. The
+    labels are silver instead of gold, matching the shield rims: `--vh-400` at
+    rest, `--vh-200` on hover, `--vh-050` when active. The 16×2 underline pill
+    is dropped — the full-colour shield and the bright label already mark the
+    active tab.
 
 ## Extension points
 

@@ -73,7 +73,18 @@ const tabs = [
   letter-spacing: 0.06em;
 }
 
+/* Labels are steel like the shield rims: dark at rest, lighter on hover, bone when active. */
+@media (hover: hover) {
+  .tab:hover {
+    color: var(--vh-200);
+  }
+
+  .tab:hover .tab__shield {
+    opacity: 0.75;
+  }
+}
+
 .tab.router-link-active {
-  color: var(--vh-accent);
+  color: var(--vh-050);
 }
 </style>

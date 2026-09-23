@@ -29,15 +29,29 @@ const tabs = [
 </template>
 
 <style scoped>
+/* Frosted glass over the scrolling content: blurred and darkened enough that
+   the silver labels read on anything that passes underneath. */
 .tabbar {
-  flex: none;
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  z-index: 10;
   height: var(--vh-tabbar-h);
-  background: var(--vh-800);
-  border-top: 1px solid var(--vh-600);
+  background: rgb(0 0 0 / 0.55);
+  -webkit-backdrop-filter: blur(14px) saturate(1.3);
+  backdrop-filter: blur(14px) saturate(1.3);
+  border-top: 1px solid rgb(255 255 255 / 0.08);
   display: grid;
   grid-template-columns: repeat(4, 1fr);
   align-items: center;
   padding: 0 6px;
+}
+
+@supports not ((backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px))) {
+  .tabbar {
+    background: var(--vh-800);
+  }
 }
 
 .tab {

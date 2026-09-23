@@ -42,17 +42,21 @@ watch(
   max-width: var(--vh-screen-max);
   margin: 0 auto;
   height: 100dvh;
-  background: var(--vh-900);
+  background: var(--vh-black);
+  position: relative;
   display: flex;
   flex-direction: column;
   overflow: hidden;
 }
 
+/* The tab bar floats over the bottom of the scroller (frosted glass), so the
+   content gets its height as bottom padding to stay reachable. */
 .shell__scroll {
   flex: 1;
   overflow-y: auto;
   overflow-x: hidden;
   padding-top: 8px;
+  padding-bottom: var(--vh-tabbar-h);
 }
 
 /* Desktop is out of scope for the handoff – keep the phone column centred and

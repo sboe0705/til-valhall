@@ -13,7 +13,8 @@
   color-scheme: dark;
 
   /* Neutrals */
-  --vh-900: #0f1416; /* app background */
+  --vh-black: #000000; /* app background, behind the frosted tab bar */
+  --vh-900: #0f1416; /* wells and insets inside cards */
   --vh-800: #161d21; /* card */
   --vh-700: #1f282d; /* raised surface, hover */
   --vh-600: #2c383e; /* border */

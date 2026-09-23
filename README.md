@@ -518,6 +518,15 @@ the handoff itself prescribes.
     rest, `--vh-200` on hover, `--vh-050` when active. The 16×2 underline pill
     is dropped — the full-colour shield and the bright label already mark the
     active tab.
+15. **The app background is black and the tab bar is frosted glass.** The
+    handoff's `#0F1416` stays as `--vh-900` for the wells and insets inside
+    cards; behind the cards sits `--vh-black` (`#000`, also the PWA and
+    `theme-color`). The tab bar floats over the bottom of `.shell__scroll`, which
+    pads itself by `--vh-tabbar-h`, and blurs what passes underneath
+    (`backdrop-filter: blur(14px)` over black at `.55`, a hairline top border at
+    8% white). That keeps the silver labels readable on any card without a glow
+    or a gradient; browsers without `backdrop-filter` fall back to the opaque
+    `--vh-800`.
 
 ## Extension points
 

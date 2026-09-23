@@ -22,17 +22,17 @@ export const TIER_COLORS: Record<Id, string> = {
   jarl: '#2F5D8C',
   konungr: '#E0B23C',
 
-  // Month – Die Neun Welten: the eight worlds below Asgard climb Bifröst,
-  // the rainbow bridge, red to violet; Asgard itself keeps its gold.
+  // Month – Die Neun Welten: the ladder climbs Bifröst, the rainbow bridge,
+  // red to violet, with Asgard at its violet end.
   niflheim: '#E5484D',
   helheim: '#EE7B30',
   muspelheim: '#E8D84A',
-  jotunheim: '#5DBB5A',
-  svartalfaheim: '#3FB8C4',
-  midgard: '#4A8FE0',
-  alfheim: '#7C72E8',
-  vanaheim: '#B06FE0',
-  asgard: '#E8B93C',
+  jotunheim: '#A8CF45',
+  svartalfaheim: '#4FBF6A',
+  midgard: '#3FB8C4',
+  alfheim: '#4A8FE0',
+  vanaheim: '#7C72E8',
+  asgard: '#B06FE0',
 
   // Year – Zwölf Asen nach Rang
   bragi: '#5E6B7A',

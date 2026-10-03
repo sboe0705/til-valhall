@@ -432,6 +432,59 @@ Four decisions worth keeping:
   bypass it. Hence also the inline confirmation before the overwrite — the action
   is destructive and immediate.
 
+### Sync through Google Drive
+
+Optional, and invisible unless the build has `VITE_GOOGLE_CLIENT_ID`. A user who
+signs in with Google gets both slices mirrored to `til-valhall.json` in the hidden
+`appDataFolder` of *their own* Drive — no backend, no operator storage, and the
+narrow `drive.appdata` scope sees nothing else in the Drive. The moving parts:
+`src/app/sync.ts` (bookkeeping and the decision table, pure), `src/app/drive.ts`
+(the five REST calls, `fetch` injected) and `src/stores/sync.ts` (Google Identity
+Services, triggers, status).
+
+- **The payload is the backup envelope.** Upload is `collectBackup()`, download is
+  `parseBackup()` → `applyBackup()` → reload — the file import's exact path, so the
+  schema check and the `afterHydrate` guard hold for synced data too.
+- **Drive's `version` decides.** The meta remembers the version last synced
+  (`baseVersion`) and whether there were local edits since (`dirty`):
+
+  | remote | local edits | action |
+  |---|---|---|
+  | missing | – | upload |
+  | unchanged | no / yes | nothing / upload |
+  | changed | no | download and reload |
+  | changed | yes | newest wins: `lastEditAt` against the envelope's `exportedAt` |
+  | exists, never synced | – | ask once: take the Drive state or upload this device |
+
+  Only the first connection asks — a fresh device holds the seed plan and would
+  otherwise overwrite real history.
+- **The meta lives under `til-valhall-sync`, outside the prefix.** Inside it, the
+  access token would end up in every exported file, and `applyBackup()` — which a
+  download runs itself — would wipe the base version it just recorded.
+- **Edits count only after start-up.** `App.vue` starts the sync after the first
+  `refresh()`, and the store subscribes from then on. The start-up roll-over is
+  derived from the date, not an edit; counting it would make every stale device
+  look edited and let it win a conflict against a newer Drive state.
+- **Triggers:** start, `visibilitychange` to visible, and `online` reconcile; an
+  edit uploads 3 s later, or at once when the app is hidden (`keepalive`, under
+  its 64 KiB budget). A file import marks the state dirty, so it is uploaded
+  rather than replaced by the next Drive change.
+- **No refresh token.** The browser flow issues a ~1 h access token; it is kept
+  with its expiry so it survives the reload after a download. Once expired the
+  sync pauses — renewing opens Google's popup, which browsers allow only from a
+  tap, hence the "Sync fortsetzen" link in the footer.
+- **Nobody else talks to Google.** The GIS script is injected on the first tap
+  on "Mit Google anmelden", or at start for an account that is already connected.
+  `e2e/smoke.spec.ts` asserts that a fresh app sends no request to Google.
+
+Setting it up once: a Google Cloud project with the **Drive API** enabled, an
+external OAuth consent screen with the `drive.appdata` scope (test mode allows
+100 test users until the app is published), and a *Web application* OAuth client
+whose authorised JavaScript origins are `http://localhost:5173` and
+`https://<user>.github.io`. Put the client id into `.env.local` as
+`VITE_GOOGLE_CLIENT_ID=…` and into the repo variable `GOOGLE_CLIENT_ID`, which
+the CI build passes on. The id is public by design — a variable, not a secret.
+
 ## Deviations from the design handoff
 
 All deliberate; where the handoff and the model disagree, the model wins — as

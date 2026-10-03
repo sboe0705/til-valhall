@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref, useTemplateRef } from 'vue';
+import { computed, ref, useTemplateRef } from 'vue';
 
 import SectionRule from '@/components/SectionRule.vue';
 import {
@@ -11,6 +11,31 @@ import {
   type Backup,
   type BackupError,
 } from '@/app/backup';
+import { useSyncStore } from '@/stores/sync';
+
+const sync = useSyncStore();
+
+const syncLine = computed(() => {
+  switch (sync.status) {
+    case 'connecting':
+      return 'Anmeldung läuft …';
+    case 'syncing':
+      return 'Wird abgeglichen …';
+    case 'offline':
+      return 'Keine Verbindung – Änderungen werden nachgeholt.';
+    case 'expired':
+      return 'Anmeldung abgelaufen – der Abgleich ruht.';
+    case 'ask':
+      return 'Erste Verbindung dieses Geräts.';
+    default:
+      return sync.lastSyncedAt
+        ? `Zuletzt abgeglichen: ${new Date(sync.lastSyncedAt).toLocaleString('de-DE', {
+            dateStyle: 'short',
+            timeStyle: 'short',
+          })}`
+        : '';
+  }
+});
 
 const fileInput = useTemplateRef<HTMLInputElement>('fileInput');
 
@@ -78,6 +103,9 @@ async function pickFile(event: Event): Promise<void> {
 function confirmImport(): void {
   if (!pending.value) return;
   applyBackup(localStorage, pending.value.backup);
+  // The imported state is a local edit – without this the next sync would see
+  // nothing to upload and a later Drive change would quietly replace it.
+  sync.markDirty();
   location.reload();
 }
 </script>
@@ -133,6 +161,20 @@ function confirmImport(): void {
           docs.github.com/.../github-privacy-statement
         </a>
       </p>
+      <p v-if="sync.enabled">
+        Die Synchronisation ist optional. Erst nach einem Tipp auf „Mit Google anmelden“
+        wird Google Identity Services (Google Ireland Ltd.) geladen; danach liegen deine
+        Daten zusätzlich im versteckten App-Ordner deines eigenen Google Drive. Der
+        Betreiber dieser Seite hat darauf keinen Zugriff. Details:
+        <a
+          class="legal__link"
+          href="https://policies.google.com/privacy"
+          target="_blank"
+          rel="noopener noreferrer"
+        >
+          policies.google.com/privacy
+        </a>
+      </p>
     </div>
 
     <SectionRule label="Deine Daten" />
@@ -144,7 +186,12 @@ function confirmImport(): void {
         <span class="legal__code">til-valhall.training</span> und
         <span class="legal__code">til-valhall.ranks</span>.
       </p>
-      <p>
+      <p v-if="sync.enabled">
+        Ohne Anmeldung wird nichts an einen Server übertragen; wer die Browserdaten
+        löscht, löscht auch den Fortschritt – es sei denn, er liegt per Synchronisation in
+        Google Drive.
+      </p>
+      <p v-else>
         Es wird nichts an einen Server übertragen; wer die Browserdaten löscht, löscht
         auch den Fortschritt.
       </p>
@@ -192,6 +239,70 @@ function confirmImport(): void {
         </p>
       </div>
     </div>
+
+    <template v-if="sync.enabled">
+      <SectionRule label="Synchronisation" />
+
+      <div class="vh-card legal">
+        <template v-if="!sync.email">
+          <p>
+            Mit einem Google-Konto werden Plan, Sitzungen und Ränge automatisch zwischen
+            deinen Geräten abgeglichen – über den App-Ordner deines Google Drive. Die App
+            sieht dort nur ihre eigene Datei.
+          </p>
+          <p class="legal__actions">
+            <button
+              class="legal__action"
+              type="button"
+              :aria-disabled="sync.status === 'connecting'"
+              @click="sync.status !== 'connecting' && sync.signIn()"
+            >
+              Mit Google anmelden
+            </button>
+          </p>
+        </template>
+
+        <template v-else>
+          <p>
+            Angemeldet als <span class="legal__code">{{ sync.email }}</span>
+          </p>
+          <p v-if="syncLine" class="legal__note">{{ syncLine }}</p>
+          <p class="legal__actions">
+            <template v-if="sync.status === 'expired'">
+              <button class="legal__action" type="button" @click="sync.signIn()">
+                Fortsetzen
+              </button>
+              <span class="legal__dot">·</span>
+            </template>
+            <button class="legal__action" type="button" @click="sync.signOut()">
+              Abmelden
+            </button>
+          </p>
+
+          <div v-if="sync.status === 'ask'" class="legal__confirm">
+            <p>
+              In deinem Google Drive liegt schon ein Stand. Welcher soll ab jetzt auf
+              allen Geräten gelten?
+            </p>
+            <p class="legal__actions">
+              <button
+                class="legal__action legal__action--danger"
+                type="button"
+                @click="sync.chooseRemote()"
+              >
+                Drive-Stand übernehmen
+              </button>
+              <span class="legal__dot">·</span>
+              <button class="legal__action" type="button" @click="sync.chooseLocal()">
+                Dieses Gerät hochladen
+              </button>
+            </p>
+          </div>
+        </template>
+
+        <p v-if="sync.error" class="legal__note legal__note--error">{{ sync.error }}</p>
+      </div>
+    </template>
   </div>
 </template>
 

@@ -4,6 +4,7 @@ import { useRoute } from 'vue-router';
 
 import TabBar from '@/components/TabBar.vue';
 import { useNow } from '@/composables/useNow';
+import { useSyncStore } from '@/stores/sync';
 import { useTrainingStore } from '@/stores/training';
 
 const training = useTrainingStore();
@@ -13,6 +14,10 @@ const route = useRoute();
 // `rollOver()` is idempotent, so running it on start and on every date change
 // is the whole date-boundary story.
 watch(todayIso, () => training.refresh(), { immediate: true });
+
+// After the first refresh on purpose: the start-up roll-over is not an edit and
+// must not be uploaded as one. A no-op unless a Google account is connected.
+void useSyncStore().start();
 
 /**
  * `.shell` is the 100dvh frame and never scrolls, so the router's

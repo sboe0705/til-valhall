@@ -59,8 +59,10 @@ src/
 │   ├── day-card.ts       the read-only "day box" Plan and Heute both render
 │   ├── history.ts        per-day status, month entries and stats for the chronicle
 │   ├── backup.ts         storage keys + localStorage export/import (Impressum)
+│   ├── sync.ts           Drive-sync bookkeeping (`SyncMeta`) + the decision table
+│   ├── drive.ts          Drive v3 appDataFolder calls, `fetch` injected
 │   └── format-de.ts      the German presentation layer
-├── stores/               Pinia — training + ranks, one storage key each
+├── stores/               Pinia — training + ranks, one storage key each; sync (optional)
 ├── composables/useNow.ts the app clock (midnight tick, visibilitychange)
 ├── ui/                   tokens.css, base.css, tiers.ts (colours, runes, rail labels, lore)
 ├── components/           shared and screen-specific SFCs (incl. AppFooter)
@@ -273,6 +275,13 @@ Two discriminated unions drive nearly all branching; always handle both arms:
   That check is also why `parseBackup()` insists on `schemaVersion === 1`: an
   unvalidated foreign file would trip `resetAll()` and *wipe* the data instead of
   being refused.
+- **The Google Drive sync is optional and off without `VITE_GOOGLE_CLIENT_ID`.** Its
+  meta (token, `baseVersion`, `dirty`) sits under `til-valhall-sync` — deliberately
+  **outside** the `til-valhall.` prefix, so backups never carry the token and
+  `applyBackup()` (which a download runs itself) does not wipe it. Do not "tidy" it
+  into the prefix. Edits are counted only from `sync.start()`, which `App.vue` calls
+  after the first `refresh()` — the start-up roll-over is not an edit. Downloads go
+  through `applyBackup()` + reload, never into the stores. See the README section.
 - **German tier copy lives in `src/ui/tiers.ts`, not in the model.** `TIER_LORE`
   (the sentence behind the `i` button on each ladder) sits next to `TIER_RUNES` /
   `TIER_SHORT`; `RankTier.gloss` is the model's English one-liner and is rendered

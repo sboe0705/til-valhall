@@ -40,6 +40,9 @@ jobs:
         env:
           # Project pages live under /<repo>/, not at the domain root.
           VITE_BASE: /${{ github.event.repository.name }}/
+          # OAuth client of the optional Drive sync – a public value, so a repo
+          # variable rather than a secret. Unset, the build ships without sync.
+          VITE_GOOGLE_CLIENT_ID: ${{ vars.GOOGLE_CLIENT_ID }}
 
       # Pages has no SPA rewrite; the history-mode router needs index.html
       # served for deep links like /til-valhall/plan as well.

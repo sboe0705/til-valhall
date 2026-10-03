@@ -237,3 +237,19 @@ test('the chronicle steps back but never past the current month', async ({ page 
   await next.click();
   await expect(title).toHaveText(current);
 });
+
+test('nobody who has not signed in talks to Google', async ({ page }) => {
+  const google: string[] = [];
+  page.on('request', (request) => {
+    const host = new URL(request.url()).hostname;
+    if (host.endsWith('google.com') || host.endsWith('googleapis.com')) {
+      google.push(request.url());
+    }
+  });
+
+  await freshApp(page);
+  await page.goto('/impressum');
+  await expect(page.getByRole('heading', { level: 1 })).toHaveText('Impressum');
+
+  expect(google).toEqual([]);
+});

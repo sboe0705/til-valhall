@@ -144,7 +144,12 @@ function confirmImport(): void {
     <SectionRule label="Datenschutz" />
 
     <div class="vh-card legal">
-      <p>
+      <p v-if="sync.enabled">
+        Ohne Anmeldung speichert diese Website selbst keine personenbezogenen Daten,
+        verwendet keine Cookies und bindet keine Tracker ein. Was sich mit der optionalen
+        Google-Anmeldung ändert, steht unten.
+      </p>
+      <p v-else>
         Diese Website speichert selbst keine personenbezogenen Daten, verwendet keine
         Cookies und bindet keine Tracker ein.
       </p>
@@ -161,21 +166,73 @@ function confirmImport(): void {
           docs.github.com/.../github-privacy-statement
         </a>
       </p>
-      <p v-if="sync.enabled">
-        Die Synchronisation ist optional. Erst nach einem Tipp auf „Mit Google anmelden“
-        wird Google Identity Services (Google Ireland Ltd.) geladen; danach liegen deine
-        Daten zusätzlich im versteckten App-Ordner deines eigenen Google Drive. Der
-        Betreiber dieser Seite hat darauf keinen Zugriff. Details:
-        <a
-          class="legal__link"
-          href="https://policies.google.com/privacy"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          policies.google.com/privacy
-        </a>
-      </p>
     </div>
+
+    <template v-if="sync.enabled">
+      <SectionRule label="Google-Anmeldung" />
+
+      <div class="vh-card legal">
+        <p>
+          Die Synchronisation über Google ist freiwillig. Erst ein Tipp auf „Mit Google
+          anmelden“ lädt Google Identity Services; Rechtsgrundlage ist deine Einwilligung
+          (Art. 6 Abs. 1 lit. a DSGVO), die du jederzeit durch Abmelden widerrufen kannst.
+        </p>
+        <p>
+          Bei der Anmeldung verarbeitet Google (Google Ireland Ltd., Dublin;
+          Muttergesellschaft Google LLC, USA) deine IP-Adresse und dein Google-Konto und
+          setzt dafür eigene Cookies. Eine Übermittlung in die USA ist möglich; Google LLC
+          ist nach dem EU-US Data Privacy Framework zertifiziert.
+        </p>
+        <p>
+          Die App fordert nur zwei Dinge an: deine E-Mail-Adresse, um das verbundene Konto
+          anzuzeigen, und Zugriff auf ihren eigenen, versteckten App-Ordner in deinem
+          Google Drive (<span class="legal__code">drive.appdata</span>). Dort liegt eine
+          Datei mit Trainingsplan, Sitzungen und Rängen. Andere Dateien deines Drive sieht
+          die App nicht. Die Daten fließen direkt zwischen deinem Browser und Google – der
+          Betreiber dieser Seite erhält sie nicht und hat keinen Zugriff darauf.
+        </p>
+        <p>
+          Auf diesem Gerät legt die App dafür unter
+          <span class="legal__code">til-valhall-sync</span> deine E-Mail-Adresse und einen
+          etwa eine Stunde gültigen Zugriffsschlüssel ab. Abmelden löscht beides und
+          widerruft den Schlüssel; die Datei in Google Drive bleibt bestehen. Den Zugriff
+          kannst du außerdem jederzeit in deinem Google-Konto unter „Sicherheit →
+          Drittanbieter-Apps“ entziehen (<a
+            class="legal__link"
+            href="https://myaccount.google.com/connections"
+            target="_blank"
+            rel="noopener noreferrer"
+            >myaccount.google.com/connections</a
+          >). Die Datei selbst entfernst du in Google Drive unter „Einstellungen → Apps
+          verwalten → Versteckte App-Daten löschen“.
+        </p>
+        <p>
+          Die Nutzung und Übertragung von Informationen, die die App von Google-APIs
+          erhält, entspricht der
+          <a
+            class="legal__link"
+            href="https://developers.google.com/terms/api-services-user-data-policy"
+            target="_blank"
+            rel="noopener noreferrer"
+          >
+            Google API Services User Data Policy</a
+          >, einschließlich der Anforderungen zur eingeschränkten Nutzung (Limited Use).
+          Die Daten dienen ausschließlich dem Abgleich zwischen deinen Geräten; sie werden
+          weder weitergegeben noch ausgewertet.
+        </p>
+        <p>
+          Details zur Verarbeitung durch Google:
+          <a
+            class="legal__link"
+            href="https://policies.google.com/privacy"
+            target="_blank"
+            rel="noopener noreferrer"
+          >
+            policies.google.com/privacy
+          </a>
+        </p>
+      </div>
+    </template>
 
     <SectionRule label="Deine Daten" />
 

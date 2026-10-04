@@ -477,13 +477,61 @@ Services, triggers, status).
   on "Mit Google anmelden", or at start for an account that is already connected.
   `e2e/smoke.spec.ts` asserts that a fresh app sends no request to Google.
 
-Setting it up once: a Google Cloud project with the **Drive API** enabled, an
-external OAuth consent screen with the `drive.appdata` scope (test mode allows
-100 test users until the app is published), and a *Web application* OAuth client
-whose authorised JavaScript origins are `http://localhost:5173` and
-`https://<user>.github.io`. Put the client id into `.env.local` as
-`VITE_GOOGLE_CLIENT_ID=…` and into the repo variable `GOOGLE_CLIENT_ID`, which
-the CI build passes on. The id is public by design — a variable, not a secret.
+#### Setting up Google (once per app)
+
+**One Google Cloud project per app.** Google groups grants by project, not by
+OAuth client: two clients in one project share a single entry under
+*myaccount.google.com/connections*, named after that project's consent screen,
+and in all likelihood the same hidden `appDataFolder` too. A second app that reuses
+the project can therefore read and overwrite this one's sync file.
+
+In the [Google Cloud Console](https://console.cloud.google.com/), with the new
+project selected in the top bar (the easiest thing to get wrong):
+
+1. **Create the project**, e.g. "Til-Valhall".
+2. **APIs & Services → Library → "Google Drive API" → Enable.** This is per
+   project and easy to forget. Without it the sign-in still succeeds and only the
+   Drive calls fail.
+3. **Google Auth Platform → Branding:** app name, support e-mail, and later the
+   privacy policy URL (`https://<user>.github.io/til-valhall/impressum`).
+4. **Audience:** *External*, status *Testing*, and add your own account under
+   **Test users**. Testing allows up to 100 test users; anyone else is turned
+   away until the app is published and has passed Google's review.
+5. **Data access → Add or remove scopes:** `…/auth/drive.appdata`, `openid`,
+   `email`.
+6. **Clients → Create client → *Web application*.** Under **Authorised
+   JavaScript origins**:
+   - `https://<user>.github.io`, without a path or trailing slash, since Google
+     matches scheme and host only
+   - `http://localhost:5173`, with exactly the dev server's port (`./dev.sh --port
+     4000` needs `http://localhost:4000` as well)
+
+   The token client needs no redirect URIs.
+7. **Hand the client id to the app:** `.env.local` gets
+   `VITE_GOOGLE_CLIENT_ID=…` (git-ignored via `*.local`; restart the dev server,
+   since Vite reads it at start-up), and the repository gets the Actions
+   **variable** `GOOGLE_CLIENT_ID` (*Settings → Secrets and variables → Actions →
+   Variables*). The CI build reads it from there. The id is public by design, so
+   it is a variable, not a secret. Vite inlines it at build time, so only a new
+   build picks up a change. GitHub Pages has no runtime environment to read it.
+
+Google can take a few minutes to apply changes. When the sign-in does not work:
+
+| symptom | cause |
+|---|---|
+| popup: `origin_mismatch` / "not a valid origin" | origin missing, or wrong port |
+| popup: `access_denied`, "app is being tested" | account is not a test user |
+| signed in, then HTTP 403 "Drive API has not been used in project …" | Drive API not enabled in this client's project |
+| "Ohne Zugriff auf den App-Ordner …" | Drive checkbox left unticked in Google's dialog, or scope missing under *Data access* |
+| no popup at all | popup blocker, or the build has no client id |
+
+The browser's dev tools show the details: the console, and failed requests to
+`googleapis.com` in the network tab.
+
+**Reusing this code in another app?** Give it its own Cloud project *and* its
+own identifiers: `SYNC_FILENAME` (`src/app/drive.ts`), `APP_ID` and
+`STORAGE_PREFIX` (`src/app/backup.ts`) and `SYNC_KEY` (`src/app/sync.ts`). All
+apps under `<user>.github.io` share one origin and therefore one `localStorage`.
 
 ## Deviations from the design handoff
 

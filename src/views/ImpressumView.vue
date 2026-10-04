@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { computed, ref, useTemplateRef } from 'vue';
+import { ref, useTemplateRef } from 'vue';
 
 import SectionRule from '@/components/SectionRule.vue';
 import {
@@ -14,28 +14,6 @@ import {
 import { useSyncStore } from '@/stores/sync';
 
 const sync = useSyncStore();
-
-const syncLine = computed(() => {
-  switch (sync.status) {
-    case 'connecting':
-      return 'Anmeldung läuft …';
-    case 'syncing':
-      return 'Wird abgeglichen …';
-    case 'offline':
-      return 'Keine Verbindung – Änderungen werden nachgeholt.';
-    case 'expired':
-      return 'Anmeldung abgelaufen – der Abgleich ruht.';
-    case 'ask':
-      return 'Erste Verbindung dieses Geräts.';
-    default:
-      return sync.lastSyncedAt
-        ? `Zuletzt abgeglichen: ${new Date(sync.lastSyncedAt).toLocaleString('de-DE', {
-            dateStyle: 'short',
-            timeStyle: 'short',
-          })}`
-        : '';
-  }
-});
 
 const fileInput = useTemplateRef<HTMLInputElement>('fileInput');
 
@@ -173,9 +151,10 @@ function confirmImport(): void {
 
       <div class="vh-card legal">
         <p>
-          Die Synchronisation über Google ist freiwillig. Erst ein Tipp auf „Mit Google
-          anmelden“ lädt Google Identity Services; Rechtsgrundlage ist deine Einwilligung
-          (Art. 6 Abs. 1 lit. a DSGVO), die du jederzeit durch Abmelden widerrufen kannst.
+          Die Synchronisation über Google ist freiwillig. Erst ein Tipp auf „Anmelden“ in
+          der Ansicht „Heute“ lädt Google Identity Services; Rechtsgrundlage ist deine
+          Einwilligung (Art. 6 Abs. 1 lit. a DSGVO), die du jederzeit durch Abmelden
+          widerrufen kannst.
         </p>
         <p>
           Bei der Anmeldung verarbeitet Google (Google Ireland Ltd., Dublin;
@@ -296,70 +275,6 @@ function confirmImport(): void {
         </p>
       </div>
     </div>
-
-    <template v-if="sync.enabled">
-      <SectionRule label="Synchronisation" />
-
-      <div class="vh-card legal">
-        <template v-if="!sync.email">
-          <p>
-            Mit einem Google-Konto werden Plan, Sitzungen und Ränge automatisch zwischen
-            deinen Geräten abgeglichen – über den App-Ordner deines Google Drive. Die App
-            sieht dort nur ihre eigene Datei.
-          </p>
-          <p class="legal__actions">
-            <button
-              class="legal__action"
-              type="button"
-              :aria-disabled="sync.status === 'connecting'"
-              @click="sync.status !== 'connecting' && sync.signIn()"
-            >
-              Mit Google anmelden
-            </button>
-          </p>
-        </template>
-
-        <template v-else>
-          <p>
-            Angemeldet als <span class="legal__code">{{ sync.email }}</span>
-          </p>
-          <p v-if="syncLine" class="legal__note">{{ syncLine }}</p>
-          <p class="legal__actions">
-            <template v-if="sync.status === 'expired'">
-              <button class="legal__action" type="button" @click="sync.signIn()">
-                Fortsetzen
-              </button>
-              <span class="legal__dot">·</span>
-            </template>
-            <button class="legal__action" type="button" @click="sync.signOut()">
-              Abmelden
-            </button>
-          </p>
-
-          <div v-if="sync.status === 'ask'" class="legal__confirm">
-            <p>
-              In deinem Google Drive liegt schon ein Stand. Welcher soll ab jetzt auf
-              allen Geräten gelten?
-            </p>
-            <p class="legal__actions">
-              <button
-                class="legal__action legal__action--danger"
-                type="button"
-                @click="sync.chooseRemote()"
-              >
-                Drive-Stand übernehmen
-              </button>
-              <span class="legal__dot">·</span>
-              <button class="legal__action" type="button" @click="sync.chooseLocal()">
-                Dieses Gerät hochladen
-              </button>
-            </p>
-          </div>
-        </template>
-
-        <p v-if="sync.error" class="legal__note legal__note--error">{{ sync.error }}</p>
-      </div>
-    </template>
   </div>
 </template>
 

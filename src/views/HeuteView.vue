@@ -18,6 +18,7 @@ import ExerciseBlockCard from '@/components/ExerciseBlockCard.vue';
 import LootCard from '@/components/LootCard.vue';
 import RankStrip from '@/components/RankStrip.vue';
 import SectionRule from '@/components/SectionRule.vue';
+import SyncControl from '@/components/SyncControl.vue';
 import { useNow } from '@/composables/useNow';
 import { useTrainingStore } from '@/stores/training';
 import { dayNumbers } from '@/model/plan-edit';
@@ -124,7 +125,10 @@ const rows = computed(() => {
         <span class="head__date">{{ de.dateLong(now) }}</span>
         <span class="head__plan">{{ plan?.name ?? '' }}</span>
       </div>
-      <h1 class="head__title">{{ heading }}</h1>
+      <div class="head__row">
+        <h1 class="head__title">{{ heading }}</h1>
+        <SyncControl />
+      </div>
       <span class="vh-sub">{{ subline }}</span>
     </header>
 
@@ -224,7 +228,15 @@ const rows = computed(() => {
   white-space: nowrap;
 }
 
+.head__row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+
 .head__title {
+  min-width: 0;
   margin: 0;
   font: 600 32px/1.02 var(--vh-display);
   color: var(--vh-050);

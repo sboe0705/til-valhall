@@ -474,7 +474,8 @@ Services, triggers, status).
   sync pauses — renewing opens Google's popup, which browsers allow only from a
   tap, hence the "Sync fortsetzen" link in the footer.
 - **Nobody else talks to Google.** The GIS script is injected on the first tap
-  on "Mit Google anmelden", or at start for an account that is already connected.
+  on "Anmelden" (the sync pill in the Heute header), or at start for an account
+  that is already connected.
   `e2e/smoke.spec.ts` asserts that a fresh app sends no request to Google.
 
 #### Setting up Google (once per app)
@@ -628,6 +629,14 @@ the handoff itself prescribes.
     8% white). That keeps the silver labels readable on any card without a glow
     or a gradient; browsers without `backdrop-filter` fall back to the opaque
     `--vh-800`.
+16. **The Google sign-in is a pill in the Heute header.** The handoff predates
+    the sync; `SyncControl.vue` sits right of the day title and reads "Anmelden"
+    while signed out, "Sync" with a cloud-and-tick once connected (a cloud-and-`!`
+    in `--vh-danger` when the sync is paused, offline, failed or waiting for the
+    first-connection answer). Tapping the connected pill opens a small panel with
+    the account, the status line, the Drive-or-device question and "Abmelden";
+    it opens by itself while that question is pending. The Impressum keeps only
+    the privacy text for it.
 
 ## Extension points
 

@@ -4,10 +4,13 @@ import { computed, onBeforeUnmount, ref, useTemplateRef, watch } from 'vue';
 import { useSyncStore } from '@/stores/sync';
 
 /**
- * The Google sign-in as a pill in the Heute header – "Anmelden" while signed
- * out, "Sync" with a tick once connected. Tapping the connected pill opens a
- * small panel with the account, the status line and "Abmelden". Renders nothing
- * unless the build has a Google client id.
+ * The Google sign-in as a rune chip in the Heute header – "Anmelden" while
+ * signed out, "Sync" once connected. Ehwaz `ᛖ`, two horses moving as one,
+ * stands for the sync; Thurisaz `ᚦ`, the error rune of the plan check, replaces it when
+ * something needs attention. Tapping the connected chip opens a small panel with
+ * the account, the status line and "Abmelden" – unless the sign-in has expired,
+ * then the tap renews it straight away. Renders nothing unless the build has a
+ * Google client id.
  */
 
 const sync = useSyncStore();
@@ -40,6 +43,42 @@ const alert = computed(() =>
   ['expired', 'offline', 'error', 'ask'].includes(sync.status),
 );
 
+/** A popup or a run is under way – the chip waits instead of acting twice. */
+const busy = computed(() => sync.status === 'connecting');
+
+type Tone = 'idle' | 'ok' | 'busy' | 'alert';
+
+const tone = computed<Tone>(() => {
+  if (!sync.email) return busy.value ? 'busy' : 'idle';
+  if (alert.value) return 'alert';
+  if (busy.value || sync.status === 'syncing') return 'busy';
+  return 'ok';
+});
+
+const rune = computed(() => (tone.value === 'alert' ? 'ᚦ' : 'ᛖ'));
+
+const label = computed(() => {
+  if (sync.email) return 'Sync';
+  return busy.value ? 'Anmeldung …' : 'Anmelden';
+});
+
+/**
+ * Signed out → sign in. Expired → renew right here: the tap is what lets
+ * Google's popup open, and GIS is already loaded by `start()`. Only if that
+ * renewal does not go through does the panel open, so "Abmelden" stays in reach.
+ */
+async function onPill(): Promise<void> {
+  if (busy.value) return;
+  if (!sync.email) return sync.signIn();
+  if (sync.status === 'expired') {
+    open.value = false;
+    await sync.signIn();
+    if (sync.status === 'expired') open.value = true;
+    return;
+  }
+  open.value = !open.value;
+}
+
 const statusLine = computed(() => {
   switch (sync.status) {
     case 'connecting':
@@ -71,53 +110,16 @@ function signOut(): void {
 <template>
   <div v-if="sync.enabled" ref="root" class="sync">
     <button
-      v-if="!sync.email"
       class="sync__pill"
+      :class="`sync__pill--${tone}`"
       type="button"
-      :aria-disabled="sync.status === 'connecting'"
-      @click="sync.status !== 'connecting' && sync.signIn()"
+      :aria-disabled="busy"
+      :aria-expanded="sync.email ? open : undefined"
+      :title="sync.email ? `Angemeldet als ${sync.email}` : undefined"
+      @click="onPill"
     >
-      <svg
-        width="13"
-        height="13"
-        viewBox="0 0 24 24"
-        fill="none"
-        stroke="currentColor"
-        stroke-width="2.2"
-        stroke-linecap="round"
-        stroke-linejoin="round"
-        aria-hidden="true"
-      >
-        <path d="M17.5 19H7a5 5 0 1 1 .9-9.9A6 6 0 0 1 19 11a4 4 0 0 1-1.5 8z" />
-      </svg>
-      {{ sync.status === 'connecting' ? 'Anmeldung …' : 'Anmelden' }}
-    </button>
-
-    <button
-      v-else
-      class="sync__pill"
-      :class="{ 'sync__pill--alert': alert }"
-      type="button"
-      :aria-expanded="open"
-      :title="`Angemeldet als ${sync.email}`"
-      @click="open = !open"
-    >
-      <svg
-        width="13"
-        height="13"
-        viewBox="0 0 24 24"
-        fill="none"
-        stroke="currentColor"
-        stroke-width="2.2"
-        stroke-linecap="round"
-        stroke-linejoin="round"
-        aria-hidden="true"
-      >
-        <path d="M17.5 19H7a5 5 0 1 1 .9-9.9A6 6 0 0 1 19 11a4 4 0 0 1-1.5 8z" />
-        <path v-if="alert" d="M12 11v3M12 16.5v.01" />
-        <path v-else d="M9 14l2 2 4-4" />
-      </svg>
-      Sync
+      <span class="vh-rune sync__rune" aria-hidden="true">{{ rune }}</span>
+      {{ label }}
     </button>
 
     <div v-if="open && sync.email" class="sync__panel">
@@ -174,12 +176,14 @@ function signOut(): void {
 .sync__pill {
   display: inline-flex;
   align-items: center;
-  gap: 5px;
-  padding: 6px 11px;
-  background: var(--vh-800);
+  gap: 6px;
+  height: 30px;
+  padding: 0 11px 0 9px;
+  background: var(--vh-900);
   border: 1px solid var(--vh-600);
-  border-radius: 999px;
-  font: 500 11px/1 var(--vh-mono);
+  border-radius: var(--vh-r-chip);
+  font: 600 13px/1 var(--vh-heading);
+  letter-spacing: 0.02em;
   color: var(--vh-200);
   transition:
     color var(--vh-t-color),
@@ -190,6 +194,26 @@ function signOut(): void {
   color: var(--vh-050);
 }
 
+.sync__pill[aria-disabled='true'] {
+  cursor: default;
+}
+
+.sync__rune {
+  font-size: 15px;
+  line-height: 1;
+  color: var(--vh-400);
+  transition: color var(--vh-t-color);
+}
+
+.sync__pill--ok .sync__rune {
+  color: var(--vh-success);
+}
+
+.sync__pill--busy .sync__rune {
+  color: var(--vh-accent);
+  animation: sync-pulse 1.4s ease-in-out infinite;
+}
+
 .sync__pill--alert {
   color: var(--vh-danger-strong);
   border-color: var(--vh-danger);
@@ -197,6 +221,17 @@ function signOut(): void {
 
 .sync__pill--alert:hover {
   color: var(--vh-danger-strong);
+}
+
+.sync__pill--alert .sync__rune {
+  color: var(--vh-danger-strong);
+}
+
+/* Opacity only – the palette has no glows. */
+@keyframes sync-pulse {
+  50% {
+    opacity: 0.35;
+  }
 }
 
 .sync__panel {

@@ -472,7 +472,7 @@ Services, triggers, status).
 - **No refresh token.** The browser flow issues a ~1 h access token; it is kept
   with its expiry so it survives the reload after a download. Once expired the
   sync pauses — renewing opens Google's popup, which browsers allow only from a
-  tap, hence the "Sync fortsetzen" link in the footer.
+  tap, so a tap on the expired "Sync" chip in the Heute header renews it directly.
 - **Nobody else talks to Google.** The GIS script is injected on the first tap
   on "Anmelden" (the sync pill in the Heute header), or at start for an account
   that is already connected.
@@ -629,14 +629,21 @@ the handoff itself prescribes.
     8% white). That keeps the silver labels readable on any card without a glow
     or a gradient; browsers without `backdrop-filter` fall back to the opaque
     `--vh-800`.
-16. **The Google sign-in is a pill in the Heute header.** The handoff predates
-    the sync; `SyncControl.vue` sits right of the day title and reads "Anmelden"
-    while signed out, "Sync" with a cloud-and-tick once connected (a cloud-and-`!`
-    in `--vh-danger` when the sync is paused, offline, failed or waiting for the
-    first-connection answer). Tapping the connected pill opens a small panel with
-    the account, the status line, the Drive-or-device question and "Abmelden";
-    it opens by itself while that question is pending. The Impressum keeps only
-    the privacy text for it.
+16. **The Google sign-in is a rune chip in the Heute header.** The handoff predates
+    the sync; `SyncControl.vue` sits right of the day title — a `--vh-900` chip
+    (radius 11, Grenze 600 13px) with a 15px rune. It reads "Anmelden" while
+    signed out and "Sync" once connected. The rune is Ehwaz `ᛖ`, two horses moving
+    as one (Gebo `ᚷ` would read as a close "X"): `--vh-400` signed out,
+    `--vh-success` when in sync, `--vh-accent` with an opacity pulse while signing
+    in or syncing. When the sync is paused, offline, failed or waiting for the
+    first-connection answer, it turns into Thurisaz `ᚦ` — the plan check's error
+    rune — in `--vh-danger-strong` with a `--vh-danger` border. Tapping the
+    connected chip opens a small panel with the account, the status line, the
+    Drive-or-device question and "Abmelden"; it opens by itself while that question
+    is pending. An **expired** sign-in is renewed by the tap itself (GIS is preloaded
+    at start, so the popup is not blocked); the panel opens only if that renewal
+    does not go through, to keep "Abmelden" in reach. The Impressum keeps only the
+    privacy text for it.
 
 ## Extension points
 

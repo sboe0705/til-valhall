@@ -24,6 +24,11 @@ export default defineConfig({
         viewport: { width: 390, height: 844 },
         isMobile: false,
         hasTouch: true,
+        // A sandbox with a preinstalled Chromium of another revision points here
+        // instead of running `playwright install`; unset, Playwright's own is used.
+        launchOptions: process.env.PLAYWRIGHT_CHROMIUM_PATH
+          ? { executablePath: process.env.PLAYWRIGHT_CHROMIUM_PATH }
+          : {},
       },
     },
   ],

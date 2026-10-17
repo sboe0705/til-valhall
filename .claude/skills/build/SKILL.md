@@ -4,8 +4,9 @@ description: Lint, test and build the Til Valhall project for a local deployment
 
 # Build
 
-Run the project's `build.sh`, which executes `npm run lint`, `npm test` and
-`npm run build` in sequence — the same order the CI workflow uses.
+Run the project's `build.sh`, which executes `npm run lint`, `npm test`,
+`npm run build` and `npm run test:e2e` in sequence — the CI workflow's `build`
+job followed by its `e2e` job.
 
 ```bash
 ./build.sh
@@ -13,12 +14,14 @@ Run the project's `build.sh`, which executes `npm run lint`, `npm test` and
 
 - Lint is **ESLint 9 + Prettier**. One warning is expected and documented: the
   `as any` cast in [schedule.ts:200](../../../src/model/schedule.ts#L200).
-- Tests are **Vitest** (`src/**/*.spec.ts`, `src/model/*.test.ts`). The Playwright
-  smoke test is *not* part of this script — run `npm run test:e2e` separately.
+- Tests are **Vitest** (`src/**/*.spec.ts`, `src/model/*.test.ts`), then the
+  **Playwright** smoke test (`e2e/`), which starts its own dev server. Where the
+  installed Chromium does not match Playwright's revision, point
+  `PLAYWRIGHT_CHROMIUM_PATH` at it (`PLAYWRIGHT_CHROMIUM_PATH=/opt/pw-browsers/chromium ./build.sh`).
 - `npm run build` runs `vue-tsc --build` first, so `npm run type-check` is covered.
 - Build output lands in `dist/`.
 - The script exits non-zero on the first failure, so a passing run means lint,
-  tests, type-check and build all succeeded.
+  tests, type-check, build and the smoke test all succeeded.
 
 ## Base path
 

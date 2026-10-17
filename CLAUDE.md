@@ -30,7 +30,7 @@ npm run build        npm run test:e2e    npm run lint
 ```
 
 Two wrappers cover the local loop and are what the `build` / `run` skills under
-[.claude/skills/](.claude/skills/) call: `./build.sh` runs lint → test → build in
+[.claude/skills/](.claude/skills/) call: `./build.sh` runs lint → test → build → e2e in
 the CI order, `./dev.sh` starts Vite and forwards its arguments (`./dev.sh --port
 4000`).
 

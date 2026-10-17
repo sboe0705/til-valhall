@@ -18,6 +18,7 @@ import {
   createRankState,
   dayXp,
   maxSets,
+  paceXp,
   potentialXp,
   resolveTiers,
   rollOver,
@@ -301,5 +302,29 @@ describe('calibration 2026', () => {
 
   it('missing every fifth day drops back to Thor', () => {
     expect(afterDays(365 - 73)).toBe('thorr');
+  });
+});
+
+describe('paceXp', () => {
+  it('counts the days before today against the real period length', () => {
+    // Saturday: Mon–Fri are behind us.
+    expect(paceXp('week', 840, AUG)).toBe(600);
+    // Aug 1 – nothing of August has passed yet.
+    expect(paceXp('month', 3600, AUG)).toBe(0);
+    expect(paceXp('month', 3600, new Date(2026, 7, 31))).toBe(
+      Math.round((3600 * 30) / 31),
+    );
+    // 2026-08-01 is day 213 of 365.
+    expect(paceXp('year', 43200, AUG)).toBe(Math.round((43200 * 212) / 365));
+  });
+
+  it('starts every period at 0', () => {
+    expect(paceXp('week', 840, new Date(2026, 6, 27, 23, 59))).toBe(0);
+    expect(paceXp('year', 43200, new Date(2026, 0, 1))).toBe(0);
+  });
+
+  it('survives the DST switch', () => {
+    // 2026-03-29 (Sunday) is the CEST switch; Monday after is day 1 of a new week.
+    expect(paceXp('week', 840, new Date(2026, 2, 29, 12))).toBe(720);
   });
 });

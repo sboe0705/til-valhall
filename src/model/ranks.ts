@@ -346,6 +346,24 @@ export function periodRange(scope: RankScope, date: Date): { start: Date; days: 
   return { start: new Date(y, 0, 1), days };
 }
 
+/**
+ * XP a period would hold by the start of `now`'s day if it were filling evenly
+ * towards `max` – the "100 % pace". Today is not counted yet: the day is still
+ * open, so a morning before training must not read as falling behind.
+ *
+ * Spread over the period's real length (`periodRange`), not the nominal one,
+ * so a 31-day month and a 28-day February both end exactly on `max`.
+ */
+export function paceXp(scope: RankScope, max: number, now: Date = new Date()): number {
+  const { start, days } = periodRange(scope, now);
+  const midnight = (d: Date) =>
+    new Date(d.getFullYear(), d.getMonth(), d.getDate()).getTime();
+  // The week's `start` keeps `now`'s time of day, hence both sides at midnight.
+  // Rounded, not floored – a DST switch makes one day 23 or 25 hours long.
+  const elapsed = Math.round((midnight(now) - midnight(start)) / 86_400_000);
+  return Math.round((max * elapsed) / days);
+}
+
 /* ------------------------------------------------------------------ */
 /* What a plan can reach                                               */
 /* ------------------------------------------------------------------ */

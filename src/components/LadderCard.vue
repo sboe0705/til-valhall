@@ -2,7 +2,9 @@
 import { computed, ref } from 'vue';
 
 import type { RankScope, ResolvedTier, TierProgress } from '@/model/ranks';
+import { paceXp } from '@/model/ranks';
 import * as de from '@/app/format-de';
+import { useNow } from '@/composables/useNow';
 import { SCOPE_COPY, tierColor } from '@/ui/tiers';
 import ProgressRing from './ProgressRing.vue';
 import TierInfoDialog from './TierInfoDialog.vue';
@@ -28,6 +30,16 @@ const figures = computed(
     `${de.thousands(props.progress.xp)} / ${de.thousands(props.progress.max)} XP · ${copy.value.reset}`,
 );
 
+const { now } = useNow();
+
+/** Ahead of or behind an even fill towards 100 % – today does not count yet. */
+const pace = computed(() => {
+  const delta = Math.round(
+    props.progress.xp - paceXp(props.scope, props.progress.max, now.value),
+  );
+  return { text: de.paceDelta(delta), tone: delta >= 0 ? 'ahead' : 'behind' };
+});
+
 const infoOpen = ref(false);
 </script>
 
@@ -51,6 +63,9 @@ const infoOpen = ref(false);
           </button>
         </div>
         <span class="ladder__remaining">{{ remaining }}</span>
+        <span class="ladder__pace" :class="`ladder__pace--${pace.tone}`">{{
+          pace.text
+        }}</span>
         <span class="ladder__figures">{{ figures }}</span>
       </div>
     </div>
@@ -137,6 +152,18 @@ const infoOpen = ref(false);
 .ladder__remaining {
   font: 400 11px/1.35 var(--vh-sans);
   color: var(--vh-200);
+}
+
+.ladder__pace {
+  font: 400 10px/1.3 var(--vh-mono);
+}
+
+.ladder__pace--ahead {
+  color: var(--vh-success);
+}
+
+.ladder__pace--behind {
+  color: var(--vh-danger-strong);
 }
 
 .ladder__figures {

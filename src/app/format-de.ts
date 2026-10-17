@@ -115,6 +115,13 @@ export function percent(ratio: number): string {
   return `${Math.round(ratio * 100)} %`;
 }
 
+/** `+120 XP vor dem 100-%-Kurs` – where a ladder stands against even pace. */
+export function paceDelta(delta: number): string {
+  if (delta === 0) return 'Genau auf 100-%-Kurs';
+  const side = delta > 0 ? 'vor dem' : 'hinter dem';
+  return `${delta > 0 ? '+' : '−'}${thousands(Math.abs(delta))} XP ${side} 100-%-Kurs`;
+}
+
 /* ------------------------------------------------------------------ */
 /* Plan content                                                        */
 /* ------------------------------------------------------------------ */

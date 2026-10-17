@@ -117,12 +117,14 @@ export function percent(ratio: number): string {
 
 /**
  * `+5 %` / `−3 %` – the same lead or lag in points of the period maximum.
- * `null` within ±1 point: that close to the pace the figure is noise.
+ * A lag always shows, at least as `−1 %` – it is the cue to train. A lead
+ * shows only from 2 points: that close to the pace it is noise.
  */
 export function pacePoints(delta: number, max: number): string | null {
   const points = max > 0 ? Math.round((delta / max) * 100) : 0;
-  if (Math.abs(points) <= 1) return null;
-  return `${points > 0 ? '+' : '−'}${Math.abs(points)} %`;
+  if (delta < 0) return `−${Math.max(1, -points)} %`;
+  if (points <= 1) return null;
+  return `+${points} %`;
 }
 
 /** `+120 XP vor dem 100-%-Kurs` – where a ladder stands against even pace. */

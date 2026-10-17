@@ -44,14 +44,15 @@ const columns = computed(() =>
           :style="{ width: `${col.pct}%`, background: col.color }"
         />
       </div>
-      <span class="strip__pct">
-        {{ col.pct }} %
+      <span class="strip__figures">
+        <span class="strip__pct">{{ col.pct }} %</span>
         <span
           v-if="col.pace"
           class="strip__pace"
           :class="col.pace.ahead ? 'strip__pace--ahead' : 'strip__pace--behind'"
-          >{{ col.pace.text }}</span
         >
+          {{ col.pace.text }}
+        </span>
       </span>
     </div>
   </div>
@@ -99,8 +100,13 @@ const columns = computed(() =>
   color: var(--vh-400);
 }
 
+.strip__figures {
+  display: flex;
+  gap: 4px;
+}
+
 .strip__pace {
-  margin-left: 4px;
+  font: 400 10px/1 var(--vh-mono);
 }
 
 .strip__pace--ahead {

@@ -14,8 +14,8 @@ const { now } = useNow();
 /** Lead or lag against the 100 % pace, as on the Ränge screen – in points here. */
 function pace(scope: (typeof SCOPES)[number], xp: number, max: number) {
   const delta = xp - paceXp(scope, max, now.value);
-  // Coloured by the rounded figure, so a small lag shown as `±0 %` is not red.
-  return { text: de.pacePoints(delta, max), ahead: Math.round((delta / max) * 100) >= 0 };
+  const text = de.pacePoints(delta, max);
+  return text ? { text, ahead: delta > 0 } : null;
 }
 
 const columns = computed(() =>

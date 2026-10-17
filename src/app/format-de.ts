@@ -115,6 +115,13 @@ export function percent(ratio: number): string {
   return `${Math.round(ratio * 100)} %`;
 }
 
+/** `+5 %` / `−3 %` / `±0 %` – the same lead or lag in points of the period maximum. */
+export function pacePoints(delta: number, max: number): string {
+  const points = max > 0 ? Math.round((delta / max) * 100) : 0;
+  if (points === 0) return '±0 %';
+  return `${points > 0 ? '+' : '−'}${Math.abs(points)} %`;
+}
+
 /** `+120 XP vor dem 100-%-Kurs` – where a ladder stands against even pace. */
 export function paceDelta(delta: number): string {
   if (delta === 0) return 'Genau auf 100-%-Kurs';

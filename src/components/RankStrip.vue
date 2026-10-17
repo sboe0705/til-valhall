@@ -1,11 +1,22 @@
 <script setup lang="ts">
 import { computed } from 'vue';
 
+import { paceXp } from '@/model/ranks';
+import * as de from '@/app/format-de';
+import { useNow } from '@/composables/useNow';
 import { useRankStore } from '@/stores/ranks';
 import { SCOPES, SCOPE_COPY, tierColor } from '@/ui/tiers';
 
 /** The three ladders in miniature – one column each, above Tagesbeute. */
 const ranks = useRankStore();
+const { now } = useNow();
+
+/** Lead or lag against the 100 % pace, as on the Ränge screen – in points here. */
+function pace(scope: (typeof SCOPES)[number], xp: number, max: number) {
+  const delta = xp - paceXp(scope, max, now.value);
+  // Coloured by the rounded figure, so a small lag shown as `±0 %` is not red.
+  return { text: de.pacePoints(delta, max), ahead: Math.round((delta / max) * 100) >= 0 };
+}
 
 const columns = computed(() =>
   SCOPES.map((scope) => {
@@ -16,6 +27,7 @@ const columns = computed(() =>
       tierName: p?.tier.name ?? '—',
       color: tierColor(p?.tier.key ?? ''),
       pct: Math.round((p?.completion ?? 0) * 100),
+      pace: p ? pace(scope, p.xp, p.max) : null,
     };
   }),
 );
@@ -32,7 +44,15 @@ const columns = computed(() =>
           :style="{ width: `${col.pct}%`, background: col.color }"
         />
       </div>
-      <span class="strip__pct">{{ col.pct }} %</span>
+      <span class="strip__pct">
+        {{ col.pct }} %
+        <span
+          v-if="col.pace"
+          class="strip__pace"
+          :class="col.pace.ahead ? 'strip__pace--ahead' : 'strip__pace--behind'"
+          >{{ col.pace.text }}</span
+        >
+      </span>
     </div>
   </div>
 </template>
@@ -77,5 +97,17 @@ const columns = computed(() =>
 .strip__pct {
   font: 400 10px/1 var(--vh-mono);
   color: var(--vh-400);
+}
+
+.strip__pace {
+  margin-left: 4px;
+}
+
+.strip__pace--ahead {
+  color: var(--vh-success);
+}
+
+.strip__pace--behind {
+  color: var(--vh-danger-strong);
 }
 </style>

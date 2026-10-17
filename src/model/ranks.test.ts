@@ -18,7 +18,8 @@ import {
   createRankState,
   dayXp,
   maxSets,
-  paceXp,
+  paceBand,
+  paceDelta,
   potentialXp,
   resolveTiers,
   rollOver,
@@ -305,26 +306,40 @@ describe('calibration 2026', () => {
   });
 });
 
-describe('paceXp', () => {
-  it('counts the days before today against the real period length', () => {
-    // Saturday: Mon–Fri are behind us.
-    expect(paceXp('week', 840, AUG)).toBe(600);
+describe('paceBand / paceDelta', () => {
+  it('spans today, against the real period length', () => {
+    // Saturday: Mon–Fri are behind us, Saturday is open.
+    expect(paceBand('week', 840, AUG)).toEqual({ from: 600, to: 720 });
     // Aug 1 – nothing of August has passed yet.
-    expect(paceXp('month', 3600, AUG)).toBe(0);
-    expect(paceXp('month', 3600, new Date(2026, 7, 31))).toBe(
-      Math.round((3600 * 30) / 31),
-    );
+    expect(paceBand('month', 3600, AUG)).toEqual({ from: 0, to: Math.round(3600 / 31) });
+    expect(paceBand('month', 3600, new Date(2026, 7, 31))).toEqual({
+      from: Math.round((3600 * 30) / 31),
+      to: 3600,
+    });
     // 2026-08-01 is day 213 of 365.
-    expect(paceXp('year', 43200, AUG)).toBe(Math.round((43200 * 212) / 365));
+    expect(paceBand('year', 43200, AUG).from).toBe(Math.round((43200 * 212) / 365));
   });
 
-  it('starts every period at 0', () => {
-    expect(paceXp('week', 840, new Date(2026, 6, 27, 23, 59))).toBe(0);
-    expect(paceXp('year', 43200, new Date(2026, 0, 1))).toBe(0);
+  it('starts every period at 0, whatever the time of day', () => {
+    expect(paceBand('week', 840, new Date(2026, 6, 27, 23, 59))).toEqual({
+      from: 0,
+      to: 120,
+    });
+    expect(paceBand('year', 43200, new Date(2026, 0, 1)).from).toBe(0);
   });
 
   it('survives the DST switch', () => {
-    // 2026-03-29 (Sunday) is the CEST switch; Monday after is day 1 of a new week.
-    expect(paceXp('week', 840, new Date(2026, 2, 29, 12))).toBe(720);
+    // 2026-03-29 (Sunday) is the CEST switch.
+    expect(paceBand('week', 840, new Date(2026, 2, 29, 12))).toEqual({
+      from: 720,
+      to: 840,
+    });
+  });
+
+  it('treats today as open: neither an untouched nor a finished day counts', () => {
+    expect(paceDelta('week', 600, 840, AUG)).toBe(0);
+    expect(paceDelta('week', 720, 840, AUG)).toBe(0);
+    expect(paceDelta('week', 738, 840, AUG)).toBe(18);
+    expect(paceDelta('week', 480, 840, AUG)).toBe(-120);
   });
 });

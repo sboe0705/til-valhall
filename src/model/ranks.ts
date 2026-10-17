@@ -347,21 +347,42 @@ export function periodRange(scope: RankScope, date: Date): { start: Date; days: 
 }
 
 /**
- * XP a period would hold by the start of `now`'s day if it were filling evenly
- * towards `max` – the "100 % pace". Today is not counted yet: the day is still
- * open, so a morning before training must not read as falling behind.
+ * The "100 % pace": the XP a period would hold if it were filling evenly
+ * towards `max`, as a band around `now`'s day – `from` at its start, `to` at
+ * its end. Today is open, so anything inside the band is on pace: a morning
+ * before training is not behind, and a finished day is not ahead.
  *
  * Spread over the period's real length (`periodRange`), not the nominal one,
  * so a 31-day month and a 28-day February both end exactly on `max`.
  */
-export function paceXp(scope: RankScope, max: number, now: Date = new Date()): number {
+export function paceBand(
+  scope: RankScope,
+  max: number,
+  now: Date = new Date(),
+): { from: number; to: number } {
   const { start, days } = periodRange(scope, now);
   const midnight = (d: Date) =>
     new Date(d.getFullYear(), d.getMonth(), d.getDate()).getTime();
   // The week's `start` keeps `now`'s time of day, hence both sides at midnight.
   // Rounded, not floored – a DST switch makes one day 23 or 25 hours long.
   const elapsed = Math.round((midnight(now) - midnight(start)) / 86_400_000);
-  return Math.round((max * elapsed) / days);
+  return {
+    from: Math.round((max * elapsed) / days),
+    to: Math.round((max * (elapsed + 1)) / days),
+  };
+}
+
+/** XP ahead of (> 0) or behind (< 0) the pace band; 0 anywhere inside it. */
+export function paceDelta(
+  scope: RankScope,
+  xp: number,
+  max: number,
+  now: Date = new Date(),
+): number {
+  const { from, to } = paceBand(scope, max, now);
+  if (xp > to) return xp - to;
+  if (xp < from) return xp - from;
+  return 0;
 }
 
 /* ------------------------------------------------------------------ */

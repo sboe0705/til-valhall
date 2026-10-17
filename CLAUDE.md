@@ -215,9 +215,10 @@ Two discriminated unions drive nearly all branching; always handle both arms:
 - **Editing the plan re-resolves an *untouched* session for today**
   (`revalidateToday()`), so switching the schedule or reordering days changes what
   "Heute" shows. A session with progress in it is left alone.
-- **The ladders' "100-%-Kurs" line is display only.** `paceXp()` spreads `max` evenly
-  over the period's *real* length and counts only the days before today, so a morning
-  before training never reads as behind. Nothing grades against it.
+- **The ladders' "100-%-Kurs" line is display only.** `paceBand()` spreads `max` evenly
+  over the period's *real* length and spans today, so `paceDelta()` is 0 anywhere from
+  the start to the end of today's share: a morning before training is not behind and a
+  finished day is not ahead. Nothing grades against it.
 - Day numbers, weekday assignment, tier thresholds and `ScopeProgress.max` are
   **derived, never stored** — see `dayNumbers()` and `resolveTiers()`.
 - **How often a record was reached is derived too.** `tierReachCount()` counts the

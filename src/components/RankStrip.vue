@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { computed } from 'vue';
 
-import { paceXp } from '@/model/ranks';
+import { paceDelta } from '@/model/ranks';
 import * as de from '@/app/format-de';
 import { useNow } from '@/composables/useNow';
 import { useRankStore } from '@/stores/ranks';
@@ -13,7 +13,7 @@ const { now } = useNow();
 
 /** Lead or lag against the 100 % pace, as on the Ränge screen – in points here. */
 function pace(scope: (typeof SCOPES)[number], xp: number, max: number) {
-  const delta = xp - paceXp(scope, max, now.value);
+  const delta = paceDelta(scope, xp, max, now.value);
   const text = de.pacePoints(delta, max);
   return text ? { text, ahead: delta > 0 } : null;
 }

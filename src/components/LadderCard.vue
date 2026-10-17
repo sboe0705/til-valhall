@@ -2,7 +2,7 @@
 import { computed, ref } from 'vue';
 
 import type { RankScope, ResolvedTier, TierProgress } from '@/model/ranks';
-import { paceXp } from '@/model/ranks';
+import { paceDelta } from '@/model/ranks';
 import * as de from '@/app/format-de';
 import { useNow } from '@/composables/useNow';
 import { SCOPE_COPY, tierColor } from '@/ui/tiers';
@@ -32,11 +32,10 @@ const figures = computed(
 
 const { now } = useNow();
 
-/** Ahead of or behind an even fill towards 100 % – today does not count yet. */
+/** Ahead of or behind an even fill towards 100 % – today is open either way. */
 const pace = computed(() => {
-  const delta = Math.round(
-    props.progress.xp - paceXp(props.scope, props.progress.max, now.value),
-  );
+  const { xp, max } = props.progress;
+  const delta = Math.round(paceDelta(props.scope, xp, max, now.value));
   return { text: de.paceDelta(delta), tone: delta >= 0 ? 'ahead' : 'behind' };
 });
 

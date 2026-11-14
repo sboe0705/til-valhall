@@ -280,7 +280,12 @@ export const useSyncStore = defineStore('sync', () => {
 
   /* --- actions --- */
 
-  /** App start: a no-op unless sync is configured and an account is connected. */
+  /**
+   * App start: a no-op unless sync is configured and an account is connected.
+   * An expired token is renewed right away – the popup may appear without a
+   * tap. Should the browser block it, the chip stays on "expired" and a tap
+   * renews it as before; the silent attempt leaves no error behind.
+   */
   async function start(): Promise<void> {
     if (!enabled) return;
     watch();
@@ -288,10 +293,15 @@ export const useSyncStore = defineStore('sync', () => {
     // Already consented – load GIS now so "Fortsetzen" opens its popup instantly.
     void loadGis().catch(() => undefined);
     await sync();
+    if (status.value === 'expired') await signIn({ silent: true });
   }
 
-  /** Sign in, or renew an expired token – both need a tap for Google's popup. */
-  async function signIn(): Promise<void> {
+  /**
+   * Sign in, or renew an expired token. Google's popup normally needs a tap;
+   * `silent` is the start-up renewal, which swallows the error message if the
+   * browser refuses the popup.
+   */
+  async function signIn(options: { silent?: boolean } = {}): Promise<void> {
     if (!enabled) return;
     const before = status.value;
     status.value = 'connecting';
@@ -303,8 +313,9 @@ export const useSyncStore = defineStore('sync', () => {
     } catch (e) {
       status.value = meta.value ? before : 'off';
       const reason = e instanceof Error ? e.message : '';
-      error.value =
-        SIGN_IN_ERRORS[reason] ?? 'Die Anmeldung bei Google ist fehlgeschlagen.';
+      error.value = options.silent
+        ? ''
+        : (SIGN_IN_ERRORS[reason] ?? 'Die Anmeldung bei Google ist fehlgeschlagen.');
       return;
     }
 
@@ -319,7 +330,7 @@ export const useSyncStore = defineStore('sync', () => {
       save({ ...base, token, tokenExpiresAt });
     } catch {
       status.value = meta.value ? 'offline' : 'off';
-      error.value = 'Google ist gerade nicht erreichbar.';
+      error.value = options.silent ? '' : 'Google ist gerade nicht erreichbar.';
       return;
     }
 

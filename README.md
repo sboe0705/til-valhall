@@ -471,8 +471,9 @@ Services, triggers, status).
   rather than replaced by the next Drive change.
 - **No refresh token.** The browser flow issues a ~1 h access token; it is kept
   with its expiry so it survives the reload after a download. Once expired the
-  sync pauses — renewing opens Google's popup, which browsers allow only from a
-  tap, so a tap on the expired "Sync" chip in the Heute header renews it directly.
+  sync pauses. At start the app renews it on its own — Google's popup may show
+  up unprompted. Browsers may block a popup that no tap opened; then the chip
+  stays expired and a tap on it in the Heute header renews it directly.
 - **Nobody else talks to Google.** The GIS script is injected on the first tap
   on "Anmelden" (the sync pill in the Heute header), or at start for an account
   that is already connected.

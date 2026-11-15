@@ -294,10 +294,10 @@ test('an expired sign-in is renewed by the first tap after start', async ({ page
   });
   await page.reload();
   await expect(page.locator('.vh-screen')).toBeVisible();
-  await page.waitForFunction(() => 'google' in window);
+  await page.waitForFunction(() => 'google' in globalThis);
 
   const popups = () =>
-    page.evaluate(() => (window as unknown as { __popups: boolean[] }).__popups);
+    page.evaluate(() => (globalThis as unknown as { __popups: boolean[] }).__popups);
   expect(await popups()).toEqual([]);
 
   // The first tap – on anything – opens the popup, inside the gesture.

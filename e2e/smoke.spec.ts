@@ -253,3 +253,58 @@ test('nobody who has not signed in talks to Google', async ({ page }) => {
 
   expect(google).toEqual([]);
 });
+
+test('an expired sign-in is renewed by the first tap after start', async ({ page }) => {
+  // A stand-in for Google's GIS script: records each popup and whether the
+  // browser would allow it (transient user activation), then reports it closed.
+  await page.route('https://accounts.google.com/gsi/client', (route) =>
+    route.fulfill({
+      contentType: 'text/javascript',
+      body: `
+        window.__popups = [];
+        window.google = { accounts: { oauth2: {
+          initTokenClient: (config) => ({
+            requestAccessToken: () => {
+              window.__popups.push(navigator.userActivation.isActive);
+              setTimeout(() => config.error_callback({ type: 'popup_closed' }));
+            },
+          }),
+          hasGrantedAllScopes: () => true,
+          revoke: () => {},
+        } } };
+      `,
+    }),
+  );
+
+  await page.goto('/heute');
+  await page.evaluate(() => {
+    localStorage.clear();
+    localStorage.setItem(
+      'til-valhall-sync',
+      JSON.stringify({
+        email: 'user@example.com',
+        token: 'stale',
+        tokenExpiresAt: new Date(Date.now() - 60_000).toISOString(),
+        baseVersion: '1',
+        dirty: false,
+        lastEditAt: null,
+        lastSyncedAt: null,
+      }),
+    );
+  });
+  await page.reload();
+  await expect(page.locator('.vh-screen')).toBeVisible();
+  await page.waitForFunction(() => 'google' in window);
+
+  const popups = () =>
+    page.evaluate(() => (window as unknown as { __popups: boolean[] }).__popups);
+  expect(await popups()).toEqual([]);
+
+  // The first tap – on anything – opens the popup, inside the gesture.
+  await tab(page, 'Plan').click();
+  await expect.poll(popups).toEqual([true]);
+
+  // Closed by the user: not forced on them again with every tap.
+  await tab(page, 'Heute').click();
+  expect(await popups()).toEqual([true]);
+});

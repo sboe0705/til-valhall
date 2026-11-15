@@ -44,6 +44,8 @@ export type SyncStatus =
 /* --- Google Identity Services --- */
 
 let gis: Promise<void> | null = null;
+/** Set once the script has run – from then on a popup can open synchronously. */
+let gisReady = false;
 
 /**
  * Inject the GIS script once. Only ever called for a user who signs in or is
@@ -54,7 +56,10 @@ function loadGis(): Promise<void> {
     const script = document.createElement('script');
     script.src = GIS_SRC;
     script.async = true;
-    script.onload = () => resolve();
+    script.onload = () => {
+      gisReady = true;
+      resolve();
+    };
     script.onerror = () => {
       gis = null;
       script.remove();
@@ -65,11 +70,17 @@ function loadGis(): Promise<void> {
   return gis;
 }
 
-/** Opens Google's popup – must run close to a tap, or the browser blocks it. */
-async function requestToken(
-  hint?: string,
-): Promise<google.accounts.oauth2.TokenResponse> {
-  await loadGis();
+/**
+ * Opens Google's popup – must run inside a tap, or the browser blocks it. Once
+ * GIS is loaded the popup opens synchronously, before anything is awaited, so
+ * even a strict browser (Safari) still sees the tap that caused it.
+ */
+function requestToken(hint?: string): Promise<google.accounts.oauth2.TokenResponse> {
+  if (!gisReady) return loadGis().then(() => openTokenPopup(hint));
+  return openTokenPopup(hint);
+}
+
+function openTokenPopup(hint?: string): Promise<google.accounts.oauth2.TokenResponse> {
   return new Promise((resolve, reject) => {
     const client = google.accounts.oauth2.initTokenClient({
       client_id: CLIENT_ID,
@@ -271,38 +282,66 @@ export const useSyncStore = defineStore('sync', () => {
           clearTimeout(timer);
           void sync({ keepalive: true });
         }
-      } else void sync();
+      } else void syncOrRenew();
     });
     window.addEventListener('online', () => {
       if (meta.value) void sync();
     });
   }
 
+  /* --- renewal on the next tap --- */
+
+  let armed = false;
+
+  /**
+   * Browsers open a popup only in response to a tap, so an expired token found
+   * at start (or on returning to the app) cannot be renewed right then. Instead
+   * the first tap anywhere in the app renews it – in the capture phase, before
+   * the tapped control reacts, so the popup opens within the gesture. Armed
+   * once per start or return: a popup the user closes is not forced on them
+   * again with every following tap.
+   */
+  function renewOnNextTap(): void {
+    if (armed || status.value !== 'expired') return;
+    armed = true;
+    const onTap = () => {
+      document.removeEventListener('click', onTap, true);
+      armed = false;
+      if (status.value === 'expired') void signIn({ silent: true });
+    };
+    document.addEventListener('click', onTap, true);
+  }
+
+  /** Reconcile, and if that finds the token expired, renew it on the next tap. */
+  async function syncOrRenew(): Promise<void> {
+    await sync();
+    renewOnNextTap();
+  }
+
   /* --- actions --- */
 
   /**
    * App start: a no-op unless sync is configured and an account is connected.
-   * An expired token is renewed right away – the popup may appear without a
-   * tap. Should the browser block it, the chip stays on "expired" and a tap
-   * renews it as before; the silent attempt leaves no error behind.
+   * An expired token is renewed by the first tap – see `renewOnNextTap()`.
    */
   async function start(): Promise<void> {
     if (!enabled) return;
     watch();
     if (!meta.value) return;
-    // Already consented – load GIS now so "Fortsetzen" opens its popup instantly.
+    // Already consented – load GIS now so the renewing tap opens its popup at once.
     void loadGis().catch(() => undefined);
-    await sync();
-    if (status.value === 'expired') await signIn({ silent: true });
+    await syncOrRenew();
   }
 
   /**
-   * Sign in, or renew an expired token. Google's popup normally needs a tap;
-   * `silent` is the start-up renewal, which swallows the error message if the
-   * browser refuses the popup.
+   * Sign in, or renew an expired token – both need a tap for Google's popup.
+   * `silent` is the renewal on the first tap after start, which leaves no error
+   * message behind if it does not go through; the chip still shows "expired".
+   * A second call while the popup is open is dropped: the renewing tap may land
+   * on the sync chip, which signs in by itself.
    */
   async function signIn(options: { silent?: boolean } = {}): Promise<void> {
-    if (!enabled) return;
+    if (!enabled || status.value === 'connecting') return;
     const before = status.value;
     status.value = 'connecting';
     error.value = '';

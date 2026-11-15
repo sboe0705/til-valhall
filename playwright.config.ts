@@ -36,6 +36,9 @@ export default defineConfig({
     command: 'npm run dev -- --port ' + PORT,
     url: BASE_URL,
     reuseExistingServer: !process.env.CI,
+    // A dummy OAuth client switches the Drive sync on, so its start-up path is
+    // covered too. Google itself is never reached: the GIS script is faked.
+    env: { VITE_GOOGLE_CLIENT_ID: 'e2e-client' },
     timeout: 120_000,
   },
 });

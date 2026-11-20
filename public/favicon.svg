@@ -1,7 +1,9 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" width="64" height="64" role="img" aria-label="Til Valhall">
   <rect width="64" height="64" rx="14" fill="#0F1416"/>
-  <g fill="none" stroke="#D4A537" stroke-width="6" stroke-linecap="square" stroke-linejoin="miter">
-    <path d="M32 19 V 50"/>
-    <path d="M22 29 L 32 18 L 42 29"/>
+  <!-- Valknut: three interlocking triangles -->
+  <g fill="none" stroke="#D4A537" stroke-width="4" stroke-linejoin="miter">
+    <path d="M32 23.8 L16.4 50.8 L47.6 50.8 Z"/>
+    <path d="M38.1 13.2 L22.5 40.2 L53.7 40.2 Z"/>
+    <path d="M25.9 13.2 L10.3 40.2 L41.5 40.2 Z"/>
   </g>
 </svg>
